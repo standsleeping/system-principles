@@ -1,6 +1,6 @@
 # Testing
 
-This document describes the testing infrastructure for this generic web application template.
+This document describes the testing infrastructure for a typical web application.
 
 ## Overview
 
@@ -15,13 +15,12 @@ The project includes comprehensive tests covering all major functionality:
 ## Test Architecture
 
 ### Test Organization
-- **Centralized fixtures**: All fixtures in `tests/fixtures.py`
+- **Centralized fixtures**: All test-supporting code in a single `tests/fixtures.py`
 - **Boundary mocking**: External systems mocked in `tests/boundaries.py`
 - **1:1:1 rule**: One function per file, one test file per function
 - **No test classes**: Flat pytest functions for simplicity
 
 ### Storage & Database Testing
-- **In-memory stores**: Fake implementations for fast unit tests
 - **Real database tests**: PostgreSQL with Alembic migrations
 - **Automatic cleanup**: Database fixtures handle setup/teardown
 - **Test isolation**: Each test runs with clean state
