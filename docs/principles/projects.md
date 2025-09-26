@@ -1,6 +1,6 @@
 # Projects
 
-Python projects follow a strict set of rules for development. Principles for the overall system architecture, file structure, testing guidelines, and style rules must be followed closely.
+Principles for the overall system architecture, file structure, testing guidelines, and coding style should be studied closely.
 
 Please also refer to README.md at the project root for details about the purpose of this project, how it is organized and configured, and for specific usage examples.
 
@@ -139,7 +139,7 @@ Fixtures are ALWAYS centralized and shared in tests/fixtures.py. No exceptions.
 
 Tests focus on input/output pairs for our functional codebase. Single pytest assertion per test where possible. Never patch/mock/stub code (see below).
 
-## Mocking Rules
+## Mocking
 
 ### [MR1] Never mock application code.
 
@@ -226,7 +226,7 @@ Translator functions (either units or integrators) sit at system or package boun
 - Pass, don't execute: Return properly typed domain objects for other functions to use.
 - No domain operations: Never call domain functions directly, leave that to the calling context.
 
-## Style Rules
+## Style
 
 ### [SR1] Functional programming patterns.
 
@@ -246,7 +246,7 @@ Translator functions (either units or integrators) sit at system or package boun
 - Never use `if TYPE_CHECKING`.
 - Never use `# type: ignore[xyz]`.
 
-## Typing Rules
+## Types
 
 We always follow modern Python typing conventions and avoid legacy typing patterns.
 

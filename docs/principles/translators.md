@@ -219,7 +219,7 @@ async def handle_request[TCommand](
     return Response({"result": result}, status=200)
 ```
 
-## Rule Summary
+## Summary
 
 ### Translators should:
 

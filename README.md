@@ -1,6 +1,6 @@
 # Prompting
 
-A collection of rules for AI coding assistants.
+A collection of design principles for AI coding assistants.
 
 ## Commands
 

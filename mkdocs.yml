@@ -1,13 +1,13 @@
-site_name: Prompting
+site_name: System Principles
 
 theme:
   name: readthedocs
 
 nav:
   - Home: index.md
-  - Rules:
-    - Design: rules/design.md
-    - Projects: rules/projects.md
-    - Testing: rules/testing.md
-    - Dependencies: rules/dependencies.md
-    - Translators: rules/translators.md
+  - Principles:
+    - Design: principles/design.md
+    - Projects: principles/projects.md
+    - Testing: principles/testing.md
+    - Dependencies: principles/dependencies.md
+    - Translators: principles/translators.md

@@ -10,4 +10,6 @@ wheels/
 .venv
 
 # Other
+.DS_Store
+.mypy_cache/
 planning/
