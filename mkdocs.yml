@@ -2,3 +2,12 @@ site_name: Prompting
 
 theme:
   name: readthedocs
+
+nav:
+  - Home: index.md
+  - Rules:
+    - Design: rules/design.md
+    - Projects: rules/projects.md
+    - Testing: rules/testing.md
+    - Dependencies: rules/dependencies.md
+    - Translators: rules/translators.md

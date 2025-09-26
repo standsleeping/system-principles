@@ -45,6 +45,7 @@ The `--exclude-exact` flag removes the package's `__init__.py` from the visualiz
 ### Understanding pydeps Visualization
 
 In the generated SVG diagrams:
+
 - **Blue boxes (rectangles)**: Modules that import other modules within the analyzed scope. These are typically integrators that orchestrate or use other modules.
 - **Red ovals (ellipses)**: Modules with no dependencies within the analyzed scope. These are typically units or leaf nodes that are self-contained and don't import other modules from the package.
 
