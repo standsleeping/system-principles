@@ -11,3 +11,4 @@ nav:
     - Testing: principles/testing.md
     - Dependencies: principles/dependencies.md
     - Translators: principles/translators.md
+    - Mocking: principles/mocking.md
