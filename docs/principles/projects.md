@@ -111,6 +111,17 @@ Translators must transform `dict[str, Any]` from requests into properly typed do
 
 See [translators.md](translators.md) for detailed implementation guidelines.
 
+### [BT4] Parse, don't validate (boundary scope)
+
+- Translators SHOULD build context-free proofs: presence/shape, normalization, simple formats (UUID, ISO date, email syntax), and cross-field form invariants that require no I/O (e.g., password == confirm).
+- Translators MUST NOT implement policy/stateful checks: uniqueness, invites, quotas/rate limits, time-based rules, or config-driven policies (e.g., password strength).
+- Prefer strengthening inputs over weakening outputs: construct proof-carrying values (e.g., `EmailAddress`, `ConfirmedPassword`) and return a typed `...Input` object on success.
+- Validators should look like parsers: return proof-carrying values, not booleans.
+
+Acceptance checks:
+- No domain function accepts raw transport primitives when a proof-carrying type exists.
+- No boolean-returning `validate_*` helpers for boundary form checks remain; translators return typed values or structured errors.
+
 ## Testing
 
 Testing is critical in this project and often informs how subsystems are designed.
