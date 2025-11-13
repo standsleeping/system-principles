@@ -167,3 +167,9 @@ Make illegal states unrepresentable:
 6. Input parsing is not business logic. Keep them distinct!
 
 Chase runtime checks all the way upstream. Ask at every boundary line what conditions upstream allow for this runtime check to be necessary. If you chase it all the way upstream to the interface, you'll end up with a more clear, more explicit, easier to use API for your users. You have successfully made invalid states unrepresentable.
+
+### Strengthen inputs, don't weaken outputs
+
+- Prefer making functions total by strengthening parameter types (e.g., `NonEmptyList[T]`) rather than weakening return types to `| None`.
+- Parse into precise types at the boundary or immediately at branch entry when a branch needs stronger invariants.
+- Build proofs once and carry them forward in types; avoid repeating boolean checks.
