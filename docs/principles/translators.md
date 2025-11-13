@@ -68,6 +68,22 @@ def db_row_to_domain_translator(row: dict[str, object]) -> User:
     return User(id=uuid.UUID(row["id"]), email=row["email"])
 ```
 
+### Scope of translator checks
+
+Translators build context-free proofs; domain actions enforce policy and stateful rules.
+
+- Translators SHOULD enforce (context-free):
+  - Presence and basic normalization (trim/case-fold), simple formats (UUIDs, ISO dates, email syntax).
+  - Cross-field form invariants that require no I/O (e.g., password == confirmation, exactly-one-of).
+  - Smart constructors that only produce proof-carrying values on success (e.g., `EmailAddress`, `ConfirmedPassword`).
+- Translators MUST NOT enforce (business/stateful):
+  - Email uniqueness, invite validity, quotas/rate limits, time-based rules, or policy like password strength.
+  - Anything requiring repositories, configuration, or clocks.
+
+Signup split:
+- Translator (HTTP → SignUpInput): produces `SignUpInput = { email: EmailAddress, password: ConfirmedPassword, terms: AcceptedTerms }` or structured errors.
+- Domain action: checks strength policy, uniqueness, eligibility/invites, then performs effects.
+
 ### [PBC3] Validate structure, not business rules.
 
 Translators check that data has the right shape and types. Domain validators check business rules.

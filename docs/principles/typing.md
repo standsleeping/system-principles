@@ -73,6 +73,31 @@ match grades.get("Alice"):
 
 For domain logic that changes frequently, consider data-driven dispatch instead (see `design.md` Logic, Values).
 
+## *Parse* into stronger types (don't *validate* to booleans)
+
+Validation returns booleans; parsing returns stronger types that carry the proof forward.
+
+Strengthen inputs rather than weakening outputs, and carry proofs forward in types.
+
+- Prefer strengthening inputs: instead of `foo(xs: list[T]) -> T | None`, use `foo(xs: NonEmptyList[T]) -> T`.
+- Parse at the edge (or at the branch) into types that encode form-level invariants; avoid scattering boolean checks.
+- Push proof upward, but no further: construct the most precise type needed for the next computation step; don’t over-parse.
+- Validators should look like parsers: return proof-carrying values, not booleans.
+
+Naming guidance (keep it simple):
+- Raw external: `...Request` or `...FormData`
+- Parsed and safe for domain: `...Input`
+- Proof-carrying parts: `EmailAddress`, `ConfirmedPassword`, `AcceptedTerms`
+
+Example signature shift:
+```python
+# Before: weak output, callers handle None
+def head(xs: list[T]) -> T | None: ...
+
+# After: strong input, total function
+def head(xs: NonEmptyList[T]) -> T: ...
+```
+
 ## Explicit State Modeling
 
 Boolean fields in data models indicate missing domain concepts.
