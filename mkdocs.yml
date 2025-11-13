@@ -7,6 +7,7 @@ nav:
   - Home: index.md
   - Principles:
     - Design: principles/design.md
+    - Polymorphism: principles/polymorphism.md
     - Projects: principles/projects.md
     - Testing: principles/testing.md
     - Dependencies: principles/dependencies.md
