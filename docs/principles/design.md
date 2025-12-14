@@ -132,6 +132,8 @@ Use a result structure (`EffectResult`) to store the results of any operation wh
 
 ## Logic
 
+**Do not store knowledge as control flow.**
+
 Each `if` encodes an assumption and a decision.
 
 Local branching couples code to context. It hardens behavior and raises change cost.

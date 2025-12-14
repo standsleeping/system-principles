@@ -5,7 +5,7 @@ This document provides balanced, principles-driven guidance for structuring poly
 ## Principles
 
 ### [PD1] Separate decisions from behavior.
-Keep the choice of what to do (the decision) separate from how to do it (the behavior). Prefer data-driven dispatch tables (decisions as data) or interpreters, vs. embedding decisions in match statements or method overrides. Prefer representing domain as plain data with behavior in functions, and make time/identity explicit inputs rather than hidden globals.
+Do not store knowledge as control flow. Keep the choice of what to do (the decision) separate from how to do it (the behavior). Prefer data-driven dispatch tables (decisions as data) or interpreters, vs. embedding decisions in match statements or method overrides. Prefer representing domain as plain data with behavior in functions, and make time/identity explicit inputs rather than hidden globals.
 
 Example (move decision out of control flow):
 
