@@ -12,6 +12,8 @@ Translators exist solely to convert data at system boundaries. They validate str
 
 A translator transforms data representations. It never performs business logic, makes decisions, or triggers side effects.
 
+The most common pattern is converting **Interchange Data** (TypedDicts) to **Domain Data** (Dataclasses).
+
 ```python
 # Good: pure conversion
 def http_to_domain_translator(
@@ -46,7 +48,7 @@ Translators return conversion errors as values, not exceptions. Use tuple return
 ```python
 # Good: errors as values
 def db_row_to_domain_translator(
-    row: dict[str, object]
+    row: UserRowDict
 ) -> tuple[TranslatorError | None, User | None]:
     if not row:
         return TranslatorError("Empty row"), None
@@ -241,7 +243,7 @@ When translating domain objects to external formats, use domain concepts in the 
 # Domain → External API
 def domain_to_api_translator(
     order: Order
-) -> tuple[TranslatorError | None, dict[str, object] | None]:
+) -> tuple[TranslatorError | None, OrderApiDict | None]:
     try:
         return None, {
             "orderId": str(order.id),

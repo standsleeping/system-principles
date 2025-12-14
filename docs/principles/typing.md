@@ -73,6 +73,81 @@ match grades.get("Alice"):
 
 For domain logic that changes frequently, consider data-driven dispatch instead (see `design.md` Logic, Values).
 
+## No Casting
+
+Casting (`cast(Type, val)`) tells the type checker to ignore reality and trust you. It silences valid warnings and hides bugs.
+
+### [NC1] Fix the upstream type.
+
+If you need to cast, it means the upstream type is wrong or too loose. Fix the source definition.
+
+### [NC2] Use runtime narrowing.
+
+If the type is loose (`Any`, `object`, or a union) because it comes from an external source, use `isinstance()` checks to narrow it. The type checker will then "know" the type is correct in that branch.
+
+```python
+# Bad: Silencing the checker
+val = cast(str, data["name"])
+
+# Good: Runtime verification
+val = data.get("name")
+if isinstance(val, str):
+    # val is known to be str here
+    process(val)
+```
+
+## Domain Data vs Interchange Data
+
+Distinguish between how data is represented *inside* your domain vs. how it is represented *at the boundaries*.
+
+### [DDI1] Use TypedDict for interchange.
+
+**Use for**: JSON blobs, API requests/responses, database rows, configuration files.
+
+`TypedDict` is a "shape" (structural type). It says "this dictionary has these keys".
+- **Pros**: Serializes natively to JSON. compatible with external systems that speak "dict".
+- **Cons**: No methods, no properties, no invariants (a negative radius is valid int), clumsy for deep nesting.
+- **Feature**: Can be `total=False` (partial), useful for patch requests or sparse data.
+
+```python
+class UserPayload(TypedDict):
+    id: str
+    email: str
+    # No guarantees that email is valid, just that it's a string.
+```
+
+### [DDI2] Use Dataclasses for domain.
+
+**Use for**: Business entities, value objects, internal logic.
+
+`Dataclasses` are "types" (nominal type). They say "this is a User".
+- **Pros**: Can enforce invariants (`__post_init__`), have properties (`@property`), methods, and identity.
+- **Cons**: Need serialization steps to leave the system.
+- **Feature**: `frozen=True` makes them hashable and immutable, perfect for passing around safely.
+
+```python
+@dataclass(frozen=True)
+class User:
+    id: UUID
+    email: EmailAddress  # Refined type!
+    
+    @property
+    def domain(self) -> str:
+        return self.email.split("@")[1]
+```
+
+### [DDI3] Translators bridge the gap.
+
+Don't let `TypedDict`s leak deep into the domain. Parse them into Dataclasses at the boundary.
+
+**Input Flow**: `External JSON` → `TypedDict` → `Translator` → `Dataclass`
+- The translator validates structure (`TypedDict`) and parses values (str → UUID).
+- The Dataclass constructor guarantees the object is valid.
+
+**Output Flow**: `Dataclass` → `Translator` → `TypedDict` → `External JSON`
+- The translator converts rich types (UUID) back to primitives (str).
+- The `TypedDict` ensures the output shape matches the API contract.
+
 ## *Parse* into stronger types (don't *validate* to booleans)
 
 Validation returns booleans; parsing returns stronger types that carry the proof forward.

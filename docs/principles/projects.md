@@ -88,7 +88,13 @@ At the same level as the functions and data, there may also exist subpackages wi
 
 A critical aspect of hexagonal architecture is proper boundary management between layers.
 
-### [BT1] No dict[str, Any] in domain.
+### [BT1] TypedDict at boundaries.
+
+Never use `dict[str, Any]` or `dict[str, object]`.
+
+- **At boundaries**: Use `TypedDict` to model JSON structure precisely. It provides type checking, autocomplete, and documentation while remaining a plain dict at runtime.
+- **In domain**: Use `dataclasses` for rich domain objects.
+- **Migration**: If you find `dict[str, Any]`, replace it with a `TypedDict` definition immediately.
 
 When `dict[str, Any]` types propagate deeper into the codebase beyond initial entry points, boundaries are not properly defined. This causes:
 
@@ -293,6 +299,12 @@ We always follow modern Python typing conventions and avoid legacy typing patter
 - Handle errors explicitly, so all possible outcomes are visible in the type signature.
 - Domain functions should never throw, making them predictable.
 - Test both success and failure paths without exception handling.
+
+### [TR6] No casting.
+
+- **Rule**: `cast()` is forbidden.
+- **Reasoning**: It overrides the type checker and hides bugs.
+- **Solution**: Use `isinstance()` checks to narrow types at runtime. If the type checker doesn't know the type, it means your code doesn't know the type either. Prove it.
 
 ## Progress
 
