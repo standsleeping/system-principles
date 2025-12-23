@@ -265,13 +265,33 @@ def mock_session(session_data: dict[str, Any] | None = None):
 
 
 @contextmanager
-def mock_env(variables: dict[str, str] | None = None, clear_prefix: str | None = None):
+def mock_env(
+    variables: dict[str, str] | None = None,
+    clear_prefix: str | None = None,
+    path_prepend: list[str | Path] | None = None,
+    path_append: list[str | Path] | None = None,
+):
     """
     Context manager for mocking environment variables.
 
     Args:
         variables: Dictionary of environment variables to set
         clear_prefix: Clear all env vars starting with this prefix
+        path_prepend: Paths to prepend to PATH (preserves existing PATH)
+        path_append: Paths to append to PATH (preserves existing PATH)
+
+    Examples:
+        # Replace PATH entirely (fragile, may break system utilities)
+        with mock_env({"PATH": "/custom/bin"}):
+            subprocess.run(["my_tool"])
+
+        # Prepend to PATH (preferred, preserves system utilities)
+        with mock_env(path_prepend=["/custom/bin"]):
+            subprocess.run(["my_tool"])
+
+        # Combine with other env vars
+        with mock_env({"DEBUG": "1"}, path_prepend=[lean_bin]):
+            subprocess.run(["lake", "build"])
     """
     # Save current environment
     env_backup = os.environ.copy()
@@ -288,6 +308,21 @@ def mock_env(variables: dict[str, str] | None = None, clear_prefix: str | None =
             for key, value in variables.items():
                 os.environ[key] = value
 
+        # Handle PATH modifications (after variables, so explicit PATH wins)
+        if path_prepend or path_append:
+            current_path = os.environ.get("PATH", "")
+            path_parts = current_path.split(os.pathsep) if current_path else []
+
+            if path_prepend:
+                prepend_parts = [str(p) for p in path_prepend]
+                path_parts = prepend_parts + path_parts
+
+            if path_append:
+                append_parts = [str(p) for p in path_append]
+                path_parts = path_parts + append_parts
+
+            os.environ["PATH"] = os.pathsep.join(path_parts)
+
         yield
 
     finally:
@@ -296,12 +331,289 @@ def mock_env(variables: dict[str, str] | None = None, clear_prefix: str | None =
         os.environ.update(env_backup)
 
 
+# ==============================================================================
+# Subprocess
+# ==============================================================================
+
+
+@dataclass
+class MockSubprocessResult:
+    """Represents a mocked subprocess result."""
+
+    returncode: int = 0
+    stdout: str = ""
+    stderr: str = ""
+
+
+class SubprocessMocker:
+    """
+    Mocker for subprocess.run calls.
+
+    Registers command patterns and returns mock results when matched.
+    Commands are matched by prefix (the registered pattern must be a prefix
+    of the actual command).
+    """
+
+    def __init__(self):
+        self._mocks: list[tuple[list[str], MockSubprocessResult]] = []
+        self._calls: list[list[str]] = []
+
+    def mock_run(
+        self,
+        command: list[str],
+        result: MockSubprocessResult,
+    ) -> None:
+        """
+        Register a mock response for a command.
+
+        Args:
+            command: Command prefix to match (e.g., ["lake", "build"])
+            result: MockSubprocessResult to return when matched
+        """
+        self._mocks.append((command, result))
+
+    def _find_mock(self, command: list[str]) -> MockSubprocessResult | None:
+        """Find a mock that matches the command prefix."""
+        for pattern, result in self._mocks:
+            if len(command) >= len(pattern) and command[: len(pattern)] == pattern:
+                return result
+        return None
+
+    def _handle_call(self, command: list[str], **kwargs) -> MockSubprocessResult:
+        """Handle a subprocess.run call."""
+        self._calls.append(command)
+        result = self._find_mock(command)
+        if result is None:
+            raise ValueError(
+                f"No mock registered for command: {command}\n"
+                f"Registered mocks: {[m[0] for m in self._mocks]}"
+            )
+        return result
+
+    @property
+    def calls(self) -> list[list[str]]:
+        """Return list of commands that were called."""
+        return self._calls.copy()
+
+    def assert_called_with(self, command: list[str]) -> None:
+        """Assert that a specific command was called."""
+        if command not in self._calls:
+            raise AssertionError(
+                f"Command {command} was not called.\nActual calls: {self._calls}"
+            )
+
+
+@contextmanager
+def mock_subprocess():
+    """
+    Context manager for mocking subprocess.run calls.
+
+    Use this for unit tests where you want to avoid running real subprocesses.
+    For integration tests that run real subprocesses, use mock_env with
+    path_prepend instead.
+
+    Example:
+        with mock_subprocess() as proc:
+            proc.mock_run(
+                ["lake", "build"],
+                MockSubprocessResult(returncode=0, stdout="Build successful"),
+            )
+            proc.mock_run(
+                ["lake", "build", "--error"],
+                MockSubprocessResult(returncode=1, stderr="Build failed"),
+            )
+
+            # Your code that calls subprocess.run(["lake", "build", ...])
+            result = my_function_that_runs_subprocess()
+
+            # Verify calls
+            proc.assert_called_with(["lake", "build"])
+    """
+    import subprocess
+
+    mocker = SubprocessMocker()
+    original_run = subprocess.run
+
+    def mock_run(args, **kwargs):
+        cmd = list(args) if not isinstance(args, list) else args
+        result = mocker._handle_call(cmd, **kwargs)
+
+        # Create a CompletedProcess-like object
+        return subprocess.CompletedProcess(
+            args=cmd,
+            returncode=result.returncode,
+            stdout=result.stdout if kwargs.get("capture_output") or kwargs.get("stdout") else None,
+            stderr=result.stderr if kwargs.get("capture_output") or kwargs.get("stderr") else None,
+        )
+
+    with patch("subprocess.run", mock_run):
+        yield mocker
+
+
+@dataclass
+class SubprocessInput:
+    """
+    Input configuration for subprocess execution with temporary files.
+
+    Attributes:
+        content: Content to write to the temporary file
+        suffix: File extension (e.g., ".lean", ".py", ".txt")
+        filename: Optional specific filename (otherwise auto-generated)
+    """
+
+    content: str
+    suffix: str = ".txt"
+    filename: str | None = None
+
+
+class SubprocessError(Exception):
+    """Raised when subprocess execution fails."""
+
+    def __init__(self, message: str, result: "subprocess.CompletedProcess | None" = None):
+        super().__init__(message)
+        self.result = result
+
+
+@contextmanager
+def subprocess_with_tempfile(
+    command_template: list[str],
+    input_data: SubprocessInput,
+    cwd: Path | None = None,
+    env_path_prepend: list[str | Path] | None = None,
+    timeout: int = 30,
+):
+    """
+    Run subprocess with temporary input file and automatic cleanup.
+
+    The command_template should contain "{input_file}" as a placeholder
+    for the temporary file path.
+
+    Args:
+        command_template: Command with "{input_file}" placeholder
+        input_data: SubprocessInput with content and file settings
+        cwd: Working directory for the subprocess
+        env_path_prepend: Paths to prepend to PATH for the subprocess
+        timeout: Timeout in seconds
+
+    Yields:
+        subprocess.CompletedProcess result
+
+    Example:
+        input_data = SubprocessInput(
+            content="import Mathport\\n#export_json x + 1",
+            suffix=".lean",
+        )
+
+        with subprocess_with_tempfile(
+            command_template=["lake", "env", "lean", "{input_file}"],
+            input_data=input_data,
+            cwd=mathport_path,
+            env_path_prepend=[elan_bin],
+        ) as result:
+            if result.returncode == 0:
+                output = json.loads(result.stdout)
+    """
+    import subprocess
+    from tempfile import NamedTemporaryFile
+
+    # Create temp file with appropriate suffix
+    with NamedTemporaryFile(
+        mode="w",
+        suffix=input_data.suffix,
+        delete=False,
+    ) as tmp:
+        tmp.write(input_data.content)
+        tmp_path = Path(tmp.name)
+
+    try:
+        # Build command with temp file path
+        command = [
+            arg.replace("{input_file}", str(tmp_path)) if isinstance(arg, str) else arg
+            for arg in command_template
+        ]
+
+        # Run with optional PATH modification
+        with mock_env(path_prepend=env_path_prepend):
+            result = subprocess.run(
+                command,
+                cwd=cwd,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+            )
+
+        yield result
+
+    finally:
+        # Clean up temp file
+        tmp_path.unlink(missing_ok=True)
+
+
+def parse_subprocess_json(
+    result: "subprocess.CompletedProcess",
+    line_index: int = 0,
+) -> dict | list:
+    """
+    Parse JSON from subprocess stdout.
+
+    Args:
+        result: CompletedProcess from subprocess.run
+        line_index: Which line of stdout to parse (default: first line)
+
+    Returns:
+        Parsed JSON as dict or list
+
+    Raises:
+        SubprocessError: If command failed or output is not valid JSON
+
+    Example:
+        result = subprocess.run(["my_tool", "--json"], capture_output=True, text=True)
+        data = parse_subprocess_json(result)
+    """
+    if result.returncode != 0:
+        raise SubprocessError(
+            f"Command failed with return code {result.returncode}\n"
+            f"stderr: {result.stderr}",
+            result=result,
+        )
+
+    if not result.stdout:
+        raise SubprocessError(
+            "Command produced no output",
+            result=result,
+        )
+
+    lines = result.stdout.strip().split("\n")
+    if line_index >= len(lines):
+        raise SubprocessError(
+            f"Output has only {len(lines)} lines, cannot get line {line_index}\n"
+            f"stdout: {result.stdout}",
+            result=result,
+        )
+
+    try:
+        return json.loads(lines[line_index])
+    except json.JSONDecodeError as e:
+        raise SubprocessError(
+            f"Invalid JSON on line {line_index}: {e}\n"
+            f"Content: {lines[line_index][:200]}...",
+            result=result,
+        ) from e
+
+
+# ==============================================================================
+# Combined Boundaries
+# ==============================================================================
+
+
 @contextmanager
 def mock_boundaries(
     http_mocks: dict[str, MockHttpResponse] | None = None,
     filesystem: MockFileSystem | None = None,
     env_vars: dict[str, str] | None = None,
     clear_env_prefix: str | None = None,
+    env_path_prepend: list[str | Path] | None = None,
+    env_path_append: list[str | Path] | None = None,
     session_data: dict[str, Any] | None = None,
 ):
     """
@@ -312,6 +624,8 @@ def mock_boundaries(
         filesystem: MockFileSystem structure to create
         env_vars: Environment variables to set
         clear_env_prefix: Clear env vars with this prefix
+        env_path_prepend: Paths to prepend to PATH
+        env_path_append: Paths to append to PATH
         session_data: Session data to set
 
     Yields:
@@ -324,6 +638,11 @@ def mock_boundaries(
                 http_mocker.mock_any(url, response)
 
         with mock_filesystem(filesystem) as fs_path:
-            with mock_env(env_vars, clear_env_prefix):
+            with mock_env(
+                env_vars,
+                clear_env_prefix,
+                path_prepend=env_path_prepend,
+                path_append=env_path_append,
+            ):
                 with mock_session(session_data) as session:
                     yield http_mocker, fs_path, session
