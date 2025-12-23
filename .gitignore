@@ -13,3 +13,4 @@ wheels/
 .DS_Store
 .mypy_cache/
 planning/
+projects.md
