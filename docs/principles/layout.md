@@ -67,9 +67,11 @@ layout (overflow: hidden)
 └── footer (fixed height, no scroll)
 ```
 
-## [LY5] Container Boundary Rule
+## [LY5] Boundary Ownership
 
-**The container owns the border; the child provides the padding.**
+Components own their own visual boundaries. This applies to both parent/child and sibling relationships.
+
+### Parent/Child: Container Owns Border, Child Owns Padding
 
 When a container has structural borders (separating header from content, for example), the container defines those borders. Children provide their own internal padding.
 
@@ -88,6 +90,27 @@ This allows "flush" variants where children fill edge-to-edge:
   border-bottom: 1px solid var(--gray-200);
 }
 ```
+
+### Siblings: Each Component Completes Itself
+
+When two components sit adjacent, each should be visually complete in isolation. A component shouldn't rely on its neighbor to provide its visual edge.
+
+**Test**: If you render each component alone, which one looks incomplete?
+
+```
+nav (no bottom border)     →  looks unfinished
+content (no top border)    →  looks fine
+```
+
+The nav owns the border because it's incomplete without it:
+
+```css
+nav {
+  border-bottom: 1px solid var(--gray-200);
+}
+```
+
+The content area shouldn't add a top border to compensate for the nav's missing boundary. That creates implicit coupling: the content "knows" something is above it and adapts accordingly.
 
 ## [LY6] Empty State Collapse
 
@@ -196,3 +219,43 @@ nav {
 ```
 
 This creates a single source of truth. But prefer the flexbox approach: it eliminates the variable entirely.
+
+## [LY9] Beware Common Layout Quirks
+
+CSS has behaviors that cause unexpected spacing. These don't appear as margin or padding in DevTools, making them hard to diagnose. When debugging mysterious gaps, check for these quirks.
+
+### Inline-Block Baseline Gaps
+
+Form elements (`textarea`, `input`, `select`) and replaced elements (`img`, `video`) default to `display: inline-block`. Inline-block elements sit on the text baseline, leaving space below for text descenders (the tails on g, y, p).
+
+```
+┌─────────────────────────────┐
+│  textarea                   │
+└─────────────────────────────┘
+     ← ~5px gap (descender space)
+┌─────────────────────────────┐
+│  .controls                  │
+└─────────────────────────────┘
+```
+
+**Fix**: Set `display: block` on form elements in layout contexts:
+
+```css
+.my-textarea {
+  display: block;
+}
+```
+
+Or use `vertical-align: top` to stay inline without the gap.
+
+Note: Elements in flex/grid containers are blockified automatically, so this quirk doesn't occur there.
+
+### 100vw Includes Scrollbar Width
+
+`width: 100vw` includes the scrollbar width on platforms with visible scrollbars, causing horizontal overflow. Prefer `width: 100%` or flex/grid layouts.
+
+### Margin Collapsing
+
+Adjacent vertical margins collapse to the larger value. Parent and child margins also collapse if nothing separates them (no padding, border, or content). This causes unexpected spacing and elements "escaping" their containers.
+
+**Fix**: Use padding instead of margin, or use flex/grid (which disables margin collapsing).
