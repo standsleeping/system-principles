@@ -1,11 +1,14 @@
 site_name: System Principles
 
+dev_addr: localhost:9201
+
 theme:
   name: readthedocs
 
 nav:
   - Home: index.md
   - Principles:
+    - Index: principles/index.md
     - Design: principles/design.md
     - Polymorphism: principles/polymorphism.md
     - Projects: principles/projects.md
@@ -13,3 +16,6 @@ nav:
     - Dependencies: principles/dependencies.md
     - Translators: principles/translators.md
     - Mocking: principles/mocking.md
+    - Layout: principles/layout.md
+    - Visual Design: principles/visual-design.md
+    - UI Tooling: principles/ui-tooling.md
