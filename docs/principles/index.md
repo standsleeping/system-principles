@@ -6,6 +6,82 @@ Organized from foundational design principles to specific implementation pattern
 
 ---
 
+## Design
+
+### Boundaries (BD)
+
+| Tag | Principle |
+|-----|-----------|
+| [BD1](design.md#bd1-start-simple-add-useful-complexity) | Start simple, add useful complexity |
+| [BD2](design.md#bd2-structure-reflects-sources-of-change) | Structure reflects sources of change |
+| [BD3](design.md#bd3-only-two-types-of-change-provide-more-require-less) | Only two types of change: provide more, require less |
+| [BD4](design.md#bd4-a-module-is-a-hidden-decision) | A module is a hidden decision |
+| [BD5](design.md#bd5-design-is-not-workflow) | Design is not workflow |
+| [BD6](design.md#bd6-framework-for-design) | Framework for design |
+
+### Values (VL)
+
+| Tag | Principle |
+|-----|-----------|
+| [VL1](design.md#vl1-depend-on-values-not-behaviors) | Depend on values, not behaviors |
+| [VL2](design.md#vl2-state-entangles-values-and-time) | State entangles values and time |
+
+### Abstraction (AB)
+
+| Tag | Principle |
+|-----|-----------|
+| [AB1](design.md#ab1-see-entanglement-not-hiding) | See entanglement, not hiding |
+| [AB2](design.md#ab2-untangle-the-six-aspects) | Untangle the six aspects |
+| [AB3](design.md#ab3-reduce-interleaving-to-simplify) | Reduce interleaving to simplify |
+| [AB4](design.md#ab4-test-simplicity-by-reassembly) | Test simplicity by reassembly |
+
+### Cognitive Load (CL)
+
+| Tag | Principle |
+|-----|-----------|
+| [CL1](design.md#cl1-use-working-memory-as-your-complexity-limit) | Use working memory as your complexity limit |
+| [CL2](design.md#cl2-name-the-aspects-to-pull-them-apart) | Name the aspects to pull them apart |
+
+### Change (CH)
+
+| Tag | Principle |
+|-----|-----------|
+| [CH1](design.md#ch1-allow-only-accretion-and-relaxation) | Allow only accretion and relaxation |
+| [CH2](design.md#ch2-never-mutate-create-new-with-new-names) | Never mutate; create new with new names |
+| [CH3](design.md#ch3-provide-more-by-strengthening-outputs) | Provide more by strengthening outputs |
+| [CH4](design.md#ch4-require-less-by-relaxing-inputs) | Require less by relaxing inputs |
+
+### Events (EV)
+
+| Tag | Principle |
+|-----|-----------|
+| [EV1](design.md#ev1-store-facts-with-time) | Store facts with time |
+
+### Effects (EF)
+
+| Tag | Principle |
+|-----|-----------|
+| [EF1](design.md#ef1-capture-time-dependent-results-explicitly) | Capture time-dependent results explicitly |
+
+### Logic (LG)
+
+| Tag | Principle |
+|-----|-----------|
+| [LG1](design.md#lg1-do-not-store-knowledge-as-control-flow) | Do not store knowledge as control flow |
+| [LG2](design.md#lg2-hoist-decisions-toward-rule-sets) | Hoist decisions toward rule sets |
+| [LG3](design.md#lg3-treat-decisions-as-data) | Treat decisions as data |
+| [LG4](design.md#lg4-encode-predicates-in-the-model) | Encode predicates in the model |
+
+### Design Types (DT)
+
+| Tag | Principle |
+|-----|-----------|
+| [DT1](design.md#dt1-make-illegal-states-unrepresentable) | Make illegal states unrepresentable |
+| [DT2](design.md#dt2-chase-runtime-checks-upstream) | Chase runtime checks upstream |
+| [DT3](design.md#dt3-strengthen-inputs-dont-weaken-outputs) | Strengthen inputs, don't weaken outputs |
+
+---
+
 ## Projects
 
 ### State & Architecture (SA)
