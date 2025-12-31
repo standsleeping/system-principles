@@ -254,3 +254,306 @@ After presenting data, state the key insight explicitly:
 > `main` with `flex: 1` automatically takes `720 - 61 = 659px`. No hardcoded values needed.
 
 This connects the raw measurements to the underlying principle being demonstrated.
+
+## [UT10] Headless Console Debugging
+
+Use Playwright to programmatically check for JavaScript errors without opening a browser. This catches broken imports, runtime exceptions, and failed network requests that silently break UI functionality.
+
+### The Problem
+
+JavaScript module loading fails silently from the user's perspective. A single broken import can prevent an entire application from initializing, leaving the UI empty with no visible error. Manual browser inspection is slow and easy to forget.
+
+### The Technique
+
+Run a headless browser that captures console errors and failed requests:
+
+```python
+from playwright.sync_api import sync_playwright
+
+def check_page_for_errors(url: str) -> dict:
+    """Check a page for JS errors and failed requests."""
+    errors = []
+    failed_requests = []
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+
+        # Capture console errors
+        page.on('console', lambda msg:
+            errors.append(msg.text) if msg.type == 'error' else None)
+        page.on('pageerror', lambda err:
+            errors.append(f'Page error: {err}'))
+
+        # Capture failed network requests
+        page.on('requestfailed', lambda req:
+            failed_requests.append(f'{req.url} - {req.failure}'))
+
+        page.goto(url, timeout=5000)
+        page.wait_for_timeout(1000)  # Allow JS to execute
+
+        browser.close()
+
+    return {
+        'errors': errors,
+        'failed_requests': failed_requests,
+        'has_issues': bool(errors or failed_requests)
+    }
+```
+
+### Inspecting Application State
+
+Check whether the application initialized correctly by querying exposed globals:
+
+```python
+# After page.goto() and wait
+registry_len = page.evaluate('window.registry?.length ?? "not found"')
+app_state = page.evaluate('window.appInstance?.state ?? null')
+```
+
+This verifies not just that the page loaded, but that the JavaScript application bootstrapped successfully.
+
+### Common Issues This Catches
+
+1. **Missing files**: Import statements referencing deleted/moved files
+2. **Syntax errors**: JS parsing failures that prevent module execution
+3. **Network failures**: API endpoints returning 404/500
+4. **Initialization errors**: Exceptions thrown during app bootstrap
+
+### Integration with Existing Tests
+
+Add to existing Playwright test fixtures:
+
+```python
+@pytest.fixture
+def page_without_errors(page: Page):
+    """Page fixture that fails on console errors."""
+    errors = []
+    page.on('console', lambda msg:
+        errors.append(msg.text) if msg.type == 'error' else None)
+    yield page
+    assert not errors, f"Console errors: {errors}"
+```
+
+### When to Use
+
+- After refactoring that touches imports or file structure
+- When UI appears empty or broken with no visible error
+- As a quick sanity check before deeper debugging
+- In CI to catch import/initialization regressions
+
+## [UT11] Component Preview Systems
+
+Isolate components for development and testing outside their full application context. A component preview system allows:
+
+1. Viewing components with controlled props
+2. Testing responsive behavior at specific widths
+3. Comparing variants side-by-side
+4. Iterating on styles without full app reload
+
+### Component Contract
+
+Components in the preview system export a standard interface:
+
+```javascript
+// Required exports
+export const metadata = {
+  name: 'ComponentName',
+  description: 'What it does',
+  category: 'navigation',  // grouping
+  source: 'app-name'       // which app owns it
+};
+
+export const propTypes = {
+  label: { type: 'string', default: 'Click me' },
+  disabled: { type: 'boolean', default: false },
+  onClick: { type: 'function', default: null }
+};
+
+export const variants = [
+  { name: 'default', props: { label: 'Click me' } },
+  { name: 'disabled', props: { label: 'Disabled', disabled: true } }
+];
+
+export function render(props) {
+  // Returns DOM element
+}
+
+// Optional
+export const styles = `
+  .component { ... }
+`;
+```
+
+This contract enables:
+- **Registry discovery** - Components self-describe
+- **Props editing** - Types define editable controls
+- **Variant switching** - Pre-configured states for testing
+- **Style injection** - Styles load only when needed
+
+### What Qualifies as a Component
+
+Components in this system are **isolated, stateless render functions**:
+
+| Qualifies | Why |
+|-----------|-----|
+| Row items, cards, badges | Pure render, simple props |
+| Form inputs, buttons | Controlled via props |
+| Section headers, labels | No external dependencies |
+
+| Does Not Qualify | Why |
+|------------------|-----|
+| Stateful classes | Requires lifecycle management |
+| Renderers with imports | Has external dependencies |
+| Functions taking DOM elements | Props aren't simple values |
+
+The key: can you preview it with just `component.render({ ...props })`?
+
+## [UT12] Width-Controlled Responsive Testing
+
+Test responsive behavior by controlling container width, not viewport width:
+
+```javascript
+// In preview system
+const preview = document.createElement('div');
+preview.style.width = `${this.previewWidth}px`;
+preview.appendChild(component.render(props));
+```
+
+### Why Container Width, Not Viewport
+
+1. **Faster iteration** - No window resizing
+2. **Precise control** - Exact pixel values
+3. **Side-by-side comparison** - Same viewport, different widths
+4. **Component-level testing** - Tests the component, not the layout
+
+### Width Control UI
+
+Provide slider + input + auto button:
+
+```
+[====o========] [280] [Auto]
+```
+
+- Slider for quick exploration (120-600px range)
+- Input for precise values
+- Auto resets to natural container width
+
+### Systematic Breakpoint Analysis
+
+Test components at key widths to understand wrapping behavior:
+
+```
+150px: 2 lines (wraps after 2nd item)
+200px: 2 lines (wraps after 3rd item)
+280px: 1 line (all items fit)
+```
+
+Document where natural breakpoints occur, then decide if CSS should enforce them.
+
+## [UT13] Variant-Based Testing
+
+Variants are pre-configured prop sets that represent meaningful states:
+
+```javascript
+export const variants = [
+  {
+    name: 'empty',
+    description: 'No data loaded',
+    props: { items: [], loading: false }
+  },
+  {
+    name: 'loading',
+    description: 'Data loading',
+    props: { items: [], loading: true }
+  },
+  {
+    name: 'populated',
+    description: 'With sample data',
+    props: { items: sampleItems, loading: false }
+  }
+];
+```
+
+### Variant Selection Workflow
+
+1. Click variant to load its props into live preview
+2. Width control applies to loaded variant
+3. Props inspector updates to show variant's values
+4. "default" variant always available to reset
+
+### Designing Variants
+
+Include variants for:
+
+- **Default state** - Baseline/empty props
+- **Populated states** - With realistic sample data
+- **Edge cases** - Long text, empty data, error states
+- **Visual states** - Selected, hover, disabled
+- **Responsive stress tests** - Maximum content that might wrap
+
+Variants serve as both documentation and test cases.
+
+## [UT14] Responsive Design Strategy
+
+When building responsive components:
+
+### 1. Start with Natural Flow
+
+Use `flex-wrap: wrap` and let content flow naturally:
+
+```css
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+```
+
+### 2. Measure Natural Breakpoints
+
+Use width control to find where content wraps:
+
+| Content Type | Typical Wrap Point |
+|--------------|-------------------|
+| 3 short metrics | ~200px |
+| Type signature + metrics | ~260px |
+| Long labels | ~320px |
+
+### 3. Decide: Natural vs Controlled
+
+**Natural wrapping** (flex-wrap):
+- Simpler CSS
+- Adapts to any content length
+- Less predictable visual rhythm
+
+**Controlled breakpoints** (container queries):
+- Explicit layout changes
+- Predictable visual states
+- More CSS complexity
+
+### 4. Test with Variants
+
+Create variants that stress-test wrapping:
+
+```javascript
+{
+  name: 'long-content',
+  props: {
+    signature: '(VeryLongTypeName, AnotherLongType) → ReturnType',
+    callsCount: 99,
+    decisionsCount: 99
+  }
+}
+```
+
+### 5. Document Decisions
+
+Record breakpoint decisions in component or docs:
+
+```javascript
+// Responsive behavior:
+// < 200px: metrics stack vertically
+// 200-280px: metrics wrap to 2 lines
+// > 280px: single line
+```

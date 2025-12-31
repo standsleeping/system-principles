@@ -157,3 +157,209 @@ Start from a clean slate:
 ```
 
 Then build up intentionally. Every margin, every padding should be a deliberate choice, not a browser default.
+
+## [VD10] Responsive Component Design
+
+Components should present information optimally at every width, never overflowing their container. This requires explicit information hierarchy and graceful degradation.
+
+### Information Hierarchy
+
+Rank every piece of information in a component by importance:
+
+```
+1. Identity    (name, title)        - Must always be visible
+2. Status      (metrics, counts)    - Core utility, high priority
+3. Detail      (types, signatures)  - Nice to have, can hide
+4. Decoration  (icons, badges)      - Progressive enhancement
+```
+
+Lower-priority items hide before higher-priority items truncate.
+
+### Width Tiers
+
+Define explicit layout tiers, not arbitrary breakpoints:
+
+| Tier | Strategy |
+|------|----------|
+| **Wide** | All information visible, optimal layout |
+| **Medium** | Hide lowest-priority items, maintain readability |
+| **Narrow** | Abbreviate where possible, hide decorative elements |
+| **Minimum** | Essential info only, truncate as last resort |
+
+### Degradation Rules
+
+Apply these rules in order as width decreases:
+
+1. **Wrap** - Let flex containers wrap naturally
+2. **Hide** - Remove low-priority information entirely
+3. **Abbreviate** - "3 calls" → "3c", "decisions" → "dec"
+4. **Truncate** - Ellipsis on text, only when nothing else works
+
+Never:
+- Overflow the container
+- Truncate high-priority items while showing low-priority ones
+- Create inconsistent line counts across similar items
+
+### Implementation Pattern
+
+```css
+/* Base: wide layout */
+.component__detail { display: block; }
+.component__metric { /* full text */ }
+
+/* Medium: hide detail */
+@container (max-width: 350px) {
+  .component__detail { display: none; }
+}
+
+/* Narrow: abbreviate metrics */
+@container (max-width: 200px) {
+  .component__metric--full { display: none; }
+  .component__metric--abbrev { display: inline; }
+}
+```
+
+Or use JavaScript to select content based on measured width:
+
+```javascript
+const width = container.offsetWidth;
+const showDetail = width >= 350;
+const abbreviate = width < 200;
+```
+
+### Consistent Visual Rhythm
+
+Components at the same tier should have the same line count:
+
+```
+Wide (2 lines):
+  process_payment (Order) → Result
+  6 calls · 3 decisions
+
+  validate_order (Order) → bool
+  2 calls · 1 decision
+
+Medium (2 lines):
+  process_payment
+  6 calls · 3 decisions
+
+  validate_order
+  2 calls · 1 decision
+```
+
+Inconsistent heights create visual noise in lists. Design tiers so all items at a given width have predictable dimensions.
+
+### Testing Responsive Components
+
+Use width-controlled preview (see [UT12]) to verify:
+
+1. No overflow at any width
+2. Information degrades in priority order
+3. Consistent heights across variants
+4. Readable at minimum supported width
+
+Document the tier breakpoints in component source:
+
+```javascript
+// Responsive tiers:
+// >= 350px: name + signature, metrics
+// 200-349px: name, metrics (signature hidden)
+// < 200px: name, abbreviated metrics
+```
+
+## [VD11] Data-Ink Ratio and Tabular Alignment
+
+When presenting repeated metrics across items, optimize for scanability by reducing redundant labels and aligning values vertically.
+
+### The Principle
+
+Edward Tufte's data-ink ratio: maximize information, minimize redundant visual elements. When the same labels repeat on every row, move them to a single header:
+
+```
+Instead of:
+  Customer       9 fields · 3 consumers · 2 producers
+  DeliveryInfo   6 fields · 1 producer
+  Ingredient     8 fields · 7 consumers · 3 producers
+
+Prefer:
+                        F   C   P
+  Customer              9   3   2
+  DeliveryInfo          6   —   1
+  Ingredient            8   7   3
+```
+
+Benefits:
+- **Scanability**: Eyes can quickly scan a column of aligned numbers
+- **Comparison**: Easier to spot high/low values across items
+- **Density**: More items visible in the same space
+- **Reduced noise**: Labels stated once, not repeated 50 times
+
+### Guidelines
+
+1. **Deduplicate labels**: If a label appears on every row, move it to a header
+2. **Align numbers vertically**: Use CSS grid or fixed-width columns
+3. **Use tabular numerals**: `font-variant-numeric: tabular-nums` for consistent digit widths
+4. **Use dashes for zeros**: `—` is clearer than `0` for "none" or "not applicable"
+5. **Keep headers minimal**: Single letters or short abbreviations with tooltips for full names
+6. **Right-align numbers**: Numbers align on the ones digit for easy comparison
+
+### When to Apply
+
+Appropriate when:
+- Showing 5+ items with the same metric structure
+- Numbers are primary information users need to compare
+- The metric categories are stable (same columns for all items)
+
+Not appropriate when:
+- Items have different/variable fields
+- Only 1-2 items displayed
+- Descriptive text is more important than numeric values
+
+### Implementation
+
+```css
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 3ch);  /* name + 3 metric columns */
+  gap: var(--spacing-xs);
+}
+
+.metric-value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.metric-empty {
+  color: var(--gray-300);
+}
+```
+
+```html
+<!-- Section header with column labels -->
+<div class="section-header metric-grid">
+  <span>DATA</span>
+  <span class="metric-label" title="Fields">F</span>
+  <span class="metric-label" title="Consumers">C</span>
+  <span class="metric-label" title="Producers">P</span>
+</div>
+
+<!-- Data rows -->
+<div class="entity-row metric-grid">
+  <span>Customer</span>
+  <span class="metric-value">9</span>
+  <span class="metric-value">3</span>
+  <span class="metric-value">2</span>
+</div>
+```
+
+### Responsive Considerations
+
+At narrow widths, the tabular layout may need to degrade:
+
+| Width | Strategy |
+|-------|----------|
+| **Wide** | Full grid with aligned columns |
+| **Medium** | Inline format with separators: `9 · 3 · 2` |
+| **Narrow** | Abbreviated: `9f 3c 2p` or hide secondary metrics |
+
+The inline format loses alignment benefits but remains compact. Consider which metrics are essential vs. which can be hidden at narrow widths.
