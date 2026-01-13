@@ -363,3 +363,49 @@ At narrow widths, the tabular layout may need to degrade:
 | **Narrow** | Abbreviated: `9f 3c 2p` or hide secondary metrics |
 
 The inline format loses alignment benefits but remains compact. Consider which metrics are essential vs. which can be hidden at narrow widths.
+
+## [VD12] One Signal Per Meaning
+
+Each piece of information should be communicated once, through one visual channel.
+
+### The Problem
+
+When the same meaning is conveyed through multiple signals, it creates redundancy:
+
+```css
+/* Redundant: both background AND text color indicate "resolved" */
+.row.resolved {
+  background: var(--gray-100);  /* Signal 1 */
+}
+.row.resolved .name {
+  color: var(--blue-600);       /* Signal 2 - same meaning */
+}
+```
+
+The user sees two visual changes but learns one fact. The extra signal is noise.
+
+### The Principle
+
+Choose one visual channel per meaning:
+
+| Meaning | Preferred Signal | Avoid Adding |
+|---------|------------------|--------------|
+| Navigable/clickable | Text color (blue) | Background color |
+| Selected | Background color | Border + background |
+| Disabled | Opacity reduction | Gray text + gray background |
+| Error state | Text color (red) | Red text + red border + red background |
+
+### When Multiple Signals Are Justified
+
+Multiple signals are appropriate when they serve different purposes:
+
+1. **Accessibility**: Focus states may use both outline AND background for visibility
+2. **Hover + selection**: Hover is transient feedback, selection is persistent state
+3. **Different information**: Blue text (navigable) + badge (count) convey different facts
+
+### Testing for Redundancy
+
+Ask: "If I remove this visual treatment, does the user lose information?"
+
+- If yes → keep it
+- If no → remove it

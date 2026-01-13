@@ -557,3 +557,96 @@ Record breakpoint decisions in component or docs:
 // 200-280px: metrics wrap to 2 lines
 // > 280px: single line
 ```
+
+## [UT15] Claude Code Browser Automation
+
+Use Playwright MCP to give Claude Code direct control over a browser window. This enables interactive testing, responsive layout verification, and visual debugging without leaving the conversation.
+
+### Setup
+
+Install the Playwright MCP server (one-time):
+
+```bash
+claude mcp add playwright npx '@playwright/mcp@latest'
+```
+
+This persists the configuration in `~/.claude.json`. Restart Claude Code after installation.
+
+### Usage
+
+After setup, direct Claude Code to use Playwright with natural language:
+
+- "Use playwright mcp to open a browser to localhost:8000"
+- "Resize the viewport to 600px wide"
+- "Take a screenshot"
+- "Click the Settings tab"
+- "Type 'search term' in the search input"
+
+The first time in a session, explicitly say "playwright mcp" so Claude uses the MCP tool rather than attempting to run Playwright via Bash.
+
+### Available Capabilities
+
+| Category | Actions |
+|----------|---------|
+| Navigation | Open URLs, go back/forward, reload |
+| Viewport | Resize to specific dimensions, emulate devices |
+| Interaction | Click, type, scroll, hover |
+| Inspection | Take screenshots, read page content |
+| Forms | Fill inputs, select options, submit |
+| Waiting | Wait for elements, network idle |
+
+### Device Emulation
+
+Playwright MCP supports 143+ device profiles:
+
+- iPhone (various models)
+- iPad
+- Pixel phones
+- Galaxy devices
+- Desktop browsers at various sizes
+
+Request emulation with: "Open the page emulating an iPhone 14"
+
+### Responsive Testing Workflow
+
+1. **Open the page**: "Use playwright mcp to open localhost:8000/ide"
+2. **Test wide layout**: "Resize to 1200px wide and take a screenshot"
+3. **Test narrow layout**: "Resize to 400px wide and take a screenshot"
+4. **Verify interactions**: "Click the Explore tab, then click the first entity"
+5. **Check navigation**: "Click the back button and verify we're on the list"
+
+### Authentication and Session
+
+Cookies persist for the session duration. For authenticated pages:
+
+1. Navigate to login page
+2. Let Claude fill credentials or manually authenticate in the visible browser
+3. Continue testing authenticated flows
+
+### Integration with Development
+
+Combine browser automation with code changes:
+
+1. Claude makes a CSS fix
+2. "Refresh the browser and take a screenshot"
+3. Review the result
+4. Iterate until correct
+
+### Why MCP Over Bash Scripts
+
+| Approach | Trade-offs |
+|----------|------------|
+| Bash + Playwright | Requires writing scripts, separate execution |
+| MCP | Natural language, real-time control, visual feedback |
+
+MCP turns browser testing from "write a script and run it" into an interactive conversation where Claude can observe results and adapt.
+
+### Tools Reference
+
+View available Playwright MCP tools:
+
+```
+/mcp
+```
+
+Navigate to the Playwright section to see all 25+ available tools including `browser_navigate`, `browser_click`, `browser_type`, `browser_take_screenshot`, and `browser_handle_dialog`.

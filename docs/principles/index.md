@@ -312,3 +312,9 @@ Organized from foundational design principles to specific implementation pattern
 | [UT7](ui-tooling.md#ut7-diagnostic-output) | Diagnostic Output |
 | [UT8](ui-tooling.md#ut8-continuous-monitoring) | Continuous Monitoring |
 | [UT9](ui-tooling.md#ut9-presenting-results-to-users) | Presenting Results to Users |
+| [UT10](ui-tooling.md#ut10-headless-console-debugging) | Headless Console Debugging |
+| [UT11](ui-tooling.md#ut11-component-preview-systems) | Component Preview Systems |
+| [UT12](ui-tooling.md#ut12-width-controlled-responsive-testing) | Width-Controlled Responsive Testing |
+| [UT13](ui-tooling.md#ut13-variant-based-testing) | Variant-Based Testing |
+| [UT14](ui-tooling.md#ut14-responsive-design-strategy) | Responsive Design Strategy |
+| [UT15](ui-tooling.md#ut15-claude-code-browser-automation) | Claude Code Browser Automation |
