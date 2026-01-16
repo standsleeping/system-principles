@@ -46,18 +46,6 @@ Easy audit trails are composed via the database. Composing a set of SQL queries 
 
 All state is rewindable via events. Think accounting and ledgers. No mutations!
 
-## Type-First Development
-
-In this architecture, types are the foundation of system design.
-
-### [TFD1] Types as module boundaries.
-
-Each package's public interface is defined primarily through its data types.
-
-Development follows a type-first workflow, where data structures and types that model the domain are often designed first, with pure functions that transform these types are implemented next. Type signatures guide and constrain implementations.
-
-The prohibition on circular dependencies is reinforced by our type system. Modules can only depend on types from their dependencies, creating a clear, unidirectional flow.
-
 ## Package Structure
 
 Each package maintains a strict separation between functions and data.

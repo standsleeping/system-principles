@@ -1,4 +1,4 @@
-# Design
+# Designing
 
 Systems model the world. Our understanding of the world changes over time, and the design of the system must react in turn.
 
@@ -35,31 +35,12 @@ Your design is not your workflow. The actual running code will use many modules,
 ### [BD6] Framework for design.
 
 1. Identify assumptions or decisions that might change as we learn.
-2. Hide each behind a boundary.
-3. The goal is not to model execution, or to model entities.
+2. Hide each behind a modular boundary.
+3. The goal is not to model _execution_, nor to model _entities_.
 4. The goal is to **isolate sources of change**.
 5. We seek to couple things that change together.
-6. Decouple things that change for different reasons, at different times.
+6. We try to decouple things _that change for different reasons_.
 7. Tease apart the who, what, when, where, why, and how.
-
-## Values
-
-### [VL1] Depend on values, not behaviors.
-
-Our code should always depend on values (i.e. data), not behaviors (i.e. code):
-
-1. "Values" are just data, or anything that has no behavior.
-2. Replace method calls with data passing between components.
-3. Components should transform values instead of calling each other.
-4. Building blocks should agree on data shape, not on implementation.
-5. Decisions should live in one place, and dependencies in another.
-6. Data is flexible: it can travel across functions, threads, or networks.
-7. Every value is a potential message, and messages allow concurrency.
-8. When components only transform values, they can run in parallel.
-
-### [VL2] State entangles values and time.
-
-Stateful approaches are squarely at odds with simple designs, because by definition, state entangles values and time.
 
 ## Abstraction
 
@@ -76,7 +57,7 @@ To simplify in practice:
 
 ### [AB3] Reduce interleaving to simplify.
 
-To "simplify" something is to _reduce interleaving_ of its components or concerns. To the extent that interleaving can be identified, and thus reduced and therefore compared (before vs. after), "simplicity" is _an objective measurement_ and thus has less to do with aesthetics or personal preferences and more to do with tools and repeatable processes. This conception of objective simplicity is relatively new in computing, so the tools for measuring it are underdeveloped.
+To "simplify" something is to _reduce interleaving_ of its components or concerns. To the extent that interleaving can be identified, and thus reduced and therefore compared (before vs. after), "simplicity" is _an objective measurement_ and thus has less to do with aesthetics or personal preferences and more to do with tools and repeatable processes. This conception of objective simplicity is relatively new in computing, so the tools for measuring it are underdeveloped. We must take special *manual* care in analyzing complexity.
 
 ### [AB4] Test simplicity by reassembly.
 
@@ -130,34 +111,6 @@ If requiring less, ask:
 2. What functions need to be updated to handle the broader input space?
 3. What default values or behaviors handle the now-optional cases?
 
-## Events
-
-### [EV1] Store facts with time.
-
-Hickey points out that the Resource Description Framework lacks a time component. "Sally likes pizza..." _as of when, exactly?_
-
-Store facts as 5-tuples:
-
-1. **Entity**. Who or what (e.g. Sally).
-2. **Attribute**. The property (e.g. likes).
-3. **Value**. The actual value (e.g. pizza).
-4. **Time**. When this fact was asserted.
-5. **Operation**. Are we adding or retracting?
-
-This temporal model means the user can:
-
-1. Track the full history of changes.
-2. Query the database "as of" any point in time.
-3. Know when facts became true or stopped being true.
-
-## Effects
-
-### [EF1] Capture time-dependent results explicitly.
-
-Effects are complex; they entangle _who_ and/or _what_ and/or _how_ with **when**. When the _time you run the code_ can impact what the outcome is, you have effects, and thus, complexity.
-
-In some cases this is unavoidable. In the cases where it is, you must take special care. Use a result structure (`EffectResult`) to store the results of any operation where the _time you run the code_ can impact what the outcome is.
-
 ## Logic
 
 ### [LG1] Do not store knowledge as control flow.
@@ -184,36 +137,3 @@ Examples of `if` complexity:
 4. `if (format === 'json')` for **transformation** (data reshaping).
 
 Move logic into rules, not code paths, and invalid states will start to disappear.
-
-## Type Design
-
-### [TD1] Make illegal states unrepresentable.
-
-1. Move "Any" types as close as possible to the dependency you can't control.
-2. Transform "Any" into meaningful types as soon as possible.
-3. Move try/except as close to the dependency you can't control.
-4. Convert errors into result types and design for handling them.
-5. Shrink the representable state space down to the set of valid states.
-6. Input parsing is not business logic. Keep them distinct!
-
-### [TD2] Chase runtime checks upstream.
-
-Chase runtime checks all the way upstream. Ask at every boundary line what conditions upstream allow for this runtime check to be necessary. If you chase it all the way upstream to the interface, you'll end up with a more clear, more explicit, easier to use API for your users. You have successfully made invalid states unrepresentable.
-
-### [TD3] Strengthen inputs, don't weaken outputs.
-
-- Prefer making functions total by strengthening parameter types (e.g., `NonEmptyList[T]`) rather than weakening return types to `| None`.
-- Parse into precise types at the boundary or immediately at branch entry when a branch needs stronger invariants.
-- Build proofs once and carry them forward in types; avoid repeating boolean checks.
-
-## Type-First Design
-
-Types are the foundation of system design.
-
-### [TFD1] Types as module boundaries.
-
-Each package's public interface is defined primarily through its data types.
-
-Development follows a type-first workflow, where data structures and types that model the domain are often designed first, with pure functions that transform these types are implemented next. Type signatures guide and constrain implementations.
-
-The prohibition on circular dependencies is reinforced by our type system. Modules can only depend on types from their dependencies, creating a clear, unidirectional flow.
