@@ -175,7 +175,7 @@ Organizing code: architecture, boundaries, and modules.
 | [TL5](structuring.md#tl5-integrator-translators-compose-unit-translators) | Integrator translators compose unit translators | Complex translations assemble from simple ones |
 | [TL6](structuring.md#tl6-chain-translators-with-explicit-error-propagation) | Chain translators with explicit error propagation | Errors flow through the chain explicitly |
 | [TL7](structuring.md#tl7-one-translator-per-boundary-type) | One translator per boundary type | Separate translators for each external format |
-| [TL8](structuring.md#tl8-domain--external-uses-domain-language) | Domain → External uses domain language | Outbound translators speak the domain's terms |
+| [TL8](structuring.md#tl8-domain-to-external-uses-domain-language) | Domain-to-External uses domain language | Outbound translators speak the domain's terms |
 | [TL9](structuring.md#tl9-cross-domain-translators-enforce-boundary-rules) | Cross-domain translators enforce boundary rules | Inter-domain translators apply boundary constraints |
 | [TL10](structuring.md#tl10-inject-translators-into-boundary-components) | Inject translators into boundary components | Pass translators as dependencies |
 | [TL11](structuring.md#tl11-use-translators-in-request-handlers) | Use translators in request handlers | Convert at handler entry, not deep in logic |
@@ -194,7 +194,7 @@ Writing code: patterns, style, and dispatch.
 | [PD1](implementing.md#pd1-separate-decisions-from-behavior) | Separate decisions from behavior | Keep what-to-do apart from when-to-do-it |
 | [PD2](implementing.md#pd2-prefer-data-driven-dispatch-for-evolving-domain-logic) | Prefer data-driven dispatch for evolving domain logic | Tables of handlers enable independent evolution |
 | [PD3](implementing.md#pd3-use-in-place-pattern-matching-only-at-boundaries-or-tiny-stable-sets) | Use in-place pattern matching only at boundaries or tiny, stable sets | Match statements only for small, unchanging cases |
-| [PD4](implementing.md#pd4-use-à-la-carte-polymorphism-for-extensibility) | Use à la carte polymorphism for extensibility | Protocols enable adding behaviors without changing types |
+| [PD4](implementing.md#pd4-use-a-la-carte-polymorphism-for-extensibility) | Use a-la-carte polymorphism for extensibility | Protocols enable adding behaviors without changing types |
 | [PD5](implementing.md#pd5-decisions-as-data) | Decisions as data | Dispatch tables are data that can be tested and extended |
 | [PD6](implementing.md#pd6-keep-dependencies-out-of-dispatch-tables) | Keep dependencies out of dispatch tables | Tables should be pure mappings; inject deps at call site |
 | [PD7](implementing.md#pd7-manage-exhaustiveness-explicitly) | Manage exhaustiveness explicitly | Verify all cases covered when dispatch tables change |

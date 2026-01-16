@@ -76,7 +76,7 @@ Use when:
 Avoid:
 1. Large matches that encode domain policy in core logic
 
-### [PD4] Use à la carte polymorphism for extensibility.
+### [PD4] Use a-la-carte polymorphism for extensibility.
 
 Bias toward a data-first, interpreter-based style: model structure and policy as immutable data; implement operations as pure functions over that data; pass dispatch tables/registries explicitly (not via globals).
 

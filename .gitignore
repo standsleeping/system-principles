@@ -14,3 +14,6 @@ wheels/
 .mypy_cache/
 planning/
 projects.md
+
+# MkDocs
+site/

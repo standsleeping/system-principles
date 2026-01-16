@@ -367,7 +367,7 @@ def db_row_to_domain_translator(
         return TranslatorError(f"Invalid data format: {e}"), None
 ```
 
-### [TL8] Domain → External uses domain language.
+### [TL8] Domain-to-External uses domain language.
 
 When translating domain objects to external formats, use domain concepts in the translator. Don't leak external concerns into the domain.
 
