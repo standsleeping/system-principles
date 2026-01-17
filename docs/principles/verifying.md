@@ -14,21 +14,13 @@ Well-designed components produce tests that are easy to read, write, and run. We
 
 Follow a strict test-first approach, always discussing WHAT behavior to test before determining HOW to test it. Never write code until tests have been written.
 
-### [T3] Flat test structure.
-
-Almost never use test classes; usually functions are simple and sufficiently "unit-like" that a flat list of pytest tests in a file will suffice.
-
-### [T4] Declarative test documentation.
+### [T3] Declarative test documentation.
 
 Tests are written before implementation with declarative assertion documentation. BAD: "Tests that env is loaded in non-containerized environment". GOOD: "Loads env in non-containerized environment".
 
-### [T5] Centralized fixtures.
+### [T4] Functional testing patterns.
 
-Fixtures are ALWAYS centralized and shared in `tests/fixtures.py`. No exceptions.
-
-### [T6] Functional testing patterns.
-
-Tests focus on input/output pairs for our functional codebase. Single pytest assertion per test where possible. Never patch/mock/stub code.
+Tests focus on input/output pairs for our functional codebase. Single assertion per test where possible. Never patch/mock/stub code.
 
 ## Mocking Rules
 
@@ -42,14 +34,10 @@ Do not patch or fake your own functions, units, or integrators. Instead, run rea
 
 External system boundaries (HTTP, filesystem, environment variables, databases) must be mocked for reliable, deterministic testing. Use helpers in `boundaries.py` to simulate HTTP, filesystem, environment, and session state. Keep your domain logic real.
 
-### [MR3] No unittest.mock in tests.
+### [MR3] Use purpose-built boundary test doubles.
 
-Never import or use `unittest.mock` directly in test files. Never use `AsyncMock`, `MagicMock`, `patch`, or similar manual mocking. Use boundary helpers that encapsulate mocking instead.
+Use purpose-built test doubles for external boundaries rather than general-purpose mocking libraries. Create dedicated helpers for each boundary type: HTTP clients, sessions, filesystem, environment variables, databases. These helpers encapsulate the boundary's behavior and provide a cleaner testing interface than ad-hoc mocks.
 
-### [MR4] Use boundary mockers for endpoints and translators.
-
-Use `TestClient` from `starlette.testclient` for API endpoint testing. Use boundary mockers from `tests/boundaries.py`: `mock_http()` for HTTP requests, `mock_session()` for Starlette sessions, `mock_filesystem()` for file operations, `mock_env()` for environment variables, `mock_boundaries()` for comprehensive boundary mocking.
-
-### [MR5] Mocking indicates design problems.
+### [MR4] Mocking indicates design problems.
 
 If your tests need to patch application code, refactor the design. Extract units (pure functions) and integrators (assemblers) so they are directly testable. Move side effects to explicit boundary adapters invoked by actions. Represent outcomes with result types instead of exceptions to simplify testing.

@@ -117,32 +117,17 @@ Translator functions (either units or integrators) sit at system or package boun
 
 A critical aspect of hexagonal architecture is proper boundary management between layers.
 
-### [BT1] TypedDict at boundaries.
-
-Never use `dict[str, Any]` or `dict[str, object]`.
-
-- **At boundaries**: Use `TypedDict` to model JSON structure precisely. It provides type checking, autocomplete, and documentation while remaining a plain dict at runtime.
-- **In domain**: Use `dataclasses` for rich domain objects.
-- **Migration**: If you find `dict[str, Any]`, replace it with a `TypedDict` definition immediately.
-
-When `dict[str, Any]` types propagate deeper into the codebase beyond initial entry points, boundaries are not properly defined. This causes:
-
-- **Loss of type safety**: No IDE support, no compile-time checks, runtime errors.
-- **Domain modeling failure**: Domain objects represent business concepts.
-- **Scattered validation**: Without proper deserialization, validation spreads everywhere.
-- **Coupling to transport**: Domain logic becomes coupled to JSON structure.
-
-### [BT2] Translator functions.
+### [BT1] Translator functions.
 
 Use translator functions as the standard pattern for converting external data (JSON, HTTP requests) into domain objects. These functions have a single, narrow responsibility:
 
-- **Pure conversion**: Transform `dict[str, Any]` from requests into properly typed domain objects.
+- **Pure conversion**: Transform interchange data from requests into properly typed domain objects.
 - **Boundary validation**: Handle conversion errors with appropriate HTTP responses.
 - **No domain logic**: Never perform domain operations, only convert types and pass to domain!
 
-### [BT3] Pure conversion only.
+### [BT2] Pure conversion only.
 
-Translators must transform `dict[str, Any]` from requests into properly typed domain objects, handle conversion errors with appropriate HTTP responses, and never perform domain operations (only convert types and pass to domain layer).
+Translators must transform interchange data from requests into properly typed domain objects, handle conversion errors with appropriate HTTP responses, and never perform domain operations (only convert types and pass to domain layer).
 
 ## Translators
 

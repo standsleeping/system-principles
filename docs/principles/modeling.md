@@ -118,6 +118,15 @@ Types exist on a precision spectrum—from `Any` to refined types like `EmailAdd
 
 Track where your types fall on this spectrum. If a loose type has drifted into the domain core, tighten it. If a precise type sits at a volatile boundary, you may be over-specifying.
 
+### [TD8] Domain type safety.
+
+- Never allow untyped dictionaries or maps in domain layers.
+- Instead of raising exceptions in domain logic, use Result types.
+- Result types make success and failure explicit.
+- Handle errors explicitly, so all possible outcomes are visible in the type signature.
+- Domain functions should never throw, making them predictable.
+- Test both success and failure paths without exception handling.
+
 ## Type Patterns
 
 Functions should return the information callers need to act, not just yes/no. Types carry proofs forward.
@@ -181,22 +190,7 @@ For domain logic that changes frequently, consider data-driven dispatch instead 
 
 If you need to cast, it means the upstream type is wrong or too loose. Fix the source definition.
 
-### [TP7] Use runtime narrowing.
-
-If the type is loose (`Any`, `object`, or a union) because it comes from an external source, use `isinstance()` checks to narrow it. The type checker will then "know" the type is correct in that branch.
-
-```python
-# Bad: Silencing the checker
-val = cast(str, data["name"])
-
-# Good: Runtime verification
-val = data.get("name")
-if isinstance(val, str):
-    # val is known to be str here
-    process(val)
-```
-
-### [TP8] Parse into stronger types.
+### [TP7] Parse into stronger types.
 
 Validation returns booleans; parsing returns stronger types that carry the proof forward.
 
@@ -205,53 +199,23 @@ Validation returns booleans; parsing returns stronger types that carry the proof
 - Prefer strengthening inputs over weakening outputs: construct proof-carrying values (e.g., `EmailAddress`, `ConfirmedPassword`) and return a typed `...Input` object on success.
 - Validators should look like parsers: return proof-carrying values, not booleans.
 
-## Type Syntax
-
-We always follow modern Python typing conventions and avoid legacy typing patterns.
-
-### [TS1] Built-in generic types.
-
-- Use: `list[T]`, `dict[K, V]`, `set[T]`, `tuple[T, ...]`
-- Avoid: `List[T]`, `Dict[K, V]`, `Set[T]`, `Tuple[T, ...]`
-
-### [TS2] Union syntax.
-
-- Use: `T | None`, `str | int`, `list[str] | dict[str, int]`
-- Avoid: `Optional[T]`, `Union[str, int]`
-
-### [TS3] Generic classes.
-
-- Use: `class Container[T]:` (PEP 695 syntax)
-- Avoid: `T = TypeVar('T')` + `class Container(Generic[T]):`
-
-### [TS4] Import minimization.
-
-- Only import from `typing` when necessary (e.g., `Any`, `Protocol`, `Literal`)
-- Never import: `List`, `Dict`, `Set`, `Tuple`, `Optional`, `Union`, `Generic`, `TypeVar`
-- Built-in types and union syntax eliminate most `typing` imports
-- Use `type` statement for type aliases instead of `TypeAlias`
-
-### [TS5] Domain type safety.
-
-- Never allow `dict[str, Any]` in domain layers.
-- Instead of raising exceptions in domain logic, use Result types.
-- Result types make success and failure explicit.
-- Handle errors explicitly, so all possible outcomes are visible in the type signature.
-- Domain functions should never throw, making them predictable.
-- Test both success and failure paths without exception handling.
-
 ## Data Interchange
 
 Distinguish between how data is represented *inside* your domain vs. how it is represented *at the boundaries*.
 
-### [DDI1] Use TypedDict for interchange.
+**Interchange types** are language constructs with a well-defined serialization path to JSON (or other wire formats). They describe shape without behavior—in Python, this is `TypedDict`; in TypeScript, plain interfaces; in Go, structs with JSON tags.
+
+### [DDI1] Use interchange types at boundaries.
 
 **Use for**: JSON blobs, API requests/responses, database rows, configuration files.
 
-`TypedDict` is a "shape" (structural type). It says "this dictionary has these keys".
-- **Pros**: Serializes natively to JSON. Compatible with external systems that speak "dict".
-- **Cons**: No methods, no properties, no invariants (a negative radius is valid int), clumsy for deep nesting.
-- **Feature**: Can be `total=False` (partial), useful for patch requests or sparse data.
+Interchange types describe the structure of data without behavior. They say "this data has these fields with these types" and serialize directly to JSON.
+
+- **Pros**: Serialize natively to JSON. Compatible with external systems.
+- **Cons**: No methods, no properties, no invariants (a negative radius is a valid int), clumsy for deep nesting.
+- **Feature**: Can be partial, useful for patch requests or sparse data.
+
+**Python example** using `TypedDict`:
 
 ```python
 class UserPayload(TypedDict):
@@ -260,14 +224,17 @@ class UserPayload(TypedDict):
     # No guarantees that email is valid, just that it's a string.
 ```
 
-### [DDI2] Use Dataclasses for domain.
+### [DDI2] Use domain types internally.
 
 **Use for**: Business entities, value objects, internal logic.
 
-`Dataclasses` are "types" (nominal type). They say "this is a User".
-- **Pros**: Can enforce invariants (`__post_init__`), have properties (`@property`), methods, and identity.
+Domain types (classes, records with behavior) represent domain concepts with identity. They say "this is a User," not just "this has user-like fields."
+
+- **Pros**: Can enforce invariants at construction, have computed properties, methods, and identity.
 - **Cons**: Need serialization steps to leave the system.
-- **Feature**: `frozen=True` makes them hashable and immutable, perfect for passing around safely.
+- **Feature**: Immutability makes them safe to pass around.
+
+**Python example** using `dataclass`:
 
 ```python
 @dataclass(frozen=True)
@@ -282,12 +249,12 @@ class User:
 
 ### [DDI3] Translators bridge the gap.
 
-Don't let `TypedDict`s leak deep into the domain. Parse them into Dataclasses at the boundary.
+Don't let interchange types leak deep into the domain. Parse them into domain types at the boundary.
 
-**Input Flow**: `External JSON` → `TypedDict` → `Translator` → `Dataclass`
-- The translator validates structure (`TypedDict`) and parses values (str → UUID).
-- The Dataclass constructor guarantees the object is valid.
+**Input Flow**: `External JSON` → `Interchange Type (TypedDict)` → `Translator` → `Domain Type`
+- The translator validates structure and parses values (string → UUID).
+- The domain type constructor guarantees the object is valid.
 
-**Output Flow**: `Dataclass` → `Translator` → `TypedDict` → `External JSON`
-- The translator converts rich types (UUID) back to primitives (str).
-- The `TypedDict` ensures the output shape matches the API contract.
+**Output Flow**: `Domain Type` → `Translator` → `Interchange Type (TypedDict)` → `External JSON`
+- The translator converts rich types (UUID) back to primitives (string).
+- The interchange type ensures the output shape matches the API contract.

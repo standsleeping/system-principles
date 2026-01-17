@@ -189,12 +189,3 @@ The second approach separates decisions (the dispatch table) from handlers (what
 - Functions always have clear input and output types.
 - Functions never mutate their arguments.
 
-### [SR2] Python language usage.
-
-- Always use `dedent` for multi-line strings.
-- Avoid underscore method patterns; always prefer `this_func` over `_this_func`.
-- Always prefer modern Python (3.13+) language and type features.
-- Always use generic type parameter syntax (`class Foo[T]:` instead of `TypeVar`).
-- Prefer union types with `|` syntax (`str | None` instead of `Union[str, None]`).
-- Never use `if TYPE_CHECKING`.
-- Never use `# type: ignore[xyz]`.

@@ -3,7 +3,7 @@ site_name: System Principles
 dev_addr: localhost:9201
 
 theme:
-  name: readthedocs
+  name: material
 
 nav:
   - Home: index.md
@@ -15,5 +15,3 @@ nav:
     - Implementing: principles/implementing.md
     - Verifying: principles/verifying.md
     - Presenting: principles/presenting.md
-    - Testing: principles/testing.md
-    - Dependencies: principles/dependencies.md
