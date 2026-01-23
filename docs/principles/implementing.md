@@ -4,9 +4,13 @@ These principles govern how we write code: patterns, style, and dispatch. Good i
 
 ## Polymorphism & Dispatch
 
+The section addresses a fundamental question: how do we handle different cases in our code? We always prefer data-driven dispatch over traditional control flow (match statements, if/else chains, inheritance) where possible.
+
 ### [PD1] Separate decisions from behavior.
 
-Do not store knowledge as control flow. Keep the choice of what to do (the decision) separate from how to do it (the behavior). Prefer data-driven dispatch tables (decisions as data) or interpreters, vs. embedding decisions in match statements or method overrides. Prefer representing domain as plain data with behavior in functions, and make time/identity explicit inputs rather than hidden globals.
+Don't embed "what to do" inside "how to do it." Instead of a match statement that both decides and executes, use a dispatch table (dictionary) that maps cases to handlers.
+
+Avoid storing knowledge as control flow. Prefer data-driven dispatch tables (decisions as data). Represent the domain as plain data with behavior in functions, and make time/identity explicit inputs rather than hidden globals.
 
 ```python
 # In-place decision (complects decision + behavior)
@@ -44,14 +48,18 @@ label = to_label[user.status]
 color = to_color[user.status]
 ```
 
+When you have multiple operations over the same set of variants, dispatch tables scale better. You can add to_label, to_color, to_permissions maps independently without touching the enum or other maps.
+
 Use when:
+
 1. Domain logic has changing interpretations
 2. Multiple operations exist over the same data
 3. Runtime configuration or inspectable decisions are needed
 
 Trade-offs:
-1. Adding new variants requires updating each relevant map
-2. No static checker to ensure coverage; combine with PD7
+
+1. Adding new variants requires updating each relevant map.
+2. No static checker to ensure coverage; combine with PD7.
 
 ### [PD3] Use in-place pattern matching only at boundaries or tiny, stable sets.
 
@@ -69,16 +77,18 @@ match payload.get("status"):
 ```
 
 Use when:
-1. Boundary parsing/serialization
-2. Tiny, stable sets; throwaway code; hot paths
-3. Time/clock extraction at boundaries; pass time forward as data
+
+1. Boundary parsing/serialization.
+2. Tiny, stable sets; throwaway code; hot paths.
+3. Time/clock extraction at boundaries; pass time forward as data.
 
 Avoid:
+
 1. Large matches that encode domain policy in core logic
 
 ### [PD4] Use a-la-carte polymorphism for extensibility.
 
-Bias toward a data-first, interpreter-based style: model structure and policy as immutable data; implement operations as pure functions over that data; pass dispatch tables/registries explicitly (not via globals).
+Bias toward a data-first, interpreter-based style: model structure and policy as immutable data, and implement operations as pure functions over that data; pass dispatch tables/registries explicitly, don't hide them in globals or class hierarchies.
 
 Use compositional, type-level encodings when you must allow many variants and many operations to evolve independently under strict modularity constraints.
 
@@ -96,16 +106,20 @@ evaluators: list[Eval] = [eval_literals, eval_add, eval_mul]
 prettiers: list[Pretty] = [pp_literals, pp_add, pp_mul]
 ```
 
+Here Expr is a data structure (an AST representing expressions like Add(Lit(1), Lit(2))). The evaluators and prettiers are separate *interpreters*. Each walks the same data structure but produces different outputs.
+
 Use when:
-1. Extensible language implementations, DSLs, or plugin systems
-2. Many operations and variants must evolve independently
+
+1. Extensible language implementations, DSLs, or plugin systems.
+2. Many operations and variants must evolve independently.
 
 Avoid:
-1. Inheritance webs where behavior is split across subclasses; prefer explicit composition/dispatch
+
+1. Inheritance webs where behavior is split across subclasses; prefer explicit composition/dispatch.
 
 ### [PD5] Decisions as data.
 
-Represent dispatch choices as values (e.g., dicts, maps). Decisions become inspectable, serializable, composable, and testable. This aligns with a functional core where data flows through transformations. Prefer configuration and error information as data to keep control declarative and handling composable.
+Represent dispatch choices as values (e.g., dicts, maps). Decisions become inspectable, serializable, composable, and testable... just like data! This aligns with a functional core where data flows through transformations. Prefer configuration and error information as data to keep control declarative and handling composable.
 
 ```python
 handlers = {
@@ -141,8 +155,9 @@ notify(result)
 ```
 
 Guidance:
-1. Place effects in actions at boundaries; keep handlers pure where feasible
-2. Pass time/loggers/resources explicitly at the boundary; do not close over them in handlers
+
+1. Place effects in actions at boundaries; keep handlers pure where feasible.
+2. Pass time/loggers/resources explicitly at the boundary; do not close over them in handlers.
 
 ### [PD7] Manage exhaustiveness explicitly.
 
@@ -154,8 +169,9 @@ def test_handlers_cover_all_statuses() -> None:
 ```
 
 Guidance:
-1. Use property-based tests to generate variant coverage and assert dispatch invariants
-2. Prefer running core logic in a REPL/simulator without external I/O
+
+1. Use property-based tests to generate variant coverage and assert dispatch invariants.
+2. Prefer running core logic in a REPL/simulator without external I/O.
 
 ### [PD8] Data-driven dispatch for domain logic.
 
