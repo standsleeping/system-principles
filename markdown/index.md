@@ -112,6 +112,7 @@ Representing domain: data, types, and state.
 | [DDI1](modeling.md#ddi1-use-interchange-types-at-boundaries) | Use interchange types at boundaries | TypedDict/interfaces for JSON, API requests, database rows. |
 | [DDI2](modeling.md#ddi2-use-domain-types-internally) | Use domain types internally | Classes/dataclasses for business entities with invariants. |
 | [DDI3](modeling.md#ddi3-translators-bridge-the-gap) | Translators bridge the gap | Parse interchange types to domain types at boundaries. |
+| [DDI4](modeling.md#ddi4-interchange-types-describe-shape-not-invariants) | Interchange types describe shape, not invariants | Use primitive types; translators validate values. |
 
 ---
 

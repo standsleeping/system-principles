@@ -11,9 +11,7 @@ wheels/
 
 # Other
 .DS_Store
-.mypy_cache/
+.mypy_cache
+.ruff_cache
+.pytest_cache
 planning/
-projects.md
-
-# MkDocs
-site/

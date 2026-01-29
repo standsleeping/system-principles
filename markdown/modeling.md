@@ -224,6 +224,8 @@ class UserPayload(TypedDict):
     # No guarantees that email is valid, just that it's a string.
 ```
 
+**When to skip interchange types**: If the external format maps 1:1 to your domain types, you can parse directly into domain types without an intermediate layer. Intermediate types that exist only for mapping add maintenance cost and create opportunities for bugs when fields drift out of sync. Use explicit interchange types when: (a) the external shape genuinely differs from your domain, (b) you need to isolate against external format changes, or (c) multiple formats feed the same domain type.
+
 ### [DDI2] Use domain types internally.
 
 **Use for**: Business entities, value objects, internal logic.
@@ -258,3 +260,31 @@ Don't let interchange types leak deep into the domain. Parse them into domain ty
 **Output Flow**: `Domain Type` → `Translator` → `Interchange Type (TypedDict)` → `External JSON`
 - The translator converts rich types (UUID) back to primitives (string).
 - The interchange type ensures the output shape matches the API contract.
+
+### [DDI4] Interchange types describe shape, not invariants.
+
+Interchange types say "what fields exist" not "what values are valid." Use primitive types (`str`, `int`, `dict[str, object]`) rather than refined types (`Literal["active"]`, `PositiveInt`, domain-specific TypedDicts).
+
+```python
+# Good: describes shape, translator validates
+class UserPayload(TypedDict):
+    status: str  # Translator checks if valid status
+
+# Bad: encodes domain invariants in interchange type
+class UserPayload(TypedDict):
+    status: Literal["active", "suspended"]  # Domain knowledge leaked
+```
+
+**For polymorphic data** (discriminated unions, variable structure), use loose types like `dict[str, object]`. The translator handles discrimination based on fields like `type`.
+
+```python
+# Good: translator discriminates and parses
+class MessageDict(TypedDict):
+    role: str
+    content: str | list[dict[str, object]]  # Translator handles content blocks
+
+# Bad: duplicates domain type structure at interchange layer
+ContentDict = TextContentDict | ToolUseContentDict | ToolResultContentDict
+```
+
+**Why**: Interchange types mirror external formats (JSON), which have no notion of refined types or discriminated unions. Encoding invariants creates duplication between interchange and domain layers, and couples them unnecessarily.
