@@ -3,7 +3,6 @@
 import argparse
 
 from principles.logging import get_logger
-from principles.types import Phase
 
 logger = get_logger(__name__)
 
@@ -36,23 +35,36 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
         help="Path to sets directory (default: sets)",
     )
 
+    parser.add_argument(
+        "--taxonomies-dir",
+        default="taxonomies",
+        help="Path to taxonomies directory (default: taxonomies)",
+    )
+
     subparsers = parser.add_subparsers(dest="command")
 
     # principles list
     list_parser = subparsers.add_parser("list", help="List principles")
     list_parser.add_argument(
-        "--phase",
-        choices=[p.value for p in Phase],
-        help="Filter by phase",
+        "--taxonomy",
+        "-t",
+        default="default",
+        help="Taxonomy to use for grouping (default: default)",
     )
     list_parser.add_argument(
-        "--category",
-        help="Filter by category code (e.g., BD, TD)",
+        "--group",
+        "-g",
+        help="Filter by group path (e.g., 'designing/abstraction')",
     )
     list_parser.add_argument(
         "--set",
         dest="set_name",
         help="Filter by set name",
+    )
+    list_parser.add_argument(
+        "--flat",
+        action="store_true",
+        help="Display as flat list without taxonomy grouping",
     )
 
     # principles show <id>
@@ -67,6 +79,16 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
         choices=["markdown", "agent-skill"],
         default="markdown",
         help="Output format (default: markdown)",
+    )
+    compile_parser.add_argument(
+        "--taxonomy",
+        "-t",
+        help="Taxonomy for organizing output (flat if not specified)",
+    )
+    compile_parser.add_argument(
+        "--group",
+        "-g",
+        help="Compile only principles under this group path",
     )
     compile_parser.add_argument(
         "--set",

@@ -1,0 +1,183 @@
+name: default
+description: Original phase/category organization (migrated)
+groups:
+  designing:
+    groups:
+      abstraction:
+        principles:
+        - AB1
+        - AB2
+        - AB3
+        - AB4
+      boundaries:
+        principles:
+        - BD1
+        - BD2
+        - BD3
+        - BD4
+        - BD5
+        - BD6
+      change:
+        principles:
+        - CH1
+        - CH2
+        - CH3
+        - CH4
+      cognitive-load:
+        principles:
+        - CL1
+        - CL2
+      logic:
+        principles:
+        - LG1
+        - LG2
+        - LG3
+        - LG4
+  modeling:
+    groups:
+      data-interchange:
+        principles:
+        - DDI1
+        - DDI2
+        - DDI3
+        - DDI4
+      effects:
+        principles:
+        - EF1
+      events:
+        principles:
+        - EV1
+      type-design:
+        principles:
+        - TD1
+        - TD2
+        - TD3
+        - TD4
+        - TD5
+        - TD6
+        - TD7
+        - TD8
+      type-patterns:
+        principles:
+        - TP1
+        - TP2
+        - TP3
+        - TP4
+        - TP5
+        - TP6
+        - TP7
+      values:
+        principles:
+        - VL1
+        - VL2
+  structuring:
+    groups:
+      boundary-types:
+        principles:
+        - BT1
+        - BT2
+      code-building-blocks:
+        principles:
+        - CB1
+        - CB2
+        - CB3
+        - CB4
+      project-structure:
+        principles:
+        - PS1
+        - PS2
+        - PS3
+      state-architecture:
+        principles:
+        - SA1
+        - SA2
+        - SA3
+        - SA4
+        - SA5
+      translators:
+        principles:
+        - TL1
+        - TL10
+        - TL11
+        - TL12
+        - TL2
+        - TL3
+        - TL4
+        - TL5
+        - TL6
+        - TL7
+        - TL8
+        - TL9
+  implementing:
+    groups:
+      polymorphism-dispatch:
+        principles:
+        - PD1
+        - PD2
+        - PD3
+        - PD4
+        - PD5
+        - PD6
+        - PD7
+        - PD8
+      style-rules:
+        principles:
+        - SR1
+  verifying:
+    groups:
+      mocking-rules:
+        principles:
+        - MR1
+        - MR2
+        - MR3
+        - MR4
+      testing-principles:
+        principles:
+        - T1
+        - T2
+        - T3
+        - T4
+  presenting:
+    groups:
+      layout:
+        principles:
+        - LY1
+        - LY2
+        - LY3
+        - LY4
+        - LY5
+        - LY6
+        - LY7
+        - LY8
+        - LY9
+      tooling:
+        principles:
+        - UT1
+        - UT10
+        - UT11
+        - UT12
+        - UT13
+        - UT14
+        - UT15
+        - UT2
+        - UT3
+        - UT4
+        - UT5
+        - UT6
+        - UT7
+        - UT8
+        - UT9
+      visual-design:
+        principles:
+        - VD1
+        - VD10
+        - VD11
+        - VD12
+        - VD2
+        - VD3
+        - VD4
+        - VD5
+        - VD6
+        - VD7
+        - VD8
+        - VD9

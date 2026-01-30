@@ -4,16 +4,21 @@ import argparse
 from pathlib import Path
 
 from principles.translators import load_principles
-from principles.types import Principle, PrincipleId
+from principles.translators.taxonomy_loader import load_taxonomies
+from principles.types import Principle, PrincipleId, Taxonomy
 
 
 def run_show(args: argparse.Namespace) -> int:
     """Execute the show command."""
     content_dir = Path(args.content_dir)
+    taxonomies_dir = Path(args.taxonomies_dir)
     principle_id = PrincipleId(args.id.upper())
 
-    # Load all principles and find the matching one
-    principles, errors = load_principles(content_dir)
+    # Load all principles (try flat first, fall back to recursive for migration)
+    principles, errors = load_principles(content_dir, recursive=False)
+    if not principles:
+        # Try recursive for backward compatibility during migration
+        principles, errors = load_principles(content_dir, recursive=True)
 
     # Find by ID
     matching = [p for p in principles if p.id == principle_id]
@@ -27,18 +32,30 @@ def run_show(args: argparse.Namespace) -> int:
         return 1
 
     principle = matching[0]
-    _display_principle(principle)
+
+    # Load taxonomies for context
+    taxonomies, _ = load_taxonomies(taxonomies_dir)
+
+    _display_principle(principle, taxonomies)
 
     return 0
 
 
-def _display_principle(principle: Principle) -> None:
+def _display_principle(principle: Principle, taxonomies: list[Taxonomy]) -> None:
     """Display a single principle in detail."""
     print(f"# [{principle.id}] {principle.title}")
     print()
-    print(f"**Phase:** {principle.category.phase.value.title()}")
-    print(f"**Category:** {principle.category.name}")
-    print()
+
+    # Show where this principle appears in taxonomies
+    for taxonomy in taxonomies:
+        paths = taxonomy.get_paths_for_principle(principle.id)
+        if paths:
+            paths_str = ", ".join(paths)
+            print(f"**{taxonomy.name}:** {paths_str}")
+
+    if taxonomies:
+        print()
+
     print(f"**Summary:** {principle.summary}")
     print()
 

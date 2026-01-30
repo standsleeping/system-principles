@@ -4,55 +4,11 @@ from pathlib import Path
 
 from principles.translators.frontmatter import parse_frontmatter
 from principles.types import (
-    Category,
-    CategoryCode,
     ParseError,
-    Phase,
     Principle,
     PrincipleId,
     ValidationError,
 )
-
-
-def _infer_phase_and_category(
-    file_path: Path,
-) -> tuple[Phase, str, CategoryCode] | ValidationError:
-    """Infer phase and category from file path.
-
-    Expected structure: content/<phase>/<category>/<id>.md
-    """
-    parts = file_path.parts
-
-    # Find content directory index
-    try:
-        content_idx = parts.index("content")
-    except ValueError:
-        return ValidationError(
-            message=f"File not in content directory: {file_path}",
-        )
-
-    remaining = parts[content_idx + 1 :]
-    if len(remaining) < 3:
-        return ValidationError(
-            message=f"Invalid path structure, expected content/<phase>/<category>/<file>.md: {file_path}",
-        )
-
-    phase_str, category_name = remaining[0], remaining[1]
-
-    # Parse phase
-    try:
-        phase = Phase(phase_str)
-    except ValueError:
-        valid_phases = [p.value for p in Phase]
-        return ValidationError(
-            message=f"Invalid phase '{phase_str}', must be one of: {valid_phases}",
-        )
-
-    # Derive category code from principle ID prefix (will be validated later)
-    # For now, use category name as a placeholder
-    category_code = CategoryCode(category_name.upper().replace("-", ""))
-
-    return phase, category_name, category_code
 
 
 def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
@@ -65,7 +21,8 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
         tags: [simplicity, design] (optional)
         related: [PS1, PS2] (optional)
 
-    Phase and category are inferred from directory path.
+    Principles are taxonomy-independent; organizational structure is defined
+    separately in taxonomy files.
     """
     if not file_path.exists():
         return ParseError(
@@ -105,13 +62,6 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
                 field=field_name,
             )
 
-    # Infer phase and category from path
-    path_result = _infer_phase_and_category(file_path)
-    if isinstance(path_result, ValidationError):
-        return path_result
-
-    phase, category_name, category_code = path_result
-
     # Extract fields
     principle_id = PrincipleId(str(metadata["id"]))
     title = str(metadata["title"])
@@ -128,18 +78,10 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
         else ()
     )
 
-    # Build category
-    category = Category(
-        code=category_code,
-        name=category_name.replace("-", " ").title(),
-        phase=phase,
-    )
-
     return Principle(
         id=principle_id,
         title=title,
         summary=summary,
-        category=category,
         content=content,
         tags=tags,
         related=related,
@@ -148,8 +90,14 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
 
 def load_principles(
     content_dir: Path,
+    recursive: bool = False,
 ) -> tuple[list[Principle], list[ParseError | ValidationError]]:
     """Load all principles from a content directory.
+
+    Args:
+        content_dir: Path to directory containing principle .md files
+        recursive: If True, search subdirectories (for migration compatibility).
+                   If False (default), only load from the directory root.
 
     Returns a tuple of (successfully loaded principles, errors).
     """
@@ -165,15 +113,16 @@ def load_principles(
         )
         return principles, errors
 
-    # Find all .md files recursively
-    for md_file in content_dir.rglob("*.md"):
+    # Find .md files (flat or recursive based on flag)
+    pattern = "**/*.md" if recursive else "*.md"
+    for md_file in content_dir.glob(pattern):
         result = load_principle(md_file)
         if isinstance(result, Principle):
             principles.append(result)
         else:
             errors.append(result)
 
-    # Sort by phase, then category, then ID
-    principles.sort(key=lambda p: (p.category.phase.value, p.category.code, p.id))
+    # Sort alphabetically by ID
+    principles.sort(key=lambda p: p.id)
 
     return principles, errors

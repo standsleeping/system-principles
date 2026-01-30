@@ -9,6 +9,7 @@ def test_parse_args_defaults() -> None:
     assert args.log_level == "INFO"
     assert args.content_dir == "content"
     assert args.sets_dir == "sets"
+    assert args.taxonomies_dir == "taxonomies"
     assert args.command is None
 
 
@@ -22,13 +23,24 @@ def test_parse_args_list_command() -> None:
     """Parses list subcommand."""
     args = parse_args(["list"])
     assert args.command == "list"
+    assert args.taxonomy == "default"
+    assert args.group is None
+    assert args.flat is False
 
 
-def test_parse_args_list_with_phase() -> None:
-    """Parses list with phase filter."""
-    args = parse_args(["list", "--phase", "designing"])
+def test_parse_args_list_with_taxonomy() -> None:
+    """Parses list with taxonomy filter."""
+    args = parse_args(["list", "--taxonomy", "custom", "--group", "designing/abstraction"])
     assert args.command == "list"
-    assert args.phase == "designing"
+    assert args.taxonomy == "custom"
+    assert args.group == "designing/abstraction"
+
+
+def test_parse_args_list_flat() -> None:
+    """Parses list with flat flag."""
+    args = parse_args(["list", "--flat"])
+    assert args.command == "list"
+    assert args.flat is True
 
 
 def test_parse_args_show_command() -> None:
@@ -44,3 +56,11 @@ def test_parse_args_compile_command() -> None:
     assert args.command == "compile"
     assert args.format == "agent-skill"
     assert args.set_name == "core"
+
+
+def test_parse_args_compile_with_taxonomy() -> None:
+    """Parses compile with taxonomy."""
+    args = parse_args(["compile", "--taxonomy", "default", "--group", "modeling"])
+    assert args.command == "compile"
+    assert args.taxonomy == "default"
+    assert args.group == "modeling"
