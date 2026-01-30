@@ -1,0 +1,7 @@
+---
+id: TESTS_EVALUATE_DESIGN
+title: "Tests evaluate design quality."
+summary: "Well-designed components produce tests that are easy to read, write, and run. We use our tests as a way of evaluating the quality of our design."
+---
+
+Well-designed components produce tests that are easy to read, write, and run. We use our tests as a way of evaluating the quality of our design.
