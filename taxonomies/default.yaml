@@ -1,251 +1,181 @@
 name: default
-description: Original phase/category organization (migrated)
+description: Organized by activity flow, from process through implementation to verification and presentation.
 groups:
-  designing:
+  process:
     description: >-
-      Systems model the world. Our understanding of the world changes over time,
-      and the design of the system must react in turn. No project ever begins with
-      complete information. In fact, complete information is never ultimately reached;
-      we are never finished with our design.
-    groups:
-      abstraction:
-        principles:
-        - ENTANGLEMENT_NOT_HIDING
-        - UNTANGLE_ASPECTS
-        - REDUCE_INTERLEAVING
-        - REASSEMBLY
-      boundaries:
-        description: >-
-          What *distinct sources* of change are we listening for, and reacting to,
-          to deepen our understanding of the domain we are modeling? Let's call these
-          wellsprings of change "Parnas Points." We will design the building blocks
-          of our system around these sources of change.
-        principles:
-        - START_SIMPLE
-        - STRUCTURE_REFLECTS_CHANGE
-        - PROVIDE_MORE_REQUIRE_LESS
-        - MODULES_HIDE_DECISIONS
-        - DESIGN_NOT_WORKFLOW
-        - DESIGN_FRAMEWORK
-      change:
-        principles:
-        - ACCRETION_AND_RELAXATION
-        - NEVER_MUTATE
-        - STRENGTHEN_OUTPUTS
-        - RELAX_INPUTS
-      cognitive-load:
-        principles:
-        - WORKING_MEMORY_LIMIT
-        - NAME_ASPECTS
-      logic:
-        principles:
-        - NO_KNOWLEDGE_AS_CONTROL_FLOW
-        - HOIST_DECISIONS
-        - DECISIONS_AS_DATA
-        - ENCODE_PREDICATES
+      The meta principle. Gall's law reigns; incremental full passes from idea to implementation with vertical slices.
+    principles:
+    - START_SIMPLE
+
+  conceptual:
+    description: >-
+      Naming, separating, untangling, and designing.
+    principles:
+    - ENTANGLEMENT_NOT_HIDING
+    - REDUCE_INTERLEAVING
+    - REASSEMBLY
+    - UNTANGLE_ASPECTS
+    - NAME_ASPECTS
+    - STRUCTURE_REFLECTS_CHANGE
+    - MODULES_HIDE_DECISIONS
+    - DESIGN_NOT_WORKFLOW
+    - DESIGN_FRAMEWORK
+    - PROVIDE_MORE_REQUIRE_LESS
+    - ACCRETION_AND_RELAXATION
+    - STRENGTHEN_OUTPUTS
+    - RELAX_INPUTS
+
   modeling:
     description: >-
-      These principles dictate how we think about data, types, and state. Good models
-      make illegal states unrepresentable and carry proofs forward in types.
-    groups:
-      data-interchange:
-        description: >-
-          Distinguish between how data is represented *inside* your domain vs. how it
-          is represented *at the boundaries*. **Interchange types** are language constructs
-          with a well-defined serialization path to JSON (or other wire formats). They
-          describe shape without behavior—in Python, this is `TypedDict`; in TypeScript,
-          plain interfaces; in Go, structs with JSON tags.
-        principles:
-        - INTERCHANGE_AT_BOUNDARIES
-        - DOMAIN_TYPES_INTERNAL
-        - TRANSLATORS_BRIDGE_GAP
-        - SHAPE_NOT_INVARIANTS
-      effects:
-        principles:
-        - TIME_DEPENDENT_RESULTS
-      events:
-        principles:
-        - STORE_FACTS_WITH_TIME
-      type-design:
-        principles:
-        - ILLEGAL_STATES_UNREPRESENTABLE
-        - CHASE_CHECKS_UPSTREAM
-        - STRENGTHEN_INPUTS
-        - TYPES_AS_BOUNDARIES
-        - ENUMS_OVER_BOOLEANS
-        - INCLUDE_TEMPORAL_INFO
-        - PRECISION_MATCHES_STABILITY
-        - DOMAIN_TYPE_SAFETY
-      type-patterns:
-        description: >-
-          Functions should return the information callers need to act, not just yes/no.
-          Types carry proofs forward.
-        principles:
-        - AVOID_RETURNING_BOOL
-        - ACCEPTABLE_BOOLS
-        - VALIDATE_AT_BOUNDARIES
-        - REFINED_TYPES_PROPAGATE_PROOFS
-        - PATTERN_MATCH_TO_REFINE
-        - FIX_UPSTREAM_TYPE
-        - PARSE_INTO_STRONGER_TYPES
-      values:
-        principles:
-        - DEPEND_ON_VALUES
-        - STATE_ENTANGLES_TIME
-  structuring:
+      What you choose to model, record, remember, store, or persist from the world.
+      Representing domain: data, types, and state.
+    principles:
+    - DEPEND_ON_VALUES
+    - STATE_ENTANGLES_TIME
+    - STORE_FACTS_WITH_TIME
+    - TIME_DEPENDENT_RESULTS
+    - STATELESS_DESIGN
+    - EVENT_SOURCING
+    - DATABASE_AS_TRUTH
+    - TRACEABILITY
+    - TIME_TRAVEL
+
+  structure:
     description: >-
-      These principles govern how we organize code: architecture, boundaries, and modules.
-      Good structure isolates change, makes dependencies explicit, and keeps the system navigable.
-    groups:
-      boundary-types:
-        description: >-
-          A critical aspect of hexagonal architecture is proper boundary management between layers.
-        principles:
-        - TRANSLATOR_FUNCTIONS
-        - PURE_CONVERSION_ONLY
-      code-building-blocks:
-        description: >-
-          Files will contain one (and only one, per file) of the following simple "building block"
-          code types. This is the most commonly violated architectural rule; be rigorous in your
-          assessment as to whether the code you produce adheres to these standards. We avoid
-          combinatorial explosion (2^n paths for n branches) through careful design that makes
-          invalid states unrepresentable and maintains a clear separation between actions,
-          integrators, and units.
-        principles:
-        - ACTIONS
-        - INTEGRATORS
-        - UNITS
-        - TRANSLATORS
-      project-structure:
-        principles:
-        - DATA_AT_ROOT
-        - FUNCTIONS_IN_SUBDIR
-        - ONE_TO_ONE_TO_ONE
-      state-architecture:
-        principles:
-        - STATELESS_DESIGN
-        - EVENT_SOURCING
-        - DATABASE_AS_TRUTH
-        - TRACEABILITY
-        - TIME_TRAVEL
-      translators:
-        description: >-
-          Data crosses boundaries constantly: from JSON to domain objects, SQL rows to entities,
-          one context to another. Each crossing is a potential source of type errors and coupling.
-          **Translators** are pure conversion functions that transform data at architectural
-          boundaries. They convert representations without performing business logic, ensuring
-          your domain stays decoupled from external formats.
-        principles:
-        - CONVERT_NEVER_OPERATE
-        - EXPLICIT_ERROR_VALUES
-        - VALIDATE_STRUCTURE_ONLY
-        - UNIT_TRANSLATORS_SELF_CONTAINED
-        - INTEGRATOR_TRANSLATORS_COMPOSE
-        - CHAIN_WITH_ERROR_PROPAGATION
-        - ONE_TRANSLATOR_PER_BOUNDARY
-        - DOMAIN_TO_EXTERNAL_LANGUAGE
-        - CROSS_DOMAIN_ENFORCE_RULES
-        - INJECT_TRANSLATORS
-        - TRANSLATORS_IN_HANDLERS
-        - CONSISTENT_ERROR_TYPES
-  implementing:
+      Where our constructs are located both logically and physically.
+      Organizing code: architecture, boundaries, and modules.
+    principles:
+    - DATA_AT_ROOT
+    - FUNCTIONS_IN_SUBDIR
+    - ONE_TO_ONE_TO_ONE
+    - UNITS
+    - INTEGRATORS
+    - ACTIONS
+    - TRANSLATORS
+    - TRANSLATOR_FUNCTIONS
+    - PURE_CONVERSION_ONLY
+
+  types:
     description: >-
-      These principles govern how we write code: patterns, style, and dispatch. Good implementation
-      separates decisions from behavior and keeps code predictable.
-    groups:
-      polymorphism-dispatch:
-        description: >-
-          The section addresses a fundamental question: how do we handle different cases in our code?
-          We always prefer data-driven dispatch over traditional control flow (match statements,
-          if/else chains, inheritance) where possible.
-        principles:
-        - SEPARATE_DECISIONS_BEHAVIOR
-        - DATA_DRIVEN_DISPATCH
-        - PATTERN_MATCH_AT_BOUNDARIES
-        - ALA_CARTE_POLYMORPHISM
-        - DECISIONS_AS_DATA_DISPATCH
-        - NO_DEPS_IN_DISPATCH
-        - MANAGE_EXHAUSTIVENESS
-        - DISPATCH_FOR_DOMAIN
-      style-rules:
-        principles:
-        - FUNCTIONAL_PATTERNS
-  verifying:
+      How we design types downstream of our conceptual, modeling, and structure choices.
+      Good models make illegal states unrepresentable and carry proofs forward in types.
+    principles:
+    - ILLEGAL_STATES_UNREPRESENTABLE
+    - TYPES_AS_BOUNDARIES
+    - PRECISION_MATCHES_STABILITY
+    - CHASE_CHECKS_UPSTREAM
+    - STRENGTHEN_INPUTS
+    - REFINED_TYPES_PROPAGATE_PROOFS
+    - PARSE_INTO_STRONGER_TYPES
+    - PATTERN_MATCH_TO_REFINE
+    - VALIDATE_AT_BOUNDARIES
+    - ACCEPTABLE_BOOLS
+    - INTERCHANGE_AT_BOUNDARIES
+    - DOMAIN_TYPES_INTERNAL
+    - SHAPE_NOT_INVARIANTS
+    - INCLUDE_TEMPORAL_INFO
+
+  constructs:
     description: >-
-      These principles govern how we verify correctness: testing strategies and mocking boundaries.
-      Good tests evaluate design quality and focus on boundaries.
-    groups:
-      mocking-rules:
-        description: >-
-          Mocking should be limited to external boundaries. When tests require mocking application
-          code, it signals a design problem.
-        principles:
-        - NEVER_MOCK_APP_CODE
-        - MOCK_EXTERNAL_ONLY
-        - PURPOSE_BUILT_DOUBLES
-        - MOCKING_INDICATES_PROBLEMS
-      testing-principles:
-        description: >-
-          Testing is critical and often informs how subsystems are designed.
-        principles:
-        - TESTS_EVALUATE_DESIGN
-        - TEST_FIRST
-        - DECLARATIVE_TEST_DOCS
-        - FUNCTIONAL_TESTING
-  presenting:
+      How we implement our concepts, models, packages, modules, functions, and types.
+      Linter-catchable rules andpatterns.
+    principles:
+    - WORKING_MEMORY_LIMIT
+    - FUNCTIONAL_PATTERNS
+    - ENUMS_OVER_BOOLEANS
+    - AVOID_RETURNING_BOOL
+    - FIX_UPSTREAM_TYPE
+    - DOMAIN_TYPE_SAFETY
+    - NO_KNOWLEDGE_AS_CONTROL_FLOW
+    - HOIST_DECISIONS
+    - DECISIONS_AS_DATA
+    - ENCODE_PREDICATES
+    - SEPARATE_DECISIONS_BEHAVIOR
+    - DATA_DRIVEN_DISPATCH
+    - PATTERN_MATCH_AT_BOUNDARIES
+    - ALA_CARTE_POLYMORPHISM
+    - NO_DEPS_IN_DISPATCH
+    - MANAGE_EXHAUSTIVENESS
+    - TRANSLATORS_BRIDGE_GAP
+    - CONVERT_NEVER_OPERATE
+    - EXPLICIT_ERROR_VALUES
+    - VALIDATE_STRUCTURE_ONLY
+    - UNIT_TRANSLATORS_SELF_CONTAINED
+    - INTEGRATOR_TRANSLATORS_COMPOSE
+    - CHAIN_WITH_ERROR_PROPAGATION
+    - ONE_TRANSLATOR_PER_BOUNDARY
+    - DOMAIN_TO_EXTERNAL_LANGUAGE
+    - CROSS_DOMAIN_ENFORCE_RULES
+    - INJECT_TRANSLATORS
+    - TRANSLATORS_IN_HANDLERS
+    - CONSISTENT_ERROR_TYPES
+
+  testing:
     description: >-
-      These principles govern UI concerns: layout, visual design, and tooling. Good presentation
-      respects viewport constraints and uses systematic verification.
-    groups:
-      layout:
-        description: >-
-          Layout principles govern the structural arrangement of UI components: where content lives,
-          what contains what, and how space is allocated.
-        principles:
-        - NO_PAGE_SCROLL
-        - VIEWPORT_LOCKED
-        - FIXED_FLEXIBLE_REGIONS
-        - SCROLL_CONTAINMENT
-        - BOUNDARY_OWNERSHIP
-        - EMPTY_STATE_COLLAPSE
-        - LAYOUT_VARIANTS
-        - NEVER_CALC_LAYOUT
-        - LAYOUT_QUIRKS
-        - OVERFLOW_CAUSES
-      tooling:
-        description: >-
-          Tools and techniques for verifying UI constraints, debugging layout issues, and maintaining
-          visual consistency.
-        principles:
-        - AUTO_VERIFICATION
-        - OVERFLOW_DETECTION
-        - ANCESTRY_TRACING
-        - VISUAL_DEBUGGING
-        - TEST_INTEGRATION
-        - DEV_WORKFLOW
-        - DIAGNOSTIC_OUTPUT
-        - CONTINUOUS_MONITORING
-        - PRESENT_RESULTS
-        - HEADLESS_DEBUGGING
-        - COMPONENT_PREVIEW
-        - WIDTH_CONTROLLED_TESTING
-        - VARIANT_BASED_TESTING
-        - RESPONSIVE_STRATEGY
-        - BROWSER_AUTOMATION
-      visual-design:
-        description: >-
-          Visual design principles govern aesthetics: how interfaces look, how hierarchy is communicated,
-          and how users perceive structure through typography, color, and spacing.
-        principles:
-        - TYPOGRAPHY_HIERARCHY
-        - TRANSPARENT_DEFAULT
-        - MINIMAL_BORDERS
-        - SPACING_STRATEGY
-        - COLOR_USAGE
-        - SIMPLIFICATION_PATTERNS
-        - FOCUS_STATES
-        - TOKEN_DRIVEN_DESIGN
-        - RESET_FIRST
-        - RESPONSIVE_COMPONENTS
-        - DATA_INK_RATIO
-        - ONE_SIGNAL_PER_MEANING
+      Strict rules for testing and mocking. Good tests evaluate design quality
+      and focus on boundaries.
+    principles:
+    - TESTS_EVALUATE_DESIGN
+    - MOCKING_INDICATES_PROBLEMS
+    - TEST_FIRST
+    - FUNCTIONAL_TESTING
+    - DECLARATIVE_TEST_DOCS
+    - NEVER_MOCK_APP_CODE
+    - MOCK_EXTERNAL_ONLY
+    - PURPOSE_BUILT_DOUBLES
+
+  layout:
+    description: >-
+      Rules for visual layout and structure. Layout principles govern the structural
+      arrangement of UI components: where content lives, what contains what, and how
+      space is allocated.
+    principles:
+    - NO_PAGE_SCROLL
+    - VIEWPORT_LOCKED
+    - FIXED_FLEXIBLE_REGIONS
+    - SCROLL_CONTAINMENT
+    - BOUNDARY_OWNERSHIP
+    - EMPTY_STATE_COLLAPSE
+    - LAYOUT_VARIANTS
+    - NEVER_CALC_LAYOUT
+    - LAYOUT_QUIRKS
+    - OVERFLOW_CAUSES
+
+  visual-design:
+    description: >-
+      Rules for visual design and aesthetics. How interfaces look, how hierarchy is
+      communicated, and how users perceive structure through typography, color, and spacing.
+    principles:
+    - RESET_FIRST
+    - TOKEN_DRIVEN_DESIGN
+    - TYPOGRAPHY_HIERARCHY
+    - SPACING_STRATEGY
+    - COLOR_USAGE
+    - TRANSPARENT_DEFAULT
+    - MINIMAL_BORDERS
+    - SIMPLIFICATION_PATTERNS
+    - ONE_SIGNAL_PER_MEANING
+    - DATA_INK_RATIO
+    - FOCUS_STATES
+    - RESPONSIVE_COMPONENTS
+
+  ui-debugging:
+    description: >-
+      Principles that guide how to effectively debug HTML/JS/CSS. Tools and techniques
+      for verifying UI constraints, debugging layout issues, and maintaining visual consistency.
+    principles:
+    - AUTO_VERIFICATION
+    - DEV_WORKFLOW
+    - CONTINUOUS_MONITORING
+    - OVERFLOW_DETECTION
+    - ANCESTRY_TRACING
+    - DIAGNOSTIC_OUTPUT
+    - PRESENT_RESULTS
+    - VISUAL_DEBUGGING
+    - TEST_INTEGRATION
+    - HEADLESS_DEBUGGING
+    - COMPONENT_PREVIEW
+    - WIDTH_CONTROLLED_TESTING
+    - VARIANT_BASED_TESTING
+    - RESPONSIVE_STRATEGY
+    - BROWSER_AUTOMATION
