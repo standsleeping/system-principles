@@ -1,7 +1,7 @@
 ---
 id: ILLEGAL_STATES_UNREPRESENTABLE
 title: "Make illegal states unrepresentable."
-summary: ""
+summary: "Shrink the representable state space to only valid states. Move Any types and try/except close to boundaries; convert to meaningful types immediately."
 ---
 
 1. Move "Any" types as close as possible to the dependency you can't control.

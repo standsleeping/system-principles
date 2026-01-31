@@ -1,7 +1,7 @@
 ---
 id: NEVER_CALC_LAYOUT
 title: "Never Calculate What Layout Can Handle."
-summary: ""
+summary: "Never hardcode a value that depends on another element's size. Use flexbox to let the browser distribute space automatically."
 ---
 
 **Never hardcode a value that depends on another element's size.** This creates duplicated knowledge: one element's size is defined in one place, and a guess about that size is hardcoded elsewhere. When either changes, they drift apart silently.
