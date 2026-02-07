@@ -149,17 +149,17 @@ body {
 }
 
 .main p {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .main ul,
 .main ol {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
     padding-left: 1.5rem;
 }
 
 .main li {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.4rem;
 }
 
 .main a {
@@ -343,7 +343,7 @@ pre code {
 .principle-id {
     font-family: var(--font-mono);
     font-size: 0.7rem;
-    color: var(--color-border);
+    color: var(--color-text-muted);
     letter-spacing: 0.03em;
 }
 
