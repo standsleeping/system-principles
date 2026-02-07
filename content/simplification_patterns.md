@@ -15,3 +15,5 @@ When in doubt, simplify:
 | Decorative borders | Structural borders only |
 
 Each visual element costs attention. Earn that cost.
+
+**Demote metadata.** Technical identifiers, internal codes, and timestamps are for the system, not the reader. Make them small, light, and peripheral. If metadata appears at the same visual weight as content, it competes for attention it hasn't earned.

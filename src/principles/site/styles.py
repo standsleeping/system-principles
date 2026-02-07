@@ -1,10 +1,11 @@
 """CSS styles for the static site."""
 
 CSS = """\
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Rubik:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=Rubik:wght@400;600;700&display=swap');
 
 :root {
-    --font-body: "IBM Plex Mono", monospace;
+    --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
     --font-heading: "Rubik", -apple-system, BlinkMacSystemFont, "Segoe UI",
         Roboto, sans-serif;
     --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
@@ -128,7 +129,7 @@ body {
 .main h1 {
     font-size: 1.6rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     padding-top: 0.5rem;
 }
 
@@ -196,8 +197,10 @@ blockquote p:last-child {
 
 .essence {
     font-style: italic;
-    color: var(--color-text);
-    margin-bottom: 1rem;
+    color: var(--color-text-muted);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
 }
 
 /* Breadcrumb */
@@ -338,8 +341,10 @@ pre code {
 
 /* Principle page ID label */
 .principle-id {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-border);
+    letter-spacing: 0.03em;
 }
 
 /* Responsive */

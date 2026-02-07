@@ -29,3 +29,5 @@ Use modern CSS layout for spacing:
 ```
 
 Gap-based spacing is more predictable and requires less override logic.
+
+**Spacing creates groups.** Vary spacing to signal what belongs together. Tight spacing between a title and its subtitle says "these are a unit." More space before the next section says "new context." This is Gestalt proximity: elements near each other are perceived as related. Uniform spacing between all elements flattens the hierarchy and makes everything feel equally important.

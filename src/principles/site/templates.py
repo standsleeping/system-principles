@@ -127,10 +127,11 @@ def group_page(
     for pid in group.principle_ids:
         if pid in principle_map:
             p = principle_map[pid]
+            title_text = p.title.rstrip(".")
             parts.append("<li>")
             parts.append(
                 f'<div class="principle-title">'
-                f'<a href="../principles/{slug(pid)}/">{inline_markup(p.title)}</a>'
+                f'<a href="../principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
                 f"</div>"
             )
             if p.essence:
@@ -152,10 +153,11 @@ def group_page(
         for pid in subgroup.principle_ids:
             if pid in principle_map:
                 p = principle_map[pid]
+                title_text = p.title.rstrip(".")
                 parts.append("<li>")
                 parts.append(
                     f'<div class="principle-title">'
-                    f'<a href="../principles/{slug(pid)}/">{inline_markup(p.title)}</a>'
+                    f'<a href="../principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
                     f"</div>"
                 )
                 if p.essence:
@@ -196,14 +198,16 @@ def principle_page(
             f"</div>"
         )
 
-    parts.append(f"<h1>{inline_markup(principle.title)}</h1>")
-    parts.append(
-        f'<div class="principle-id" style="margin-bottom: 0.5rem;">'
-        f"{escape(str(principle.id))}</div>"
-    )
+    title_text = principle.title.rstrip(".")
+    parts.append(f"<h1>{inline_markup(title_text)}</h1>")
 
     if principle.essence:
         parts.append(f'<p class="essence">{inline_markup(principle.essence)}</p>')
+
+    parts.append(
+        f'<div class="principle-id">'
+        f"{escape(str(principle.id))}</div>"
+    )
 
     # Render content
     parts.append('<div class="content">')
