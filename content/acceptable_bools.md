@@ -1,7 +1,7 @@
 ---
 id: ACCEPTABLE_BOOLS
 title: "Acceptable bools."
-summary: "Pure predicates where no additional context exists: `is_empty(list)`, `is_prime(n)`, `is_even(n)`."
+essence: "A bool is only acceptable when the caller truly needs nothing beyond yes or no."
 ---
 
 Pure predicates where no additional context exists: `is_empty(list)`, `is_prime(n)`, `is_even(n)`.

@@ -64,3 +64,37 @@ def test_parse_args_compile_with_taxonomy() -> None:
     assert args.command == "compile"
     assert args.taxonomy == "default"
     assert args.group == "modeling"
+
+
+def test_parse_args_site_build() -> None:
+    """Parses site build subcommand."""
+    args = parse_args(["site", "build"])
+    assert args.command == "site"
+    assert args.site_command == "build"
+    assert args.taxonomy == "default"
+    assert args.output_dir == "public"
+
+
+def test_parse_args_site_build_with_options() -> None:
+    """Parses site build with custom options."""
+    args = parse_args(["site", "--taxonomy", "custom", "--output-dir", "dist", "build"])
+    assert args.command == "site"
+    assert args.site_command == "build"
+    assert args.taxonomy == "custom"
+    assert args.output_dir == "dist"
+
+
+def test_parse_args_site_serve() -> None:
+    """Parses site serve subcommand."""
+    args = parse_args(["site", "serve"])
+    assert args.command == "site"
+    assert args.site_command == "serve"
+    assert args.port == 9201
+
+
+def test_parse_args_site_serve_with_port() -> None:
+    """Parses site serve with custom port."""
+    args = parse_args(["site", "serve", "--port", "8080"])
+    assert args.command == "site"
+    assert args.site_command == "serve"
+    assert args.port == 8080

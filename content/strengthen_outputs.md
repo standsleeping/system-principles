@@ -1,7 +1,7 @@
 ---
 id: STRENGTHEN_OUTPUTS
 title: "Provide more by strengthening outputs."
-summary: "\"Providing more\" means:"
+essence: "\"Providing more\" means:"
 ---
 
 "Providing more" means:

@@ -1,7 +1,7 @@
 ---
 id: TRANSLATORS_BRIDGE_GAP
 title: "Translators bridge the gap."
-summary: "Don't let interchange types leak deep into the domain. Parse them into domain types at the boundary."
+essence: "Translators convert between interchange types and domain types at the boundary, keeping external formats out of the core."
 ---
 
 Don't let interchange types leak deep into the domain. Parse them into domain types at the boundary.

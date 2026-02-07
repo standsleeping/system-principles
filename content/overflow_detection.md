@@ -1,7 +1,7 @@
 ---
 id: OVERFLOW_DETECTION
 title: "Overflow Detection."
-summary: "The core constraint (no page-level scrolling) requires tooling to detect when the document size exceeds the viewport."
+essence: "Good overflow tooling identifies both the symptom (page scrolls) and the cause (which element)."
 ---
 
 The core constraint (no page-level scrolling) requires tooling to detect when the document size exceeds the viewport.

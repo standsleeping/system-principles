@@ -1,7 +1,7 @@
 ---
 id: ENUMS_OVER_BOOLEANS
 title: "Use enums over booleans."
-summary: "There is no place for boolean data types in entity modeling, almost ever."
+essence: "A boolean hides states that already exist; an enum names them and makes the compiler enforce them."
 ---
 
 There is no place for boolean data types in entity modeling, almost ever.

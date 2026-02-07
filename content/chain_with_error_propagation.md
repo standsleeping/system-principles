@@ -1,7 +1,7 @@
 ---
 id: CHAIN_WITH_ERROR_PROPAGATION
 title: "Chain translators with explicit error propagation."
-summary: "When composing translators, propagate errors explicitly. Don't hide failures."
+essence: "Chained translators short-circuit on the first error, keeping every failure visible and traceable."
 ---
 
 When composing translators, propagate errors explicitly. Don't hide failures.

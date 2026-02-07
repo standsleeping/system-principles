@@ -1,7 +1,7 @@
 ---
 id: SPACING_STRATEGY
 title: "Spacing Strategy."
-summary: "Use modern CSS layout for spacing:"
+essence: "Use flex gap for spacing between elements; it's more predictable and needs no last-child overrides."
 ---
 
 Use modern CSS layout for spacing:

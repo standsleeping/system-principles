@@ -137,7 +137,7 @@ def _compile_markdown_flat(lines: list[str], principles: list[Principle]) -> Non
     for p in principles:
         lines.append(f"## [{p.id}] {p.title}")
         lines.append("")
-        lines.append(f"*{p.summary}*")
+        lines.append(f"*{p.essence}*")
         lines.append("")
         lines.append(p.content)
         lines.append("")
@@ -170,7 +170,7 @@ def _compile_markdown_with_taxonomy(
                 p = principle_map[pid]
                 lines.append(f"{'#' * (depth + 2)} [{p.id}] {p.title}")
                 lines.append("")
-                lines.append(f"*{p.summary}*")
+                lines.append(f"*{p.essence}*")
                 lines.append("")
                 lines.append(p.content)
                 lines.append("")
@@ -191,7 +191,7 @@ def _compile_markdown_with_taxonomy(
         for p in uncategorized:
             lines.append(f"### [{p.id}] {p.title}")
             lines.append("")
-            lines.append(f"*{p.summary}*")
+            lines.append(f"*{p.essence}*")
             lines.append("")
             lines.append(p.content)
             lines.append("")
@@ -245,7 +245,7 @@ def _compile_agent_skill_flat(lines: list[str], principles: list[Principle]) -> 
     for p in principles:
         lines.append(f"## {p.id}: {p.title}")
         lines.append("")
-        lines.append(p.summary)
+        lines.append(p.essence)
         lines.append("")
 
         # Include content but keep it concise for skill format
@@ -291,7 +291,7 @@ def _compile_agent_skill_with_taxonomy(
                 p = principle_map[pid]
                 lines.append(f"{'#' * (depth + 2)} {p.id}: {p.title}")
                 lines.append("")
-                lines.append(p.summary)
+                lines.append(p.essence)
                 lines.append("")
 
                 # Include content but keep it concise for skill format

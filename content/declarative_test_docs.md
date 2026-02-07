@@ -1,7 +1,7 @@
 ---
 id: DECLARATIVE_TEST_DOCS
 title: "Declarative test documentation."
-summary: "Tests are written before implementation with declarative assertion documentation. BAD: \"Tests that env is loaded in non-containerized environment\". GOOD: \"Loads env in non-containerized environment\"."
+essence: "Tests are written before implementation with declarative assertion documentation. BAD: \"Tests that env is loaded in non-containerized environment\". GOOD: \"Loads env in non-containerized environment\"."
 ---
 
 Tests are written before implementation with declarative assertion documentation. BAD: "Tests that env is loaded in non-containerized environment". GOOD: "Loads env in non-containerized environment".

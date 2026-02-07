@@ -33,7 +33,7 @@ def test_main_list_with_content(capsys) -> None:
             """---
 id: BD1
 title: Test Principle
-summary: A test principle
+essence: A test principle
 ---
 
 Content here.

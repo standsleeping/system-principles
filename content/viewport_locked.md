@@ -1,7 +1,7 @@
 ---
 id: VIEWPORT_LOCKED
 title: "Viewport-Locked Containers."
-summary: "The root layout container fills exactly the viewport and prevents page-level scrolling:"
+essence: "Lock the root to the viewport; from there, all scrolling must be explicitly delegated to content regions."
 ---
 
 The root layout container fills exactly the viewport and prevents page-level scrolling:

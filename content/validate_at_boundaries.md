@@ -1,7 +1,7 @@
 ---
 id: VALIDATE_AT_BOUNDARIES
 title: "Validate at boundaries."
-summary: "Push validation to system edges. Don't scatter checks throughout the codebase."
+essence: "Validate once at the edge, produce a proof-carrying type, and interior code never checks again."
 ---
 
 Push validation to system edges. Don't scatter checks throughout the codebase.

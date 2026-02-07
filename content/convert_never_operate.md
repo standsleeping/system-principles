@@ -1,7 +1,7 @@
 ---
 id: CONVERT_NEVER_OPERATE
 title: "Translators only convert, never operate."
-summary: "A translator transforms data representations. It never performs business logic, makes decisions, or triggers side effects."
+essence: "Translators are pure shape converters: no business logic, no decisions, no side effects."
 ---
 
 A translator transforms data representations. It never performs business logic, makes decisions, or triggers side effects.

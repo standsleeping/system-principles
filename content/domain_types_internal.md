@@ -1,7 +1,7 @@
 ---
 id: DOMAIN_TYPES_INTERNAL
 title: "Use domain types internally."
-summary: "Use domain types (classes, dataclasses) for business entities. They enforce invariants, have identity, and are immutable."
+essence: "Use domain types (classes, dataclasses) for business entities. They enforce invariants, have identity, and are immutable."
 ---
 
 **Use for**: Business entities, value objects, internal logic.

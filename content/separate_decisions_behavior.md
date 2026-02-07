@@ -1,7 +1,7 @@
 ---
 id: SEPARATE_DECISIONS_BEHAVIOR
 title: "Separate decisions from behavior."
-summary: "Don't embed \"what to do\" inside \"how to do it.\" Instead of a match statement that both decides and executes, use a dispatch table (dictionary) that maps cases to handlers."
+essence: "Don't embed \"what to do\" inside \"how to do it.\" Instead of a match statement that both decides and executes, use a dispatch table (dictionary) that maps cases to handlers."
 ---
 
 Don't embed "what to do" inside "how to do it." Instead of a match statement that both decides and executes, use a dispatch table (dictionary) that maps cases to handlers.

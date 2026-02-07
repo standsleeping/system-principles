@@ -1,7 +1,7 @@
 ---
 id: INTERCHANGE_AT_BOUNDARIES
 title: "Use interchange types at boundaries."
-summary: "Use TypedDict/interfaces for JSON, API requests, database rows. They describe shape without behavior and serialize directly."
+essence: "Use TypedDict/interfaces for JSON, API requests, database rows. They describe shape without behavior and serialize directly."
 ---
 
 **Use for**: JSON blobs, API requests/responses, database rows, configuration files.

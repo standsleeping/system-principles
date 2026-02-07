@@ -56,7 +56,7 @@ def _display_principle(principle: Principle, taxonomies: list[Taxonomy]) -> None
     if taxonomies:
         print()
 
-    print(f"**Summary:** {principle.summary}")
+    print(f"**Essence:** {principle.essence}")
     print()
 
     if principle.tags:

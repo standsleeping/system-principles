@@ -1,7 +1,7 @@
 ---
 id: ACTIONS
 title: "Actions."
-summary: "Accept a user's request, or specification of work, and return a result object. Characteristics:"
+essence: "Boundary entry points that orchestrate units and integrators but contain no domain decisions themselves."
 ---
 
 Accept a user's request, or specification of work, and return a result object. Characteristics:

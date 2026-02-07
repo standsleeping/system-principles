@@ -1,7 +1,7 @@
 ---
 id: PARSE_INTO_STRONGER_TYPES
 title: "Parse into stronger types."
-summary: "Validation returns booleans; parsing returns stronger types that carry the proof forward."
+essence: "Validators should look like parsers: return proof-carrying values, not booleans."
 ---
 
 Validation returns booleans; parsing returns stronger types that carry the proof forward.

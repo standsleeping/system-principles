@@ -1,7 +1,7 @@
 ---
 id: DEV_WORKFLOW
 title: "Development Workflow."
-summary: "Load debugging tools on every page during development:"
+essence: "Layout debugging should be always-on in development and enforced as build failures in CI."
 ---
 
 Load debugging tools on every page during development:

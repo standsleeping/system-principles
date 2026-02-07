@@ -1,7 +1,7 @@
 ---
 id: DIAGNOSTIC_OUTPUT
 title: "Diagnostic Output."
-summary: "When constraints are violated, provide actionable diagnostics:"
+essence: "Diagnostics should tell you what failed, by how much, and which elements contribute."
 ---
 
 When constraints are violated, provide actionable diagnostics:

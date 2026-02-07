@@ -1,7 +1,7 @@
 ---
 id: ALA_CARTE_POLYMORPHISM
 title: "Use a-la-carte polymorphism for extensibility."
-summary: "Bias toward a data-first, interpreter-based style: model structure and policy as immutable data, and implement operations as pure functions over that data; pass dispatch tables/registries explicitl..."
+essence: "Model structure as data, implement operations as pure interpreters over it, and compose them explicitly."
 ---
 
 Bias toward a data-first, interpreter-based style: model structure and policy as immutable data, and implement operations as pure functions over that data; pass dispatch tables/registries explicitly, don't hide them in globals or class hierarchies.

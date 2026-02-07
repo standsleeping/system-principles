@@ -1,7 +1,7 @@
 ---
 id: DOMAIN_TYPE_SAFETY
 title: "Domain type safety."
-summary: "Never allow untyped dictionaries in domain layers. Use Result types instead of exceptions. Make all outcomes visible in type signatures."
+essence: "Never allow untyped dictionaries in domain layers. Use Result types instead of exceptions. Make all outcomes visible in type signatures."
 ---
 
 - Never allow untyped dictionaries or maps in domain layers.

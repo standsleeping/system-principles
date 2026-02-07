@@ -1,7 +1,7 @@
 ---
 id: SIMPLIFICATION_PATTERNS
 title: "Simplification Patterns."
-summary: "When in doubt, simplify:"
+essence: "Each visual element costs attention. Earn that cost."
 ---
 
 When in doubt, simplify:

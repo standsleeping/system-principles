@@ -1,7 +1,7 @@
 ---
 id: BROWSER_AUTOMATION
 title: "Claude Code Browser Automation."
-summary: "Use Playwright MCP to give Claude Code direct control over a browser window. This enables interactive testing, responsive layout verification, and visual debugging without leaving the conversation."
+essence: "MCP turns browser testing from writing scripts into an interactive conversation where results can be observed and adapted to."
 ---
 
 Use Playwright MCP to give Claude Code direct control over a browser window. This enables interactive testing, responsive layout verification, and visual debugging without leaving the conversation.

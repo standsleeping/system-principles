@@ -1,7 +1,7 @@
 ---
 id: LAYOUT_VARIANTS
 title: "Layout Variants."
-summary: "Support multiple layout configurations through modifier classes on a shared base:"
+essence: "One viewport-locked shell, many configurations: modifier classes adjust which regions appear and how space is distributed."
 ---
 
 Support multiple layout configurations through modifier classes on a shared base:

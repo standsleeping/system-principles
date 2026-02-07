@@ -1,7 +1,7 @@
 ---
 id: ENCODE_PREDICATES
 title: "Encode predicates in the model."
-summary: "An `if` partitions the state space. **The predicate is a fact derived from an underspecified model**. Encode those facts in the model early, with types, invariants, or simple state machines."
+essence: "Every predicate is a fact the model should have captured; encode it in types or rules and the branching disappears."
 ---
 
 An `if` partitions the state space. **The predicate is a fact derived from an underspecified model**. Encode those facts in the model early, with types, invariants, or simple state machines.

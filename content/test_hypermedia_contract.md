@@ -1,7 +1,7 @@
 ---
 id: TEST_HYPERMEDIA_CONTRACT
 title: "System tests verify the hypermedia contract."
-summary: "System tests exist to exercise navigation, links, and form submissions. Anything that can be tested without interacting with markup should not be tested here. Each test performs one action and covers one page behavior."
+essence: "System tests answer one narrow question: does this click or submit produce the expected navigation and state change?"
 ---
 
 System tests exist to exercise navigation, links, and form submissions. Anything that can be tested without interacting with markup should not be tested here. Each test performs one action and covers one page behavior.

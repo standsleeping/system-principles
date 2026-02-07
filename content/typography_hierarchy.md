@@ -1,7 +1,7 @@
 ---
 id: TYPOGRAPHY_HIERARCHY
 title: "Typography-Based Hierarchy."
-summary: "Establish visual importance through typography, not color or decoration:"
+essence: "When weight and size establish hierarchy, color stays available for meaning like status and interaction."
 ---
 
 Establish visual importance through typography, not color or decoration:

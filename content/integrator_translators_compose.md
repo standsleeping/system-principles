@@ -1,7 +1,7 @@
 ---
 id: INTEGRATOR_TRANSLATORS_COMPOSE
 title: "Integrator translators compose unit translators."
-summary: "Integrator translators orchestrate multiple conversions. They compose unit translators and validation functions."
+essence: "Complex conversions are built by wiring together simple, tested unit translators."
 ---
 
 Integrator translators orchestrate multiple conversions. They compose unit translators and validation functions.

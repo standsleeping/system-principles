@@ -1,7 +1,7 @@
 ---
 id: DESIGN_FRAMEWORK
 title: "Framework for design."
-summary: "Identify and hide assumptions behind modular boundaries. Isolate sources of change; couple what changes together, decouple what changes for different reasons."
+essence: "Identify and hide assumptions behind modular boundaries. Isolate sources of change; couple what changes together, decouple what changes for different reasons."
 ---
 
 1. Identify assumptions or decisions that might change as we learn.

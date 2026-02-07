@@ -1,7 +1,7 @@
 ---
 id: COLOR_USAGE
 title: "Color Usage."
-summary: "Reserve color for meaning:"
+essence: "A restrained palette makes intentional color usage more impactful; reserve color for meaning."
 ---
 
 Reserve color for meaning:

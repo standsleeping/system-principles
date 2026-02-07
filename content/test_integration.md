@@ -1,7 +1,7 @@
 ---
 id: TEST_INTEGRATION
 title: "Test Integration."
-summary: "Layout constraints should be verified in automated tests:"
+essence: "Layout constraints are testable assertions: automate them so violations fail the build."
 ---
 
 Layout constraints should be verified in automated tests:

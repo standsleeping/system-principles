@@ -1,7 +1,7 @@
 ---
 id: START_SIMPLE
 title: "Start simple, add *useful* complexity."
-summary: "Per Gall, we must always start simple, and be attentive to changes that add _useful complexity_ to our model of the world over time."
+essence: "Complex systems that work evolve from simple systems that work."
 ---
 
 Per Gall, we must always start simple, and be attentive to changes that add _useful complexity_ to our model of the world over time.

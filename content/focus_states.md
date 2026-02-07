@@ -1,7 +1,7 @@
 ---
 id: FOCUS_STATES
 title: "Focus States."
-summary: "All interactive elements must have visible focus indicators for accessibility:"
+essence: "Every interactive element needs a visible, consistent focus indicator; keyboard users depend on it."
 ---
 
 All interactive elements must have visible focus indicators for accessibility:

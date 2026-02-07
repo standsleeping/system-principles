@@ -1,7 +1,7 @@
 ---
 id: ONE_SIGNAL_PER_MEANING
 title: "One Signal Per Meaning."
-summary: "Each piece of information should be communicated once, through one visual channel."
+essence: "If you remove a visual treatment and the user loses no information, it was noise."
 ---
 
 Each piece of information should be communicated once, through one visual channel.

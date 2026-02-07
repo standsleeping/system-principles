@@ -1,7 +1,7 @@
 ---
 id: RESET_FIRST
 title: "Reset-First Approach."
-summary: "Start from a clean slate:"
+essence: "Strip all browser defaults; every margin and padding should be a deliberate choice."
 ---
 
 Start from a clean slate:

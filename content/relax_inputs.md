@@ -1,7 +1,7 @@
 ---
 id: RELAX_INPUTS
 title: "Require less by relaxing inputs."
-summary: "\"Requiring less\" means:"
+essence: "\"Requiring less\" means:"
 ---
 
 "Requiring less" means:

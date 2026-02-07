@@ -33,7 +33,7 @@ class Principle:
 
     id: PrincipleId
     title: str
-    summary: str
+    essence: str
     content: str
     tags: tuple[str, ...] = field(default_factory=tuple)
     related: tuple[PrincipleId, ...] = field(default_factory=tuple)

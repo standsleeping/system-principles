@@ -1,7 +1,7 @@
 ---
 id: VALIDATE_STRUCTURE_ONLY
 title: "Validate structure, not business rules."
-summary: "Translators check that data has the right shape and types. Domain validators check business rules."
+essence: "Translators enforce context-free shape; domain actions enforce stateful policy. Never mix the two."
 ---
 
 Translators check that data has the right shape and types. Domain validators check business rules.

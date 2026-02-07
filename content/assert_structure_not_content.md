@@ -1,7 +1,7 @@
 ---
 id: ASSERT_STRUCTURE_NOT_CONTENT
 title: "Assert on structure, not content."
-summary: "In system tests and view tests, verify the presence of structural markers like URLs and data-testid attributes rather than rendered text. Text is volatile; structure is stable."
+essence: "Text is volatile; structure is stable. Assert on URLs and data-testid attributes so content changes don't break tests."
 ---
 
 In system tests and view tests, verify the presence of structural markers like URLs and data-testid attributes rather than rendered text. Text is volatile; structure is stable.

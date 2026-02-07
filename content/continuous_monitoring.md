@@ -1,7 +1,7 @@
 ---
 id: CONTINUOUS_MONITORING
 title: "Continuous Monitoring."
-summary: "For dynamic content or resize behavior, watch for changes:"
+essence: "One-time scans miss overflow that appears at certain sizes or after dynamic loads; watch continuously."
 ---
 
 For dynamic content or resize behavior, watch for changes:

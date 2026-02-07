@@ -1,7 +1,7 @@
 ---
 id: UNITS
 title: "Units."
-summary: "Implement a simple, testable decision or calculation that the code makes. They are pure functions. Characteristics:"
+essence: "Pure functions with no dependencies: simple data in, simple data out, every return value tested."
 ---
 
 Implement a simple, testable decision or calculation that the code makes. They are pure functions. Characteristics:

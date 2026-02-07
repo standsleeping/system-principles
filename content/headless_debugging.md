@@ -1,7 +1,7 @@
 ---
 id: HEADLESS_DEBUGGING
 title: "Headless Console Debugging."
-summary: "Use Playwright to programmatically check for JavaScript errors without opening a browser. This catches broken imports, runtime exceptions, and failed network requests that silently break UI functio..."
+essence: "JavaScript fails silently from the user's perspective; headless console checks catch what no visible error reveals."
 ---
 
 Use Playwright to programmatically check for JavaScript errors without opening a browser. This catches broken imports, runtime exceptions, and failed network requests that silently break UI functionality.

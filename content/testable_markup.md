@@ -1,7 +1,7 @@
 ---
 id: TESTABLE_MARKUP
 title: "Markup must carry test hooks."
-summary: "Every page includes data-testid attributes so that system tests have stable, consistent selectors. Only use data-testid to locate elements in tests."
+essence: "Every page includes data-testid attributes so that system tests have stable, consistent selectors. Only use data-testid to locate elements in tests."
 ---
 
 Every page includes `data-testid` attributes so that system tests have stable, consistent selectors. Only use `data-testid` to locate elements in tests.

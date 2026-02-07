@@ -1,7 +1,7 @@
 ---
 id: COMPONENT_PREVIEW
 title: "Component Preview Systems."
-summary: "Isolate components for development and testing outside their full application context. A component preview system allows:"
+essence: "If a component can't be rendered in isolation, it has too many dependencies on its context."
 ---
 
 Isolate components for development and testing outside their full application context. A component preview system allows:

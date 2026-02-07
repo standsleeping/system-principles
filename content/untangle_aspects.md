@@ -1,7 +1,7 @@
 ---
 id: UNTANGLE_ASPECTS
 title: "Untangle the six aspects."
-summary: "To simplify in practice:"
+essence: "When aspects are tangled, changing one forces changes to others; separating them lets each evolve independently."
 ---
 
 To simplify in practice:

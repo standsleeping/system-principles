@@ -101,4 +101,31 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
         help="Output file path (prints to stdout if not specified)",
     )
 
+    # principles site {build,serve}
+    site_parser = subparsers.add_parser("site", help="Build or serve the static site")
+    site_parser.add_argument(
+        "--taxonomy",
+        "-t",
+        default="default",
+        help="Taxonomy to use (default: default)",
+    )
+    site_parser.add_argument(
+        "--output-dir",
+        default="public",
+        help="Output directory (default: public)",
+    )
+
+    site_subparsers = site_parser.add_subparsers(dest="site_command")
+
+    site_subparsers.add_parser("build", help="Build the static site")
+
+    serve_parser = site_subparsers.add_parser("serve", help="Build and serve the site")
+    serve_parser.add_argument(
+        "--port",
+        "-p",
+        type=int,
+        default=9201,
+        help="Port for development server (default: 9201)",
+    )
+
     return parser.parse_args(args)

@@ -1,7 +1,7 @@
 ---
 id: EMPTY_STATE_COLLAPSE
 title: "Empty State Collapse."
-summary: "Empty structural elements should automatically hide:"
+essence: "Empty structural elements hide automatically, so optional slots can be omitted without leaving gaps."
 ---
 
 Empty structural elements should automatically hide:

@@ -1,7 +1,7 @@
 ---
 id: NAME_ASPECTS
 title: "Name the aspects to pull them apart."
-summary: "A straightforward way to start pulling things apart: ask questions and *assign names* to the following *aspects* of a program: who, what, when, where, why, and how."
+essence: "Unnamed aspects stay hidden inside other code; naming them makes them visible, movable, and separable."
 ---
 
 A straightforward way to start pulling things apart: ask questions and *assign names* to the following *aspects* of a program: who, what, when, where, why, and how.

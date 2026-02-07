@@ -1,7 +1,7 @@
 ---
 id: VARIANT_BASED_TESTING
 title: "Variant-Based Testing."
-summary: "Variants are pre-configured prop sets that represent meaningful states:"
+essence: "Pre-configured prop sets serve as both living documentation and test cases for every meaningful state."
 ---
 
 Variants are pre-configured prop sets that represent meaningful states:

@@ -1,7 +1,7 @@
 ---
 id: PRECISION_MATCHES_STABILITY
 title: "Match type precision to stability."
-summary: "Types exist on a precision spectrum—from `Any` to refined types like `EmailAddress`. Precision should match stability:"
+essence: "Loose types at volatile boundaries, precise types in stable cores; tighten or loosen as understanding solidifies."
 ---
 
 Types exist on a precision spectrum—from `Any` to refined types like `EmailAddress`. Precision should match stability:

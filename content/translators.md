@@ -1,7 +1,7 @@
 ---
 id: TRANSLATORS
 title: "Translators."
-summary: "Translator functions (either units or integrators) sit at system or package boundaries, and can be either units or integrators, depending on the context."
+essence: "Boundary functions that only convert and validate shape: they pass properly typed domain objects onward, never executing domain logic."
 ---
 
 Translator functions (either units or integrators) sit at system or package boundaries, and can be either units or integrators, depending on the context.

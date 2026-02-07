@@ -1,7 +1,7 @@
 ---
 id: STORE_FACTS_WITH_TIME
 title: "Store facts with time."
-summary: "Hickey points out that the Resource Description Framework lacks a time component. \"Sally likes pizza...\" _as of when, exactly?_"
+essence: "Hickey points out that the Resource Description Framework lacks a time component. \"Sally likes pizza...\" _as of when, exactly?_"
 ---
 
 Hickey points out that the Resource Description Framework lacks a time component. "Sally likes pizza..." _as of when, exactly?_

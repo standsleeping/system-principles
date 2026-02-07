@@ -1,7 +1,7 @@
 ---
 id: CROSS_DOMAIN_ENFORCE_RULES
 title: "Cross-domain translators enforce boundary rules."
-summary: "When translating between domain contexts, enforce the boundary's invariants. This is still structural validation, not business logic."
+essence: "Cross-domain translators guard the receiving context's structural preconditions, not business rules."
 ---
 
 When translating between domain contexts, enforce the boundary's invariants. This is still structural validation, not business logic.

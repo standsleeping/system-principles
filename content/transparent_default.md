@@ -1,7 +1,7 @@
 ---
 id: TRANSPARENT_DEFAULT
 title: "Transparent by Default."
-summary: "Small UI elements should not compete for attention:"
+essence: "Default to transparent backgrounds on small elements; reserve background color for major containers."
 ---
 
 Small UI elements should not compete for attention:

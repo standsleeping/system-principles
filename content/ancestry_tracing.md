@@ -1,7 +1,7 @@
 ---
 id: ANCESTRY_TRACING
 title: "Ancestry Tracing."
-summary: "When an element causes overflow, trace up the DOM to find where the problem originates:"
+essence: "The fix belongs on the ancestor where overflow starts, not the element that sticks out."
 ---
 
 When an element causes overflow, trace up the DOM to find where the problem originates:

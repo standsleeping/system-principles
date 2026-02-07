@@ -1,7 +1,7 @@
 ---
 id: TYPES_AS_BOUNDARIES
 title: "Types as module boundaries."
-summary: "Each package's public interface is defined primarily through its data types."
+essence: "Design the types first; their signatures guide and constrain every implementation that follows."
 ---
 
 Each package's public interface is defined primarily through its data types.

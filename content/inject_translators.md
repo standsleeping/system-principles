@@ -1,7 +1,7 @@
 ---
 id: INJECT_TRANSLATORS
 title: "Inject translators into boundary components."
-summary: "Repositories and handlers shouldn't know about external formats. Inject translators to handle conversion."
+essence: "Injecting translators keeps boundary components format-agnostic and independently testable."
 ---
 
 Repositories and handlers shouldn't know about external formats. Inject translators to handle conversion.

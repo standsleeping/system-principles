@@ -1,7 +1,7 @@
 ---
 id: NO_PAGE_SCROLL
 title: "No Page-Level Scrolling."
-summary: "No page should ever scroll at the html/body level. Individual components may scroll internally, but the page itself must fit exactly within the viewport. When the document size exceeds the viewport..."
+essence: "If the page itself scrolls, something is wrong; scrolling is an intentional per-component decision."
 ---
 
 No page should ever scroll at the html/body level. Individual components may scroll internally, but the page itself must fit exactly within the viewport. When the document size exceeds the viewport, something is wrong with the CSS layout.

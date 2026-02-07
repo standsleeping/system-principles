@@ -1,7 +1,7 @@
 ---
 id: PATTERN_MATCH_AT_BOUNDARIES
 title: "Use in-place pattern matching only at boundaries or tiny, stable sets."
-summary: "Pattern matching inside domain logic complects structure and behavior, increasing branching complexity. Keep it to parsing, serialization, or very small, stable cases."
+essence: "Pattern matching belongs at boundaries for parsing and serialization, not inside domain logic where it complects structure and behavior."
 ---
 
 Pattern matching inside domain logic complects structure and behavior, increasing branching complexity. Keep it to parsing, serialization, or very small, stable cases.

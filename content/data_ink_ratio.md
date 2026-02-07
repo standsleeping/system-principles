@@ -1,7 +1,7 @@
 ---
 id: DATA_INK_RATIO
 title: "Data-Ink Ratio and Tabular Alignment."
-summary: "When presenting repeated metrics across items, optimize for scanability by reducing redundant labels and aligning values vertically."
+essence: "Maximize information, minimize redundant visual elements; deduplicate labels and align values for scanability."
 ---
 
 When presenting repeated metrics across items, optimize for scanability by reducing redundant labels and aligning values vertically.

@@ -1,7 +1,7 @@
 ---
 id: CONSISTENT_ERROR_TYPES
 title: "Keep translator error types consistent."
-summary: "Use a standard error type across all translators. This makes error handling uniform."
+essence: "A shared error type lets translators compose freely and callers handle errors in one uniform way."
 ---
 
 Use a standard error type across all translators. This makes error handling uniform.

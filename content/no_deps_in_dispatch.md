@@ -1,7 +1,7 @@
 ---
 id: NO_DEPS_IN_DISPATCH
 title: "Keep dependencies out of dispatch tables."
-summary: "Dispatch tables enumerate decisions and point to pure units or thin integrators. Do not perform I/O or side effects in the dispatch table itself."
+essence: "Dispatch tables map decisions to pure handlers; effects belong at the action boundary, not in the table."
 ---
 
 Dispatch tables enumerate decisions and point to pure units or thin integrators. Do not perform I/O or side effects in the dispatch table itself.

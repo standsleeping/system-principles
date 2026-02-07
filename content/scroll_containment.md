@@ -1,7 +1,7 @@
 ---
 id: SCROLL_CONTAINMENT
 title: "Scroll Containment."
-summary: "Scrolling is contained within specific content slots, never at the layout level:"
+essence: "Only leaf content areas scroll; every container above them clips with overflow hidden."
 ---
 
 Scrolling is contained within specific content slots, never at the layout level:

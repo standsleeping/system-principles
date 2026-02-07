@@ -1,7 +1,7 @@
 ---
 id: INTEGRATORS
 title: "Integrators."
-summary: "Assemble a complex structure or data type. They \"glue together\" different behaviors and produce composite data structures. Characteristics:"
+essence: "Assemble a complex structure or data type. They \"glue together\" different behaviors and produce composite data structures. Characteristics:"
 ---
 
 Assemble a complex structure or data type. They "glue together" different behaviors and produce composite data structures. Characteristics:

@@ -1,7 +1,7 @@
 ---
 id: WIDTH_CONTROLLED_TESTING
 title: "Width-Controlled Responsive Testing."
-summary: "Test responsive behavior by controlling container width, not viewport width:"
+essence: "Control container width, not viewport width: it's precise, fast, and allows side-by-side comparison."
 ---
 
 Test responsive behavior by controlling container width, not viewport width:

@@ -1,7 +1,7 @@
 ---
 id: ONE_TO_ONE_TO_ONE
 title: "The 1:1:1 Rule."
-summary: "We maintain a strict 1:1 correspondence between:"
+essence: "One type per file, one function per file, one test suite per file. Everything is findable and nothing hides."
 ---
 
 We maintain a strict 1:1 correspondence between:

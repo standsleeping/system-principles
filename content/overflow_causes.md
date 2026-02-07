@@ -1,7 +1,7 @@
 ---
 id: OVERFLOW_CAUSES
 title: "Common Overflow Causes."
-summary: "When the no-scroll constraint is violated, common causes include viewport width issues, mismatched calculations, flex sizing, box-sizing, and missing overflow properties."
+essence: "When the no-scroll constraint is violated, common causes include viewport width issues, mismatched calculations, flex sizing, box-sizing, and missing overflow properties."
 ---
 
 When the no-scroll constraint is violated, common causes include:

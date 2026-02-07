@@ -17,7 +17,7 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
     Expected frontmatter fields:
         id: BD1 (required)
         title: Start Simple (required)
-        summary: Begin with minimal viable solution (required)
+        essence: The core insight in one sentence (required)
         tags: [simplicity, design] (optional)
         related: [PS1, PS2] (optional)
 
@@ -54,7 +54,7 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
     content = result.content
 
     # Validate required fields
-    required_fields = ["id", "title", "summary"]
+    required_fields = ["id", "title", "essence"]
     for field_name in required_fields:
         if field_name not in metadata:
             return ValidationError(
@@ -65,7 +65,7 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
     # Extract fields
     principle_id = PrincipleId(str(metadata["id"]))
     title = str(metadata["title"])
-    summary = str(metadata["summary"])
+    essence = str(metadata["essence"])
 
     # Optional fields
     tags_raw = metadata.get("tags", [])
@@ -81,7 +81,7 @@ def load_principle(file_path: Path) -> Principle | ParseError | ValidationError:
     return Principle(
         id=principle_id,
         title=title,
-        summary=summary,
+        essence=essence,
         content=content,
         tags=tags,
         related=related,

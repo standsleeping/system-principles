@@ -1,7 +1,7 @@
 ---
 id: BOUNDARY_OWNERSHIP
 title: "Boundary Ownership."
-summary: "Components own their own visual boundaries. This applies to both parent/child and sibling relationships."
+essence: "Each component should look visually complete in isolation; relying on a neighbor for your edge is implicit coupling."
 ---
 
 Components own their own visual boundaries. This applies to both parent/child and sibling relationships.

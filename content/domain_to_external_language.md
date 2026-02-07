@@ -1,7 +1,7 @@
 ---
 id: DOMAIN_TO_EXTERNAL_LANGUAGE
 title: "Domain-to-External uses domain language."
-summary: "When translating domain objects to external formats, use domain concepts in the translator. Don't leak external concerns into the domain."
+essence: "The translator speaks domain language on one side and external format on the other, so neither leaks into the other."
 ---
 
 When translating domain objects to external formats, use domain concepts in the translator. Don't leak external concerns into the domain.

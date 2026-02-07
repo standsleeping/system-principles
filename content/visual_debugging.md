@@ -1,7 +1,7 @@
 ---
 id: VISUAL_DEBUGGING
 title: "Visual Debugging."
-summary: "During development, highlight problematic elements:"
+essence: "Visual feedback makes layout problems apparent without opening DevTools."
 ---
 
 During development, highlight problematic elements:

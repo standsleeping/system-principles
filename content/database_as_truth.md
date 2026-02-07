@@ -1,7 +1,7 @@
 ---
 id: DATABASE_AS_TRUTH
 title: "Database as truth."
-summary: "All reads go through SQL queries. All writes append events."
+essence: "One source of truth in the database; in-memory object graphs create a second layer that drifts."
 ---
 
 All reads go through SQL queries. All writes append events.

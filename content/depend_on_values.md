@@ -1,7 +1,7 @@
 ---
 id: DEPEND_ON_VALUES
 title: "Depend on values, not behaviors."
-summary: "Our code should always depend on values (i.e. data), not behaviors (i.e. code):"
+essence: "Components that exchange data instead of calling each other can be tested, moved, and run in parallel."
 ---
 
 Our code should always depend on values (i.e. data), not behaviors (i.e. code):

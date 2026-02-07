@@ -1,7 +1,7 @@
 ---
 id: PATTERN_MATCH_TO_REFINE
 title: "Pattern match to refine."
-summary: "Pattern matching on sum types lets the compiler track what information is available in each branch:"
+essence: "Pattern matching narrows types so the compiler proves what information is available in each branch."
 ---
 
 Pattern matching on sum types lets the compiler track what information is available in each branch:

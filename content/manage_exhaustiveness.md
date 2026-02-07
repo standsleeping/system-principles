@@ -1,7 +1,7 @@
 ---
 id: MANAGE_EXHAUSTIVENESS
 title: "Manage exhaustiveness explicitly."
-summary: "Since Python lacks total pattern exhaustiveness, use enums for variants, default handlers where appropriate, and validation tests that assert all enum members are mapped."
+essence: "When the compiler can't enforce exhaustiveness, a test that asserts all enum members are handled must."
 ---
 
 Since Python lacks total pattern exhaustiveness, use enums for variants, default handlers where appropriate, and validation tests that assert all enum members are mapped.

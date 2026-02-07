@@ -1,7 +1,7 @@
 ---
 id: STATE_ENTANGLES_TIME
 title: "State entangles values and time."
-summary: "Stateful approaches are squarely at odds with simple designs, because by definition, state entangles values and time."
+essence: "With state, you must know *when* to ask; without state, you only need to know *what* to ask."
 ---
 
 Stateful approaches are squarely at odds with simple designs, because by definition, state entangles values and time.

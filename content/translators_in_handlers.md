@@ -1,7 +1,7 @@
 ---
 id: TRANSLATORS_IN_HANDLERS
 title: "Use translators in request handlers."
-summary: "Translate incoming requests to domain commands before passing to handlers."
+essence: "Handlers receive domain commands, never raw requests, so they stay framework-independent."
 ---
 
 Translate incoming requests to domain commands before passing to handlers.

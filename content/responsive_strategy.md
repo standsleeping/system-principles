@@ -1,7 +1,7 @@
 ---
 id: RESPONSIVE_STRATEGY
 title: "Responsive Design Strategy."
-summary: "When building responsive components:"
+essence: "Start with natural flow, measure where it breaks, then decide whether to let it wrap or control it explicitly."
 ---
 
 When building responsive components:

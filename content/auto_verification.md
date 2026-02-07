@@ -1,7 +1,7 @@
 ---
 id: AUTO_VERIFICATION
 title: "Automatic Verification."
-summary: "Layout constraints should be automatically verified, not manually inspected. When a constraint like \"no page-level scrolling\" exists, tooling should:"
+essence: "Layout constraints should be automatically verified, not manually inspected. When a constraint like \"no page-level scrolling\" exists, tooling should:"
 ---
 
 Layout constraints should be automatically verified, not manually inspected. When a constraint like "no page-level scrolling" exists, tooling should:

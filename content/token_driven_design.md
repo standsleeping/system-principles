@@ -1,7 +1,7 @@
 ---
 id: TOKEN_DRIVEN_DESIGN
 title: "Token-Driven Design."
-summary: "Define design decisions as CSS variables (tokens):"
+essence: "CSS variables are the single source of truth for design decisions: one change propagates everywhere."
 ---
 
 Define design decisions as CSS variables (tokens):

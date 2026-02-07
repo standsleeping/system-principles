@@ -1,7 +1,7 @@
 ---
 id: INCLUDE_TEMPORAL_INFO
 title: "Include temporal information."
-summary: "State-centric models lose temporal information. Track **when** facts became true."
+essence: "A fact without a timestamp is half a fact; always record when something became true."
 ---
 
 State-centric models lose temporal information. Track **when** facts became true.

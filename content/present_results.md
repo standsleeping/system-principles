@@ -1,7 +1,7 @@
 ---
 id: PRESENT_RESULTS
 title: "Presenting Results to Users."
-summary: "When reporting debug results, raw numbers alone are hard to interpret. Effective presentation requires:"
+essence: "Show the math, visualize the spatial relationships, and highlight whether the constraint holds."
 ---
 
 When reporting debug results, raw numbers alone are hard to interpret. Effective presentation requires:

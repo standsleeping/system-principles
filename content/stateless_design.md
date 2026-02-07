@@ -1,7 +1,7 @@
 ---
 id: STATELESS_DESIGN
 title: "Stateless design."
-summary: "All computations are pure. No in-memory state anywhere."
+essence: "Nothing lingers between requests, so nothing can go stale."
 ---
 
 All computations are pure. No in-memory state anywhere.

@@ -1,7 +1,7 @@
 ---
 id: FIX_UPSTREAM_TYPE
 title: "Fix the upstream type."
-summary: "If you need to cast, it means the upstream type is wrong or too loose. Fix the source definition."
+essence: "A cast is a sign the fix belongs at the source, not the call site."
 ---
 
 If you need to cast, it means the upstream type is wrong or too loose. Fix the source definition.

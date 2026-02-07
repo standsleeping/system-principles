@@ -1,7 +1,7 @@
 ---
 id: MINIMAL_BORDERS
 title: "Minimal Borders."
-summary: "Borders should define structure, not decorate:"
+essence: "When everything has a border, nothing stands out; use borders as structural cues, not decoration."
 ---
 
 Borders should define structure, not decorate:

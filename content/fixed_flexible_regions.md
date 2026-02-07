@@ -1,7 +1,7 @@
 ---
 id: FIXED_FLEXIBLE_REGIONS
 title: "Fixed and Flexible Regions."
-summary: "Layouts combine fixed-size regions (headers, footers, sidebars) with flexible regions that fill remaining space:"
+essence: "Fixed regions claim explicit space via tokens; flexible regions take whatever remains."
 ---
 
 Layouts combine fixed-size regions (headers, footers, sidebars) with flexible regions that fill remaining space:

@@ -1,7 +1,7 @@
 ---
 id: TEST_FIRST
 title: "Test-first approach."
-summary: "Follow a strict test-first approach, always discussing WHAT behavior to test before determining HOW to test it. Never write code until tests have been written."
+essence: "Writing the test first forces you to think about the interface before the implementation."
 ---
 
 Follow a strict test-first approach, always discussing WHAT behavior to test before determining HOW to test it. Never write code until tests have been written.

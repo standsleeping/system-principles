@@ -1,7 +1,7 @@
 ---
 id: DATA_DRIVEN_DISPATCH
 title: "Prefer data-driven dispatch for evolving domain logic."
-summary: "Dictionary-based dispatch separates decisions from behavior, making operations inspectable, testable, and independently evolvable."
+essence: "Dictionary-based dispatch separates decisions from behavior, making operations inspectable, testable, and independently evolvable."
 ---
 
 Pattern matching complects structure (what states exist) with behavior (what to do), making both harder to change independently.

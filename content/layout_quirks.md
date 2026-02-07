@@ -1,7 +1,7 @@
 ---
 id: LAYOUT_QUIRKS
 title: "Beware Common Layout Quirks."
-summary: "CSS has behaviors that cause unexpected spacing. These don't appear as margin or padding in DevTools, making them hard to diagnose. When debugging mysterious gaps, check for these quirks:"
+essence: "Mysterious layout gaps usually come from implicit CSS behaviors invisible in DevTools: baselines, 100vw, margin collapsing."
 ---
 
 CSS has behaviors that cause unexpected spacing. These don't appear as margin or padding in DevTools, making them hard to diagnose. When debugging mysterious gaps, check for these quirks:

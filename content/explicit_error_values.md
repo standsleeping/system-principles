@@ -1,7 +1,7 @@
 ---
 id: EXPLICIT_ERROR_VALUES
 title: "Return explicit error values."
-summary: "Translators return conversion errors as values, not exceptions. Use tuple returns: `(Error | None, Result | None)`."
+essence: "Errors as return values make failure visible in the type signature; exceptions hide it in control flow."
 ---
 
 Translators return conversion errors as values, not exceptions. Use tuple returns: `(Error | None, Result | None)`.

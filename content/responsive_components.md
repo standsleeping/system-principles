@@ -1,7 +1,7 @@
 ---
 id: RESPONSIVE_COMPONENTS
 title: "Responsive Component Design."
-summary: "Components should present information optimally at every width, never overflowing their container. This requires explicit information hierarchy and graceful degradation."
+essence: "Rank information by priority; lower-priority items hide before higher-priority items truncate."
 ---
 
 Components should present information optimally at every width, never overflowing their container. This requires explicit information hierarchy and graceful degradation.
