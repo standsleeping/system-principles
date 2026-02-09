@@ -76,7 +76,7 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     compile_parser.add_argument(
         "--format",
         "-f",
-        choices=["markdown", "agent-skill"],
+        choices=["markdown", "agent-skill", "essences"],
         default="markdown",
         help="Output format (default: markdown)",
     )

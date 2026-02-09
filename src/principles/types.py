@@ -21,6 +21,7 @@ class OutputFormat(Enum):
 
     MARKDOWN = "markdown"
     AGENT_SKILL = "agent-skill"
+    ESSENCES = "essences"
     HTML = "html"
 
 

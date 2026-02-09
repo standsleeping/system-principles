@@ -85,6 +85,8 @@ def run_compile(args: argparse.Namespace) -> int:
         output = _compile_markdown(principles, principle_map, set_info, taxonomy)
     elif output_format == "agent-skill":
         output = _compile_agent_skill(principles, principle_map, set_info, taxonomy)
+    elif output_format == "essences":
+        output = _compile_essences(principles, principle_map, set_info, taxonomy)
     else:
         print(f"Unknown format: {output_format}")
         return 1
@@ -309,6 +311,65 @@ def _compile_agent_skill_with_taxonomy(
                     lines.append("")
 
         # Recurse into subgroups
+        for subgroup in group.subgroups:
+            compile_group(subgroup, depth + 1)
+
+    for group in taxonomy.groups:
+        compile_group(group, 1)
+
+
+def _compile_essences(
+    principles: list[Principle],
+    principle_map: dict[PrincipleId, Principle],
+    set_info: PrincipleSet | None,
+    taxonomy: Taxonomy | None,
+) -> str:
+    """Compile principles to essences-only format (ID, title, one-line summary)."""
+    lines: list[str] = []
+
+    include_ids = {p.id for p in principles}
+
+    if taxonomy:
+        _compile_essences_with_taxonomy(lines, taxonomy, principle_map, include_ids)
+    else:
+        _compile_essences_flat(lines, principles)
+
+    return "\n".join(lines)
+
+
+def _compile_essences_flat(lines: list[str], principles: list[Principle]) -> None:
+    """Compile essences without taxonomy grouping."""
+    for p in principles:
+        lines.append(f"- **{p.id}** {p.title}: {p.essence}")
+
+
+def _compile_essences_with_taxonomy(
+    lines: list[str],
+    taxonomy: Taxonomy,
+    principle_map: dict[PrincipleId, Principle],
+    include_ids: set[PrincipleId],
+) -> None:
+    """Compile essences grouped by taxonomy structure."""
+
+    def compile_group(group: TaxonomyGroup, depth: int) -> None:
+        group_ids = group.get_all_principle_ids()
+        relevant_ids = group_ids & include_ids
+        if not relevant_ids:
+            return
+
+        prefix = "#" * (depth + 1)
+        lines.append(f"{prefix} {group.name.replace('-', ' ').title()}")
+        if group.description:
+            lines.append(f"*{group.description}*")
+        lines.append("")
+
+        for pid in group.principle_ids:
+            if pid in include_ids and pid in principle_map:
+                p = principle_map[pid]
+                lines.append(f"- **{p.id}** {p.title}: {p.essence}")
+
+        lines.append("")
+
         for subgroup in group.subgroups:
             compile_group(subgroup, depth + 1)
 
