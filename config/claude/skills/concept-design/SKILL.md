@@ -5,7 +5,7 @@ description: A custom conceptual design framework inspired by Daniel Jackson's m
 
 # Concept Design
 
-A guided workflow for designing software concepts. Each stage uses a dedicated skill and produces a concrete artifact that feeds into the next stage.
+A guided workflow for designing software concepts, organized around a "design as data" principle: design decisions are captured as structured values so that each stage's output feeds cleanly into the next. Every stage uses a dedicated skill and produces a concrete artifact.
 
 ## When to use
 
@@ -48,10 +48,10 @@ Run stages 8–10 across the full set of concepts:
 
 ### Part III: Toward Implementation
 
-After completing the workflow:
-
-- **Data model integration:** Merge the individual concept micromodels (each concept's `State`) into a global data model. Micromodels overlap on shared entities but not on relations.
-- **Implementation:** Each `ConceptDefinition` maps to a module boundary. `State` becomes data structures, `Action` values become function signatures, `OperationalPrinciple` guides integration tests.
+| Stage | Skill | Produces |
+|-------|-------|----------|
+| 11 | `/data-model-integration` | `IntegratedDataModel` — merged micromodels into a global data model |
+| 12 | `/concept-implementation` | Code modules — concepts translated to module boundaries |
 
 ## How to use this workflow
 
@@ -61,3 +61,25 @@ You don't have to run every stage every time. Common entry points:
 - **Existing system audit:** Start at stage 1 with `source: "existing"`, then jump to stages 8–10 to assess composition.
 - **Single concept deepening:** Enter at whichever stage the concept is missing (e.g., it has a name but no formal purpose — start at stage 2).
 - **Surface audit:** Jump to stage 7 to check whether concepts are properly surfaced to users.
+
+## Artifact flow
+
+```
+ConceptSeed ──► Purpose ──► OperationalPrinciple ──► Action[] ──► State
+     │             │                │                    │          │
+     └─────────────┴────────────────┴────────────────────┴──────────┘
+                                    │
+                            ConceptDefinition
+                                    │
+                            ConceptManifest
+                          (surface planning)
+                                    │
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+             DependencyGraph   Coherence    Genericity
+                    │           Assessment   Assessment
+                    ▼
+            IntegratedDataModel
+                    ▼
+             Implementation
+```
