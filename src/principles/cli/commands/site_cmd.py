@@ -17,10 +17,20 @@ def run_site(args: argparse.Namespace) -> int:
     site_command = args.site_command
 
     if site_command == "build":
-        return build_site(content_dir, taxonomies_dir, output_dir, taxonomy_name)
+        return build_site(
+            content_dir,
+            taxonomies_dir,
+            output_dir,
+            taxonomy_name,
+        )
 
     elif site_command == "serve":
-        result = build_site(content_dir, taxonomies_dir, output_dir, taxonomy_name)
+        result = build_site(
+            content_dir,
+            taxonomies_dir,
+            output_dir,
+            taxonomy_name,
+        )
         if result != 0:
             return result
         serve_site(output_dir, args.port)

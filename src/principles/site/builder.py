@@ -95,8 +95,9 @@ def build_site(
         )
         principle_count += 1
 
-    print(
-        f"Built site: {group_count} groups, "
-        f"{principle_count} principles → {output_dir}/"
-    )
+    parts = [
+        f"{group_count} groups",
+        f"{principle_count} principles",
+    ]
+    print(f"Built site: {', '.join(parts)} → {output_dir}/")
     return 0
