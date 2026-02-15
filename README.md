@@ -1,60 +1,62 @@
 # System Principles
 
-Manage and apply system design principles.
+A library of design principles for software engineering, with tooling to compile them into agent configuration.
 
-## Features
+## What This Is
 
-- Python 3.13+
-- Standard src-layout package structure
-- CLI interface with entry point
-- uv for dependency management and builds
-- Type checking with mypy
-- Linting and formatting with Ruff
-- Testing with pytest
+System Principles is a curated collection of ~118 design principles organized by taxonomy (process, conceptual, modeling, structure, types, constructs, testing, layout, visual design). Each principle has an ID, title, essence, and full explanation.
+
+The project includes a concept design methodology (inspired by Daniel Jackson) implemented as a suite of skills for Claude Code. These skills guide structured workflows: concept identification, purpose definition, state modeling, dependency mapping, and coherence analysis.
+
+## Why You'd Use It
+
+- Load design principles into your AI coding assistant so it reasons about your code in terms of established engineering concepts
+- Use the concept design skills to structure your software design process
+- Compile subsets of principles into path-matched rules (e.g., Python conventions applied to `**/*.py`)
 
 ## Installation
 
 ```bash
+git clone https://github.com/standsleeping/system-principles.git
+cd system-principles
 uv sync --all-groups
 ```
 
-This installs the package in editable mode along with dev dependencies.
-
 ## Usage
 
+### Browse principles
+
 ```bash
-# Basic usage
-principles
+# List principles in a taxonomy group
+principles list --group modeling
 
-# Or as a module
-python -m principles
+# Show a specific principle
+principles show DATA_DRIVEN_DISPATCH
 
-# With custom log level
-principles --log-level DEBUG
+# Compile a group to markdown
+principles compile --group types --format essences
 ```
 
-## Maintenance workflow (uv)
-
-To update dependencies with a newer uv and verify everything still works:
+### Export to Claude Code
 
 ```bash
-# Refresh lockfile to latest compatible versions
-uv lock --refresh
+principles export
+```
 
-# Sync environment (include dev dependencies)
-uv sync --all-groups --refresh
+This compiles principles into `config/claude/` as fragments (loaded every session) and rules (path-matched by file type).
 
-# Run quality checks
-uv run pytest -q
+### Build the documentation site
+
+```bash
+principles site build
+principles site serve
+```
+
+## Development
+
+```bash
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src
-uv run ty check src
-```
-
-If `uv.lock` changes, commit it:
-
-```bash
-git add uv.lock
-git commit -m "chore: refresh uv.lock with uv $(uv --version)"
+uv run pytest -q
 ```
