@@ -27,76 +27,103 @@ def _format_error(error: ParseError | ValidationError) -> str:
         return f"{prefix}{error.message}"
 
 
-def run_compile(args: argparse.Namespace) -> int:
-    """Execute the compile command."""
-    content_dir = Path(args.content_dir)
-    sets_dir = Path(args.sets_dir)
-    taxonomies_dir = Path(args.taxonomies_dir)
+def compile_principles_to_string(
+    content_dir: Path,
+    taxonomies_dir: Path,
+    sets_dir: Path,
+    output_format: str,
+    taxonomy_name: str | None = None,
+    group_path: str | None = None,
+    set_name: str | None = None,
+) -> str | None:
+    """Load principles, apply filters, compile to string.
+
+    Returns the compiled string, or None if no principles matched.
+    Warnings are printed to stderr.
+    """
+    import sys
 
     # Load all principles (try flat first, fall back to recursive for migration)
     principles, errors = load_principles(content_dir, recursive=False)
     if not principles:
-        # Try recursive for backward compatibility during migration
         principles, errors = load_principles(content_dir, recursive=True)
 
     if errors:
         for error in errors:
-            print(f"Warning: {_format_error(error)}")
+            print(f"Warning: {_format_error(error)}", file=sys.stderr)
 
     if not principles:
-        print("No principles found.")
-        return 1
+        return None
 
     # Build lookup map
     principle_map: dict[PrincipleId, Principle] = {p.id: p for p in principles}
 
     # Load taxonomy if specified
     taxonomy: Taxonomy | None = None
-    if args.taxonomy:
-        taxonomy_path = taxonomies_dir / f"{args.taxonomy}.yaml"
+    if taxonomy_name:
+        taxonomy_path = taxonomies_dir / f"{taxonomy_name}.yaml"
         taxonomy_result = load_taxonomy(taxonomy_path)
         if isinstance(taxonomy_result, Taxonomy):
             taxonomy = taxonomy_result
         else:
-            print(f"Warning: Could not load taxonomy '{args.taxonomy}': {taxonomy_result.message}")
+            print(
+                f"Warning: Could not load taxonomy '{taxonomy_name}': {taxonomy_result.message}",
+                file=sys.stderr,
+            )
 
     # Filter by group path if specified (requires taxonomy)
-    if args.group and taxonomy:
-        allowed_ids = taxonomy.get_principles_by_path(GroupPath(args.group))
+    if group_path and taxonomy:
+        allowed_ids = taxonomy.get_principles_by_path(GroupPath(group_path))
         principles = [p for p in principles if p.id in allowed_ids]
 
     # Filter by set if specified
     set_info: PrincipleSet | None = None
-    if args.set_name:
-        set_path = sets_dir / f"{args.set_name}.yaml"
+    if set_name:
+        set_path = sets_dir / f"{set_name}.yaml"
         set_result = load_set(set_path)
         if isinstance(set_result, PrincipleSet):
             set_info = set_result
             allowed_ids = set(set_result.principle_ids)
             principles = [p for p in principles if p.id in allowed_ids]
         else:
-            print(f"Error loading set: {set_result.message}")
-            return 1
+            print(f"Error loading set: {set_result.message}", file=sys.stderr)
+            return None
+
+    if not principles:
+        return None
 
     # Compile based on format
-    output_format = args.format
-
     if output_format == "markdown":
-        output = _compile_markdown(principles, principle_map, set_info, taxonomy)
+        return _compile_markdown(principles, principle_map, set_info, taxonomy)
     elif output_format == "agent-skill":
-        output = _compile_agent_skill(principles, principle_map, set_info, taxonomy)
+        return _compile_agent_skill(principles, principle_map, set_info, taxonomy)
     elif output_format == "essences":
-        output = _compile_essences(principles, principle_map, set_info, taxonomy)
+        return _compile_essences(principles, principle_map, set_info, taxonomy)
     else:
-        print(f"Unknown format: {output_format}")
+        return None
+
+
+def run_compile(args: argparse.Namespace) -> int:
+    """Execute the compile command."""
+    output = compile_principles_to_string(
+        content_dir=Path(args.content_dir),
+        taxonomies_dir=Path(args.taxonomies_dir),
+        sets_dir=Path(args.sets_dir),
+        output_format=args.format,
+        taxonomy_name=args.taxonomy,
+        group_path=args.group,
+        set_name=getattr(args, "set_name", None),
+    )
+
+    if output is None:
+        print("No principles found or compilation failed.")
         return 1
 
-    # Output
     if args.output:
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(output, encoding="utf-8")
-        print(f"Compiled {len(principles)} principles to {output_path}")
+        print(f"Compiled to {output_path}")
     else:
         print(output)
 
@@ -186,7 +213,11 @@ def _compile_markdown_with_taxonomy(
 
     # Add any uncategorized principles
     taxonomy_ids = taxonomy.get_all_principle_ids()
-    uncategorized = [principle_map[pid] for pid in include_ids if pid not in taxonomy_ids and pid in principle_map]
+    uncategorized = [
+        principle_map[pid]
+        for pid in include_ids
+        if pid not in taxonomy_ids and pid in principle_map
+    ]
     if uncategorized:
         lines.append("## Uncategorized")
         lines.append("")

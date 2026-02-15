@@ -8,7 +8,6 @@ from typing import NewType
 
 PrincipleId = NewType("PrincipleId", str)
 SetName = NewType("SetName", str)
-TargetName = NewType("TargetName", str)
 TaxonomyName = NewType("TaxonomyName", str)
 GroupPath = NewType("GroupPath", str)  # e.g., "designing/abstraction"
 
@@ -120,16 +119,17 @@ class PrincipleSet:
     principle_ids: tuple[PrincipleId, ...]
 
 
-@dataclass(frozen=True, slots=True)
-class TargetConfig:
-    """Configuration for syncing principles to a target project."""
+# === Export Types ===
 
-    name: TargetName
-    repo: str
-    branch: str
-    path: str
-    output_format: OutputFormat
-    sets: tuple[SetName, ...]
+
+@dataclass(frozen=True, slots=True)
+class CompileSpec:
+    """One compilation unit: groups -> output file with header and optional frontmatter."""
+
+    groups: tuple[str, ...]
+    output_path: str  # relative to output dir, e.g. "fragments/design-thinking.md"
+    header: str
+    paths_frontmatter: tuple[str, ...] | None = None  # None = fragment, tuple = rule
 
 
 # === Error Types (explicit, no exceptions) ===
