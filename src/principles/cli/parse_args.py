@@ -101,6 +101,16 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
         help="Output file path (prints to stdout if not specified)",
     )
 
+    # principles export
+    export_parser = subparsers.add_parser(
+        "export", help="Compile principles into config/claude/ output files"
+    )
+    export_parser.add_argument(
+        "--principles-dir",
+        default=".",
+        help="Path to principles repo root (default: current directory)",
+    )
+
     # principles site {build,serve}
     site_parser = subparsers.add_parser("site", help="Build or serve the static site")
     site_parser.add_argument(

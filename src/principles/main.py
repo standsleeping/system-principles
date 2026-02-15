@@ -4,7 +4,13 @@ import logging
 import sys
 
 from principles.cli import parse_args
-from principles.cli.commands import run_compile, run_list, run_show, run_site
+from principles.cli.commands import (
+    run_compile,
+    run_export,
+    run_list,
+    run_show,
+    run_site,
+)
 from principles.logging import configure_logging, get_logger
 
 logger = get_logger(__name__)
@@ -24,7 +30,7 @@ def main(args: list[str] | None = None) -> int:
     if command is None:
         # No subcommand given, show usage hint
         print("Usage: principles <command> [options]")
-        print("Commands: list, show, compile, site")
+        print("Commands: list, show, compile, export, site")
         print("Use 'principles --help' for more information.")
         return 0
 
@@ -35,6 +41,8 @@ def main(args: list[str] | None = None) -> int:
             return run_show(parsed_args)
         elif command == "compile":
             return run_compile(parsed_args)
+        elif command == "export":
+            return run_export(parsed_args)
         elif command == "site":
             return run_site(parsed_args)
         else:
