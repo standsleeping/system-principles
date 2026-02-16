@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OperationalPrinciple",
+  "description": "Output of operational-principle. The single motivating scenario that justifies the design.",
+  "type": "object",
+  "properties": {
+    "narrative": {
+      "type": "string",
+      "description": "Scenario in the form: after [trigger], the system [behavior], so that [purpose fulfilled]."
+    }
+  },
+  "required": ["narrative"],
+  "additionalProperties": false
+}

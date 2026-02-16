@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CoherenceAssessment",
+  "description": "Output of coherence-analysis. Assesses whether composed concepts form a coherent whole.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "concepts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Concepts being assessed."
+    },
+    "common_mission": {
+      "type": "string",
+      "description": "The higher-level purpose shared by the concepts."
+    },
+    "reformulable": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How cleanly the purposes merge into a single statement. 1 = resist unification, 5 = read as one idea."
+    },
+    "non_conflicting": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How little tension exists between parts. 1 = subtly at odds, 5 = fully complementary."
+    },
+    "design_check": {
+      "type": "object",
+      "properties": {
+        "specificity_holds": { "type": "boolean" },
+        "no_redundant_concepts": { "type": "boolean" },
+        "no_missing_concepts": { "type": "boolean" },
+        "no_purposeless_concepts": { "type": "boolean" },
+        "no_overloaded_concepts": { "type": "boolean" },
+        "familiarity_holds": { "type": "boolean" },
+        "integrity_holds": { "type": "boolean" }
+      },
+      "required": [
+        "specificity_holds",
+        "no_redundant_concepts",
+        "no_missing_concepts",
+        "no_purposeless_concepts",
+        "no_overloaded_concepts",
+        "familiarity_holds",
+        "integrity_holds"
+      ],
+      "additionalProperties": false
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional observations, especially for any failed design checks."
+    }
+  },
+  "required": ["concepts", "common_mission", "reformulable", "non_conflicting", "design_check"],
+  "additionalProperties": false
+}

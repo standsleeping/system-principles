@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DependencyGraph",
+  "description": "Output of dependency-mapping. Directed graph of concept dependencies.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "concepts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "All concept names in the system."
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "concept": {
+            "type": "string",
+            "description": "The dependent concept."
+          },
+          "depends_on": {
+            "type": "string",
+            "description": "The concept it depends on."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why this dependency exists."
+          }
+        },
+        "required": ["concept", "depends_on", "reason"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["concepts", "dependencies"],
+  "additionalProperties": false
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Purpose",
+  "description": "Output of concept-purpose. A rated purpose statement evaluated against four criteria.",
+  "type": "object",
+  "properties": {
+    "statement": {
+      "type": "string",
+      "description": "One-sentence purpose statement expressing what the concept provides (not a user goal)."
+    },
+    "specific": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How relevant to this concept's design. 1 = vague, 5 = precise."
+    },
+    "distinguishing": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How clearly it separates this concept from others. 1 = generic, 5 = unique."
+    },
+    "measurable": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How well it provides a yardstick to evaluate the design. 1 = unfalsifiable, 5 = clear test."
+    },
+    "concept_focused": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How much it is about the concept vs. a broader user goal. 1 = goal-like, 5 = concept-specific."
+    }
+  },
+  "required": ["statement", "specific", "distinguishing", "measurable", "concept_focused"],
+  "additionalProperties": false
+}

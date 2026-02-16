@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ActionMapping",
+  "description": "Maps concept actions to surfaces and implementations. Designed for automated verification against concept definitions and codebase.\n\nLinting rules (beyond structural validation):\n1. Every concept in 'concepts' must exist in the concept definitions.\n2. Every concept in the concept definitions must appear in 'concepts'.\n3. Every mapping.concept must be in the 'concepts' array.\n4. Every mapping.action must exist in that concept's actions list.\n5. Every (concept, action) pair from concept definitions must have exactly one mapping.\n6. No duplicate (concept, action) pairs in mappings.\n7. If implementation.type is 'code', entry_point must be present.\n8. If implementation.type is 'code', entry_point should resolve to an importable module:function.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to the schema file."
+    },
+    "concepts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "All concept names. Must match concept definitions exactly."
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "concept": {
+            "type": "string",
+            "description": "Concept name. Must reference an entry in 'concepts'."
+          },
+          "action": {
+            "type": "string",
+            "description": "Action name. Must match an action in the concept's definition."
+          },
+          "surface": {
+            "enum": ["cli-command", "json-edit", "api-endpoint", "ui-element", "derived"],
+            "description": "How the action is exposed to users."
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of how the user performs this action."
+          },
+          "implementation": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "enum": ["code", "user-authored", "derived"],
+                "description": "'code' = implemented in source with traceable entry point. 'user-authored' = user performs directly (e.g. editing a file). 'derived' = side-effect of another action."
+              },
+              "entry_point": {
+                "type": "string",
+                "pattern": "^[a-zA-Z_][a-zA-Z0-9_.]*:[a-zA-Z_][a-zA-Z0-9_]*$",
+                "description": "module:function notation (e.g. 'compgrid.main:main'). Required when type is 'code'."
+              },
+              "calls": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z_][a-zA-Z0-9_.]*:[a-zA-Z_][a-zA-Z0-9_]*$"
+                },
+                "description": "Functions called by the entry point, in module:function notation."
+              },
+              "notes": {
+                "type": "string",
+                "description": "Explanation for non-code implementations."
+              }
+            },
+            "required": ["type"],
+            "if": { "properties": { "type": { "const": "code" } } },
+            "then": { "required": ["type", "entry_point"] },
+            "additionalProperties": false
+          }
+        },
+        "required": ["concept", "action", "surface", "description", "implementation"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["concepts", "mappings"],
+  "additionalProperties": false
+}

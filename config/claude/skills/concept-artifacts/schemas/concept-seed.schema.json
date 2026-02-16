@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConceptSeed",
+  "description": "Output of concept-identification. One seed per identified concept.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Concept name, recognizable to users, not implementation jargon."
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the concept is about."
+    },
+    "source": {
+      "enum": ["new", "existing"],
+      "description": "'new' for greenfield concepts, 'existing' for decomposed from existing system."
+    }
+  },
+  "required": ["name", "description", "source"],
+  "additionalProperties": false
+}

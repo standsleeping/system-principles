@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConceptDefinition",
+  "description": "Output of concept-assembly. Complete concept definition composing all per-concept artifacts.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "seed": { "$ref": "concept-seed.schema.json" },
+    "purpose": { "$ref": "purpose.schema.json" },
+    "operational_principle": { "$ref": "operational-principle.schema.json" },
+    "actions": { "$ref": "actions.schema.json" },
+    "state": { "$ref": "state.schema.json" }
+  },
+  "required": ["seed", "purpose", "operational_principle", "actions", "state"],
+  "additionalProperties": false
+}

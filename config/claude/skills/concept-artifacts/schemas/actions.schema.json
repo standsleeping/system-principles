@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Actions",
+  "description": "Output of concept-actions. Operations a user or system can perform on the concept.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Action name (verb). Should be recognizable to users."
+      },
+      "description": {
+        "type": "string",
+        "description": "What the action does."
+      }
+    },
+    "required": ["name", "description"],
+    "additionalProperties": false
+  },
+  "minItems": 1
+}

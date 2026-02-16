@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "State",
+  "description": "Output of concept-state. The concept's local micromodel of data.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "State component name."
+      },
+      "type": {
+        "type": "string",
+        "description": "Type expression (e.g. 'str', 'ordered set of {id: str, name: str}')."
+      },
+      "description": {
+        "type": "string",
+        "description": "What this state component represents and how actions use it."
+      }
+    },
+    "required": ["name", "type", "description"],
+    "additionalProperties": false
+  },
+  "minItems": 1
+}

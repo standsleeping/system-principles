@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GenericityAssessment",
+  "description": "Output of genericity-review. Identifies unnecessary specificity in a concept.",
+  "type": "object",
+  "properties": {
+    "concept": {
+      "type": "string",
+      "description": "Concept name."
+    },
+    "specific_to": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Aspects that are unnecessarily specific to the current domain or use case."
+    },
+    "adjustments": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Proposed changes that would increase genericity without losing purpose."
+    },
+    "generic_after": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Genericity rating after proposed adjustments. 1 = domain-locked, 5 = fully generic."
+    }
+  },
+  "required": ["concept", "specific_to", "adjustments", "generic_after"],
+  "additionalProperties": false
+}

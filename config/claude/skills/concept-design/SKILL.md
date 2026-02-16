@@ -15,7 +15,7 @@ A guided workflow for designing software concepts, organized around a "design as
 
 ## Workflow
 
-### Part I: Single-Concept Definition
+### Part 1: Single-Concept Definition
 
 Run stages 1–6 for each concept:
 
@@ -28,7 +28,7 @@ Run stages 1–6 for each concept:
 | 5 | `/concept-state` | `State` — the local micromodel of data |
 | 6 | `/concept-assembly` | `ConceptDefinition` — all parts composed |
 
-### Part I.5: Surface Planning
+### Part 2: Surface Planning
 
 Run stage 7 for each concept, once you know the target channels:
 
@@ -36,7 +36,7 @@ Run stage 7 for each concept, once you know the target channels:
 |-------|-------|----------|
 | 7 | `/surface-planning` | `ConceptManifest` — how actions/state surface per channel, gaps |
 
-### Part II: Concept Composition
+### Part 3: Concept Composition
 
 Run stages 8–10 across the full set of concepts:
 
@@ -46,12 +46,23 @@ Run stages 8–10 across the full set of concepts:
 | 9 | `/coherence-analysis` | `CoherenceAssessment` + `DesignCheck` |
 | 10 | `/genericity-review` | `GenericityAssessment` per concept |
 
-### Part III: Toward Implementation
+### Part 4: Artifact Organization and Validation
+
+Run after composition (or after implementation) to capture design as data and verify consistency:
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 11 | `/data-model-integration` | `IntegratedDataModel` — merged micromodels into a global data model |
-| 12 | `/concept-implementation` | Code modules — concepts translated to module boundaries |
+| 11 | `/concept-artifacts` | `concepts/` directory — organized JSON files with schemas |
+| 12 | `/concept-validation` | Validation report — schema, cross-artifact, and codebase checks |
+
+These stages are re-runnable checkpoints. Run `/concept-validation` any time artifacts or implementation change.
+
+### Part 5: Toward Implementation
+
+| Stage | Skill | Produces |
+|-------|-------|----------|
+| 13 | `/data-model-integration` | `IntegratedDataModel` — merged micromodels into a global data model |
+| 14 | `/concept-implementation` | Code modules — concepts translated to module boundaries |
 
 ## How to use this workflow
 
@@ -61,6 +72,7 @@ You don't have to run every stage every time. Common entry points:
 - **Existing system audit:** Start at stage 1 with `source: "existing"`, then jump to stages 8–10 to assess composition.
 - **Single concept deepening:** Enter at whichever stage the concept is missing (e.g., it has a name but no formal purpose — start at stage 2).
 - **Surface audit:** Jump to stage 7 to check whether concepts are properly surfaced to users.
+- **Validation checkpoint:** Run stages 11–12 to organize artifacts and verify consistency.
 
 ## Artifact flow
 
@@ -78,8 +90,16 @@ ConceptSeed ──► Purpose ──► OperationalPrinciple ──► Action[] 
                     ▼               ▼               ▼
              DependencyGraph   Coherence    Genericity
                     │           Assessment   Assessment
-                    ▼
-            IntegratedDataModel
-                    ▼
-             Implementation
+                    │               │               │
+                    └───────────────┴───────────────┘
+                                    │
+                          Concept Artifacts
+                           (JSON + schemas)
+                                    │
+                        Concept Validation
+                         (3-level checks)
+                                    │
+                            IntegratedDataModel
+                                    ▼
+                             Implementation
 ```

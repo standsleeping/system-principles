@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConceptManifest",
+  "description": "Output of surface-planning. Maps how a concept's actions and state surface to users per channel.",
+  "type": "object",
+  "properties": {
+    "concept": {
+      "type": "string",
+      "description": "Concept name."
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "enum": ["web-ui", "cli", "mcp", "api"],
+            "description": "The channel through which the concept surfaces."
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "description": "Action name (must match an action in the concept definition)."
+                },
+                "element": {
+                  "type": "string",
+                  "description": "What the user sees or types (button, command, form, file edit)."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "The display text or command syntax."
+                }
+              },
+              "required": ["action", "element", "label"],
+              "additionalProperties": false
+            }
+          },
+          "state": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "type": "string",
+                  "description": "State component name (must match a component in the concept definition)."
+                },
+                "element": {
+                  "type": "string",
+                  "description": "How the state is made visible."
+                },
+                "visibility": {
+                  "enum": ["always", "on-demand", "hidden"],
+                  "description": "When the state is shown to the user."
+                }
+              },
+              "required": ["component", "element", "visibility"],
+              "additionalProperties": false
+            }
+          },
+          "op_hint": {
+            "type": "string",
+            "description": "How the user discovers the operational principle through this channel."
+          }
+        },
+        "required": ["channel", "actions", "state", "op_hint"],
+        "additionalProperties": false
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Actions or state with no surface, or surfaces that are inadequate."
+    }
+  },
+  "required": ["concept", "surfaces", "gaps"],
+  "additionalProperties": false
+}
