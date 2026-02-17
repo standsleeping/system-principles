@@ -105,6 +105,18 @@ This skill produces: a `concepts/` directory containing validated JSON files, or
 
 ## Validation
 
+A reference implementation of all three levels lives in `scripts/validate_concepts.py`. It takes two required arguments: the path to the project's `concepts/` directory and the path to this skill's `schemas/` directory.
+
+```
+python scripts/validate_concepts.py <concepts_dir> <schemas_dir> [--level N ...]
+```
+
+Run specific levels with `--level` (repeatable), or omit for all three. The script auto-discovers which schema validates each file by reading the `$schema` field in each JSON artifact.
+
+Dependencies: `jsonschema`, `referencing` (must be in the project's dev dependencies).
+
+Acceptance criteria:
+
 - All files pass Level 1 (schema validation).
 - All cross-references pass Level 2 (consistency).
 - If action mapping includes code implementations, Level 3 passes (codebase verification).

@@ -12,7 +12,8 @@
       },
       "type": {
         "type": "string",
-        "description": "Type expression (e.g. 'str', 'ordered set of {id: str, name: str}')."
+        "description": "Type using Alloy-style notation: 'one X' (exactly one), 'lone X' (zero or one), 'set X' (collection), 'X -> Y' (relation).",
+        "pattern": "^(one|lone|set) \\w+$|^\\w+( -> ((one|lone|set) )?\\w+)+$"
       },
       "description": {
         "type": "string",

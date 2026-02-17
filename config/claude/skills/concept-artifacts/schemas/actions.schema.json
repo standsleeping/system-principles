@@ -10,12 +10,24 @@
         "type": "string",
         "description": "Action name (verb). Should be recognizable to users."
       },
+      "signature": {
+        "type": "string",
+        "description": "Function signature with parameters and return type."
+      },
+      "requires": {
+        "type": ["string", "null"],
+        "description": "Precondition. When can this action be performed? Null if always valid."
+      },
+      "effects": {
+        "type": "string",
+        "description": "Postcondition. What changes after the action?"
+      },
       "description": {
         "type": "string",
-        "description": "What the action does."
+        "description": "Optional prose description when signature/requires/effects are insufficient."
       }
     },
-    "required": ["name", "description"],
+    "required": ["name", "signature", "requires", "effects"],
     "additionalProperties": false
   },
   "minItems": 1
