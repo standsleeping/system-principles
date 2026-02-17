@@ -79,6 +79,7 @@ class Taxonomy:
         """
         parts = path.split("/")
         current_groups = self.groups
+        found: TaxonomyGroup | None = None
 
         for part in parts:
             found = None

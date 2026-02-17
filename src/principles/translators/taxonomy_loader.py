@@ -1,6 +1,7 @@
 """Load taxonomies from YAML files."""
 
 from pathlib import Path
+from typing import cast
 
 import yaml
 
@@ -13,7 +14,7 @@ from principles.types import (
 )
 
 
-def _parse_group(name: str, data: dict, file_path: str) -> TaxonomyGroup | ParseError:
+def _parse_group(name: str, data: object, file_path: str) -> TaxonomyGroup | ParseError:
     """Recursively parse a taxonomy group from YAML data.
 
     Expected format:
@@ -30,10 +31,11 @@ def _parse_group(name: str, data: dict, file_path: str) -> TaxonomyGroup | Parse
             message=f"Group '{name}' must be a mapping",
         )
 
-    description = str(data.get("description", ""))
+    fields = cast(dict[str, object], data)
+    description = str(fields.get("description", ""))
 
     # Parse direct principle IDs
-    principles_raw = data.get("principles", [])
+    principles_raw = fields.get("principles", [])
     if not isinstance(principles_raw, list):
         return ParseError(
             file_path=file_path,
@@ -43,7 +45,7 @@ def _parse_group(name: str, data: dict, file_path: str) -> TaxonomyGroup | Parse
 
     # Parse nested subgroups
     subgroups: list[TaxonomyGroup] = []
-    groups_raw = data.get("groups", {})
+    groups_raw = fields.get("groups", {})
     if not isinstance(groups_raw, dict):
         return ParseError(
             file_path=file_path,
@@ -51,7 +53,7 @@ def _parse_group(name: str, data: dict, file_path: str) -> TaxonomyGroup | Parse
         )
 
     for subgroup_name, subgroup_data in groups_raw.items():
-        subgroup_result = _parse_group(subgroup_name, subgroup_data, file_path)
+        subgroup_result = _parse_group(str(subgroup_name), subgroup_data, file_path)
         if isinstance(subgroup_result, ParseError):
             return subgroup_result
         subgroups.append(subgroup_result)

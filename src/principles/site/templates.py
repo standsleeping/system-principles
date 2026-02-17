@@ -18,7 +18,9 @@ UPPERCASE_WORDS = {"ui", "css", "html", "js", "api", "sql", "http"}
 def display_name(name: str) -> str:
     """Convert a group name to display text: 'ui-debugging' → 'UI Debugging'."""
     words = name.replace("-", " ").split()
-    return " ".join(w.upper() if w in UPPERCASE_WORDS else w.capitalize() for w in words)
+    return " ".join(
+        w.upper() if w in UPPERCASE_WORDS else w.capitalize() for w in words
+    )
 
 
 def base_page(
@@ -143,12 +145,10 @@ def group_page(
 
     # Subgroups
     for subgroup in group.subgroups:
-        sub_display = subdisplay_name(group.name)
+        sub_display = display_name(subgroup.name)
         parts.append(f"<h2>{escape(sub_display)}</h2>")
         if subgroup.description:
-            parts.append(
-                f'<p class="description">{escape(subgroup.description)}</p>'
-            )
+            parts.append(f'<p class="description">{escape(subgroup.description)}</p>')
         parts.append('<ul class="principle-list">')
         for pid in subgroup.principle_ids:
             if pid in principle_map:
@@ -204,10 +204,7 @@ def principle_page(
     if principle.essence:
         parts.append(f'<p class="essence">{inline_markup(principle.essence)}</p>')
 
-    parts.append(
-        f'<div class="principle-id">'
-        f"{escape(str(principle.id))}</div>"
-    )
+    parts.append(f'<div class="principle-id">{escape(str(principle.id))}</div>')
 
     # Render content
     parts.append('<div class="content">')
