@@ -242,32 +242,107 @@ blockquote p:last-child {
     margin-top: 0.2rem;
 }
 
-/* Group cards on index page */
-.group-list {
-    list-style: none;
-    padding: 0;
+/* Hero section */
+.hero {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.group-list li {
-    padding: 0.75rem 0;
+.stats {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
 }
 
-.group-list .group-name a {
+/* Group card grid */
+.card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.card {
+    display: block;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1rem;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: border-color 0.15s;
+}
+
+.main .card:hover {
+    border-color: var(--color-link);
+    text-decoration: none;
+}
+
+.card .card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.card .card-name {
     font-family: var(--font-heading);
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
 }
 
-.group-list .group-description {
-    font-size: 0.85rem;
-    color: var(--color-text);
-    margin-top: 0.2rem;
-}
-
-.group-list .group-count {
+.card .card-count {
     font-size: 0.75rem;
     color: var(--color-text-muted);
-    margin-top: 0.1rem;
+}
+
+.card .card-desc {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-top: 0.35rem;
+    line-height: 1.4;
+}
+
+/* Search input */
+.search-input {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: var(--color-link);
+}
+
+/* Principle index list */
+.index-list {
+    list-style: none;
+    padding: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.index-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.index-list .index-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.index-list .index-essence {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-top: 0.15rem;
 }
 
 /* Related principles */
@@ -365,6 +440,10 @@ pre code {
     .main {
         margin-left: 0;
         padding: 1.5rem 1rem;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr;
     }
 }
 """

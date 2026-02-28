@@ -81,28 +81,87 @@ def index_page(
     taxonomy: Taxonomy,
     principle_map: dict[PrincipleId, Principle],
 ) -> str:
-    """Landing page: taxonomy description + list of groups."""
+    """Landing page: hero section, group card grid, and searchable principle index."""
+    total_principles = len(taxonomy.get_all_principle_ids())
+    total_groups = len(taxonomy.groups)
+
     parts: list[str] = []
+
+    # Hero section
+    parts.append('<div class="hero">')
     parts.append("<h1>Design Principles</h1>")
     if taxonomy.description:
         parts.append(f'<p class="description">{escape(taxonomy.description)}</p>')
+    parts.append('<div class="stats">')
+    parts.append(f"<span>{total_principles} principles</span>")
+    parts.append(f"<span>{total_groups} groups</span>")
+    parts.append("</div>")
+    parts.append("</div>")
 
-    parts.append('<ul class="group-list">')
+    # Group card grid
+    parts.append('<section class="groups">')
+    parts.append("<h2>Groups</h2>")
+    parts.append('<div class="card-grid">')
     for group in taxonomy.groups:
         count = len(group.get_all_principle_ids())
-        display = display_name(group.name)
-        desc = escape(group.description) if group.description else ""
-        parts.append("<li>")
+        dname = display_name(group.name)
+        parts.append(f'<a class="card" href="{group.name}/">')
         parts.append(
-            f'<div class="group-name">'
-            f'<a href="{group.name}/">{display}</a>'
-            f' <span class="group-count">({count})</span>'
+            f'<div class="card-header">'
+            f'<span class="card-name">{escape(dname)}</span>'
+            f' <span class="card-count">{count}</span>'
             f"</div>"
         )
-        if desc:
-            parts.append(f'<div class="group-description">{desc}</div>')
+        if group.description:
+            parts.append(f'<p class="card-desc">{escape(group.description)}</p>')
+        parts.append("</a>")
+    parts.append("</div>")
+    parts.append("</section>")
+
+    # Principle index
+    sorted_principles = sorted(
+        (
+            (pid, principle_map[pid])
+            for pid in taxonomy.get_all_principle_ids()
+            if pid in principle_map
+        ),
+        key=lambda pair: pair[1].title.lower(),
+    )
+
+    parts.append('<section class="index">')
+    parts.append("<h2>All Principles</h2>")
+    parts.append(
+        '<input type="text" class="search-input" '
+        'placeholder="Filter principles..." autocomplete="off">'
+    )
+    parts.append('<ul class="index-list">')
+    for pid, p in sorted_principles:
+        title_text = p.title.rstrip(".")
+        lower_title = title_text.lower()
+        parts.append(f'<li data-title="{escape(lower_title)}">')
+        parts.append(
+            f'<a class="index-title" href="principles/{slug(pid)}/">'
+            f"{inline_markup(title_text)}</a>"
+        )
+        if p.essence:
+            parts.append(f'<div class="index-essence">{inline_markup(p.essence)}</div>')
         parts.append("</li>")
     parts.append("</ul>")
+    parts.append("</section>")
+
+    # Inline search script
+    parts.append(
+        "<script>"
+        "document.querySelector('.search-input')"
+        ".addEventListener('input',function(e){"
+        "var q=e.target.value.toLowerCase();"
+        "document.querySelectorAll('.index-list li')"
+        ".forEach(function(li){"
+        "li.style.display=li.dataset.title.indexOf(q)!==-1?'':'none';"
+        "});"
+        "});"
+        "</script>"
+    )
 
     sidebar_html = sidebar_nav(taxonomy.groups, current_group="", root_path="")
     return base_page(
