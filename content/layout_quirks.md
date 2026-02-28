@@ -11,3 +11,5 @@ CSS has behaviors that cause unexpected spacing. These don't appear as margin or
 **100vw Includes Scrollbar Width**: `width: 100vw` includes the scrollbar width on platforms with visible scrollbars, causing horizontal overflow. Prefer `width: 100%` or flex/grid layouts.
 
 **Margin Collapsing**: Adjacent vertical margins collapse to the larger value. Parent and child margins also collapse if nothing separates them (no padding, border, or content). This causes unexpected spacing and elements "escaping" their containers. Fix: Use padding instead of margin, or use flex/grid (which disables margin collapsing).
+
+**Sticky Elements Need Opaque Backgrounds**: `position: sticky` elements with `background-color: transparent` let content scroll visibly beneath them. This is easy to introduce when a component overrides a global style (e.g., a table header inherits `sticky` from a site-wide `th` rule, then a scoped style sets `background: transparent`). The result looks correct until the user scrolls. Fix: sticky and fixed elements always need an opaque background matching their context.

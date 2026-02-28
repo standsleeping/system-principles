@@ -12,3 +12,5 @@ Small UI elements should not compete for attention:
 4. Use white backgrounds for subtle section separation
 
 This reduces visual noise and lets content breathe.
+
+**Exception: sticky and fixed elements.** Any element with `position: sticky` or `position: fixed` needs an opaque background, even if it would otherwise be transparent. Content scrolling beneath a transparent sticky element is visible and distracting. See LAYOUT_QUIRKS.

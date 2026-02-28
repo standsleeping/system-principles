@@ -31,3 +31,5 @@ Use modern CSS layout for spacing:
 Gap-based spacing is more predictable and requires less override logic.
 
 **Spacing creates groups.** Vary spacing to signal what belongs together. Tight spacing between a title and its subtitle says "these are a unit." More space before the next section says "new context." This is Gestalt proximity: elements near each other are perceived as related. Uniform spacing between all elements flattens the hierarchy and makes everything feel equally important.
+
+**Consistent placement over optimal placement.** When a secondary element (a badge, link, or annotation) sometimes fits inline and sometimes wraps to a new line, the inconsistency is worse than either layout alone. Pick one position and use it always. If the element ever needs its own line, make it always a block. The small cost in compactness is repaid by a predictable visual rhythm that the eye can learn once and then stop noticing.

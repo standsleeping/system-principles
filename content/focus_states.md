@@ -6,22 +6,20 @@ essence: "Every interactive element needs a visible, consistent focus indicator;
 
 All interactive elements must have visible focus indicators for accessibility:
 
-1. Use a consistent accent color for all focus states (e.g., purple-500)
+1. Use a consistent accent color for all focus states (e.g., `--color-primary`)
 2. Two patterns based on element type:
 
-**Bordered elements** (inputs, buttons with borders):
+**Bordered elements** (inputs, textareas): border-color change only. No box-shadow glow; the border itself is the indicator.
 ```css
 element:focus {
-  border-color: var(--purple-500);
-  box-shadow: 0 0 0 2px var(--purple-100);
+  border-color: var(--color-primary);
 }
 ```
 
-**Borderless elements** (links, icon buttons):
+**Borderless elements** (buttons, links, icon buttons): tight outline with no offset. The outline hugs the element's edge.
 ```css
 element:focus {
-  outline: 2px solid var(--purple-500);
-  outline-offset: 2px;
+  outline: 2px solid var(--color-primary);
 }
 ```
 

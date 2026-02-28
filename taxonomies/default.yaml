@@ -74,7 +74,7 @@ groups:
   constructs:
     description: >-
       How we implement our concepts, models, packages, modules, functions, and types.
-      Linter-catchable rules andpatterns.
+      Linter-catchable rules and patterns.
     principles:
     - WORKING_MEMORY_LIMIT
     - FUNCTIONAL_PATTERNS
@@ -136,6 +136,7 @@ groups:
     - EMPTY_STATE_COLLAPSE
     - LAYOUT_VARIANTS
     - NEVER_CALC_LAYOUT
+    - VIEWPORT_AS_FRAME
     - LAYOUT_QUIRKS
     - OVERFLOW_CAUSES
 
