@@ -13,6 +13,7 @@ When in doubt, simplify:
 | Background color | Font-weight for emphasis |
 | Visual containers | Whitespace for breathing room |
 | Decorative borders | Structural borders only |
+| Text labels for binary status | Minimal colored glyph (e.g., ● dot) |
 
 Each visual element costs attention. Earn that cost.
 
