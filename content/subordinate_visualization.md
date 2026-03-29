@@ -9,7 +9,7 @@ When a visualization appears inline (inside a table row, beside a label, within 
 
 **Rules for inline visualizations:**
 
-1. **Neutral palette.** Use grays for fill and stroke. Reserve semantic colors (green, red, purple) for status and interaction; the visualization should not compete with those signals
+1. **Restrained palette.** Use neutral tones for fill and stroke. Reserve semantic colors (status, interaction) for surrounding content; the visualization should not compete with those signals
 2. **Compact size.** Keep dimensions proportional to the text line height or row height. A sparkline in a table row should feel like a column value, not a hero element
 3. **No interaction.** Inline visualizations are read-only glyphs. Hover effects, tooltips, and click targets belong to standalone charts, not inline annotations
 4. **No chrome.** Omit axes, gridlines, legends, and labels. The surrounding content provides the context; the visualization provides only the shape
