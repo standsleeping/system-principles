@@ -37,6 +37,7 @@ Follow these principles when writing or modifying HTML, CSS, or JavaScript.
 - **SUBORDINATE_VISUALIZATION** Subordinate Inline Visualization.: Inline visualizations annotate; they recede into the row, not headline it.
 - **FOCUS_STATES** Focus States.: Every interactive element needs a visible, consistent focus indicator; keyboard users depend on it.
 - **RESPONSIVE_COMPONENTS** Responsive Component Design.: Rank information by priority; lower-priority items hide before higher-priority items truncate.
+- **TOKEN_SCALE_PERCEPTION** Token Scale Perceptibility.: Adjacent steps in a design token scale must be visually distinct. A 1px font-size difference (15 vs 16) reads as inconsistency, not hierarchy. If two elements need different sizes, the jump must be immediately visible; if it isn't, collapse to one step and differentiate through weight or family instead.
 ## Ui Debugging
 *Principles that guide how to effectively debug HTML/JS/CSS. Tools and techniques for verifying UI constraints, debugging layout issues, and maintaining visual consistency.*
 

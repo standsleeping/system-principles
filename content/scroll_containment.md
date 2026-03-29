@@ -2,6 +2,7 @@
 id: SCROLL_CONTAINMENT
 title: "Scroll Containment."
 essence: "Only leaf content areas scroll; every container above them clips with overflow hidden."
+related: [VIEWPORT_LOCKED, INDEPENDENT_VIEWPORT]
 ---
 
 Scrolling is contained within specific content slots, never at the layout level:
