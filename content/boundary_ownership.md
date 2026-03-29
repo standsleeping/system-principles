@@ -10,20 +10,28 @@ Components own their own visual boundaries. This applies to both parent/child an
 
 When a container has structural borders (separating header from content, for example), the container defines those borders. Children provide their own internal padding.
 
-This allows "flush" variants where children fill edge-to-edge:
+**Separator Containers**
+
+When a container uses borders to separate repeated sections (e.g. a scrollable list of sections with horizontal rules between them), the container must not also carry content padding. Putting horizontal padding and a horizontal separator on the same element couples two concerns: the separator's visual extent depends on box-model details (border renders outside padding). It works by coincidence, not by structure.
+
+The separator container gets zero horizontal padding. Its children inherit content inset:
 
 ```css
-/* Normal: container provides padding */
-.sidebar-header {
-  padding: var(--spacing-lg) var(--spacing-2xl);
-  border-bottom: 1px solid var(--gray-200);
-}
+.section                { padding: var(--spacing-2xl) 0 var(--spacing-xl); }
+.section + .section     { border-top: 1px solid var(--color-border); }
+.section > *            { padding-left: var(--spacing-2xl); padding-right: var(--spacing-2xl); }
+```
 
-/* Flush: child fills to edges, provides its own padding */
-.sidebar-header-flush {
-  padding: 0;
-  border-bottom: 1px solid var(--gray-200);
-}
+The section owns the separator (zero horizontal padding means the border spans full width). The children own their content inset. No position tricks, no pseudo-elements; the box model does what it says.
+
+**CSS shorthand trap:** Children that set their own vertical padding must use longhand properties (`padding-top`/`padding-bottom`), not the `padding` shorthand. The shorthand resets all four sides, silently clobbering the horizontal values inherited from `.section > *`.
+
+```css
+/* Wrong: shorthand resets padding-left/right to 0 */
+.demo-block { padding: var(--spacing-lg) 0; }
+
+/* Right: longhands leave horizontal padding alone */
+.demo-block { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
 ```
 
 **Siblings: Each Component Completes Itself**
