@@ -33,3 +33,12 @@ Gap-based spacing is more predictable and requires less override logic.
 **Spacing creates groups.** Vary spacing to signal what belongs together. Tight spacing between a title and its subtitle says "these are a unit." More space before the next section says "new context." This is Gestalt proximity: elements near each other are perceived as related. Uniform spacing between all elements flattens the hierarchy and makes everything feel equally important.
 
 **Consistent placement over optimal placement.** When a secondary element (a badge, link, or annotation) sometimes fits inline and sometimes wraps to a new line, the inconsistency is worse than either layout alone. Pick one position and use it always. If the element ever needs its own line, make it always a block. The small cost in compactness is repaid by a predictable visual rhythm that the eye can learn once and then stop noticing.
+
+**Square padding by default.** Before writing a padding declaration, identify the element's role:
+
+- **Container** (primary content surface): square padding, same token all sides.
+- **Chrome** (utility strip attached to a container): square padding, same token all sides.
+- **Inline** (small control within chrome or a container): may be asymmetric where text content dominates and the padding itself is invisible.
+- **Flow child** (element inside a flow container that owns horizontal inset): vertical only (`padding: Y 0`). The container provides horizontal inset; the child participates only in vertical flow.
+
+Containers and chrome use square padding. Inline elements may be asymmetric. Flow children use vertical-only padding because their container owns the horizontal inset (see `CONTAINER_OWNS_INSET`). Asymmetric padding on containers or chrome makes elements look over-indented and visually unbalanced; it is the single most common spacing mistake.
