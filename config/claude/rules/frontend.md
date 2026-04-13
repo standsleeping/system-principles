@@ -30,6 +30,7 @@ Follow these principles when writing or modifying HTML, CSS, or JavaScript.
 - **TOKEN_DRIVEN_DESIGN** Token-Driven Design.: CSS variables are the single source of truth for design decisions: one change propagates everywhere.
 - **JUSTIFY_EVERY_DIMENSION** Justify Every Dimension.: A token chosen without reference to its visual context is an arbitrary number with a name. Before writing any dimension, name what it matches, echoes, or contrasts.
 - **TYPOGRAPHY_HIERARCHY** Typography-Based Hierarchy.: When weight and size establish hierarchy, color stays available for meaning like status and interaction.
+- **OPTICAL_SCALE_INLINE_MONO** Optical Scaling for Inline Monospace.: Scale inline monospace down slightly (~0.9em) so it blends with proportional prose instead of dominating it. Block `<pre>` code is exempt.
 - **SPACING_STRATEGY** Spacing Strategy.: Use flex gap for spacing between elements; it's more predictable and needs no last-child overrides.
 - **SQUARE_PADDING_DEFAULT** Square Padding by Default.: Identify the element's role (container, chrome, inline, flow child), pick a token from the scale, then use square padding unless the element is inline-scale or a flow child. Flow children use vertical-only padding because their container owns horizontal inset.
 - **CONTAINER_OWNS_INSET** Container Owns Inset, Children Own Flow.: Horizontal padding belongs on the container; children handle only vertical spacing via gap or vertical padding. This prevents compounding inset and ensures consistent alignment across child types.
