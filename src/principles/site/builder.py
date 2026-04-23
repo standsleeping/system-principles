@@ -13,6 +13,7 @@ from principles.types import (
     ValidationError,
 )
 
+from .scripts import FILTER_JS
 from .styles import CSS
 from .templates import group_page, index_page, principle_page, slug
 
@@ -67,6 +68,11 @@ def build_site(
     css_dir = output_dir / "css"
     css_dir.mkdir(exist_ok=True)
     (css_dir / "style.css").write_text(CSS, encoding="utf-8")
+
+    # Write JS
+    js_dir = output_dir / "js"
+    js_dir.mkdir(exist_ok=True)
+    (js_dir / "filter.js").write_text(FILTER_JS, encoding="utf-8")
 
     # Write index page
     (output_dir / "index.html").write_text(

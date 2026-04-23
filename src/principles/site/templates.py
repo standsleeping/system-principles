@@ -1,9 +1,15 @@
 """HTML template functions for the static site."""
 
-import re
 from html import escape
 
 from principles.types import Principle, PrincipleId, Taxonomy, TaxonomyGroup
+
+from .markdown import inline_markup, render_markdown, strip_markup
+
+
+# ================================================================
+# NAMING / SLUGS
+# ================================================================
 
 
 def slug(principle_id: PrincipleId) -> str:
@@ -11,7 +17,6 @@ def slug(principle_id: PrincipleId) -> str:
     return str(principle_id).lower().replace("_", "-")
 
 
-# Words that should stay uppercase when displaying group names.
 UPPERCASE_WORDS = {"ui", "css", "html", "js", "api", "sql", "http"}
 
 
@@ -23,152 +28,434 @@ def display_name(name: str) -> str:
     )
 
 
+def root_from_css(css_path: str) -> str:
+    """Derive the site-root URL from a css path like '../../css/style.css'."""
+    if css_path.endswith("css/style.css"):
+        root = css_path[: -len("css/style.css")]
+        return root if root else "./"
+    return "./"
+
+
+# ================================================================
+# PAGE SHELL
+# ================================================================
+
+
 def base_page(
+    *,
     title: str,
-    content: str,
+    main_content: str,
     sidebar_html: str,
     css_path: str,
+    root_path: str,
+    context_label: str = "",
+    toc_html: str = "",
+    wide: bool = False,
 ) -> str:
-    """Full HTML document with sidebar and main content."""
-    return f"""\
-<!DOCTYPE html>
+    """Full HTML document: top header, left sidebar, main content, optional right TOC."""
+    main_class = "main-content" + (" main-content-wide" if wide else "")
+    toc_markup = ""
+    if toc_html:
+        toc_markup = (
+            '<aside class="app-shell-right app-toc" aria-label="On this page">'
+            f"{toc_html}"
+            "</aside>"
+        )
+    context_markup = ""
+    if context_label:
+        context_markup = (
+            f'<span class="app-header-context">{escape(context_label)}</span>'
+        )
+
+    return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>{escape(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{escape(css_path)}">
 </head>
 <body>
-<aside class="sidebar">
-<div class="sidebar-title"><a href="{root_from_css(css_path)}">Principles</a></div>
-{sidebar_html}
-</aside>
-<main class="main">
-{content}
-</main>
+<a href="#main-content" class="sr-only">Skip to main content</a>
+<div class="app-shell">
+  <header class="app-shell-header app-header">
+    <a class="app-header-brand" href="{escape(root_path) or "./"}">System Principles</a>
+    <div class="app-header-meta">
+      {context_markup}
+    </div>
+  </header>
+  <div class="app-shell-body">
+    <aside class="app-shell-left app-sidebar" aria-label="Taxonomy navigation">
+      <div class="app-sidebar-main">
+        {sidebar_html}
+      </div>
+    </aside>
+    <main class="app-shell-main" id="main-content" tabindex="-1">
+      <div class="{main_class}">
+{main_content}
+      </div>
+    </main>
+    {toc_markup}
+  </div>
+</div>
 </body>
 </html>
 """
 
 
-def root_from_css(css_path: str) -> str:
-    """Derive the root path from a css path like '../../css/style.css'."""
-    # css_path is relative: "css/style.css", "../css/style.css", etc.
-    # The root is css_path minus "css/style.css" at the end
-    if css_path.endswith("css/style.css"):
-        root = css_path[: -len("css/style.css")]
-        return root if root else "."
-    return "."
+# ================================================================
+# SIDEBAR NAV
+# ================================================================
 
 
 def sidebar_nav(
-    groups: tuple[TaxonomyGroup, ...],
+    taxonomy: Taxonomy,
+    principle_map: dict[PrincipleId, Principle],
     current_group: str,
     root_path: str,
 ) -> str:
-    """Navigation sidebar listing taxonomy groups."""
-    items: list[str] = []
-    for group in groups:
+    """Left-rail navigation: all taxonomy groups, with principle counts."""
+    total = sum(1 for pid in taxonomy.get_all_principle_ids() if pid in principle_map)
+
+    parts: list[str] = []
+
+    # Overview section
+    home_active = " nav-link-active" if current_group == "" else ""
+    parts.append('<nav class="nav-section">')
+    parts.append('<div class="nav-section-title">Overview</div>')
+    parts.append(
+        f'<a class="nav-link{home_active}" href="{escape(root_path)}">'
+        "<span>Index</span>"
+        f'<span class="nav-link-count">{total}</span>'
+        "</a>"
+    )
+    parts.append("</nav>")
+
+    # Groups section
+    parts.append('<nav class="nav-section">')
+    parts.append('<div class="nav-section-title">Groups</div>')
+    for group in taxonomy.groups:
+        count = sum(1 for pid in group.get_all_principle_ids() if pid in principle_map)
         display = display_name(group.name)
-        active = ' class="active"' if group.name == current_group else ""
+        active = " nav-link-active" if group.name == current_group else ""
         href = f"{root_path}{group.name}/"
-        items.append(f'<li><a href="{href}"{active}>{escape(display)}</a></li>')
-    return f"<nav><ul>{''.join(items)}</ul></nav>"
+        parts.append(
+            f'<a class="nav-link{active}" href="{escape(href)}">'
+            f"<span>{escape(display)}</span>"
+            f'<span class="nav-link-count">{count}</span>'
+            "</a>"
+        )
+    parts.append("</nav>")
+
+    return "\n".join(parts)
+
+
+# ================================================================
+# BREADCRUMB
+# ================================================================
+
+
+def breadcrumb(crumbs: list[tuple[str, str | None]]) -> str:
+    """Render a breadcrumb trail. Each crumb is (label, href_or_none)."""
+    if not crumbs:
+        return ""
+    parts = ['<nav class="breadcrumb" aria-label="Breadcrumb">']
+    for i, (label, href) in enumerate(crumbs):
+        if i > 0:
+            parts.append('<span class="breadcrumb-separator">/</span>')
+        if href is None:
+            parts.append(
+                f'<span class="breadcrumb-crumb breadcrumb-current">{escape(label)}</span>'
+            )
+        else:
+            parts.append(
+                f'<a class="breadcrumb-crumb" href="{escape(href)}">{escape(label)}</a>'
+            )
+    parts.append("</nav>")
+    return "".join(parts)
+
+
+# ================================================================
+# TOC (right rail)
+# ================================================================
+
+
+def toc_html_from_headings(headings: list[tuple[int, str, str]]) -> str:
+    """Build right-sidebar TOC from a list of (level, text, anchor_id)."""
+    if not headings:
+        return ""
+    parts = [
+        '<div class="app-toc-main">',
+        '<div class="app-toc-title">On this page</div>',
+        '<div class="toc-list">',
+    ]
+    for level, text, anchor in headings:
+        level_class = " toc-item-level-3" if level >= 3 else ""
+        parts.append(
+            f'<a class="toc-item{level_class}" href="#{escape(anchor)}">{escape(text)}</a>'
+        )
+    parts.append("</div>")
+    parts.append("</div>")
+    return "\n".join(parts)
+
+
+# ================================================================
+# PAGE NAV (prev/next)
+# ================================================================
+
+
+def find_container(
+    principle_id: PrincipleId,
+    taxonomy: Taxonomy,
+) -> tuple[TaxonomyGroup | None, tuple[str, ...]]:
+    """Find the innermost group whose principle_ids contains the principle.
+
+    Returns (group_or_none, path_segments). Path segments are outer-to-inner.
+    """
+
+    def walk(
+        groups: tuple[TaxonomyGroup, ...], prefix: tuple[str, ...]
+    ) -> tuple[TaxonomyGroup | None, tuple[str, ...]]:
+        for g in groups:
+            path = prefix + (g.name,)
+            if principle_id in g.principle_ids:
+                return g, path
+            sub, sub_path = walk(g.subgroups, path)
+            if sub is not None:
+                return sub, sub_path
+        return None, ()
+
+    return walk(taxonomy.groups, ())
+
+
+def page_nav_html(
+    current_id: PrincipleId,
+    taxonomy: Taxonomy,
+    principle_map: dict[PrincipleId, Principle],
+) -> str:
+    """Build previous/next navigation within the principle's containing group."""
+    container, _ = find_container(current_id, taxonomy)
+    if container is None:
+        return ""
+
+    ids = [pid for pid in container.principle_ids if pid in principle_map]
+    if current_id not in ids:
+        return ""
+
+    idx = ids.index(current_id)
+    prev_pid = ids[idx - 1] if idx > 0 else None
+    next_pid = ids[idx + 1] if idx < len(ids) - 1 else None
+
+    if prev_pid is None and next_pid is None:
+        return ""
+
+    def link(pid: PrincipleId, direction: str) -> str:
+        label = "Previous" if direction == "prev" else "Next"
+        p = principle_map[pid]
+        title = strip_markup(p.title.rstrip("."))
+        return (
+            f'<a class="page-nav-link page-nav-link-{direction}" '
+            f'href="../{slug(pid)}/">'
+            f'<span class="page-nav-direction">{label}</span>'
+            f'<span class="page-nav-title">{escape(title)}</span>'
+            "</a>"
+        )
+
+    inner = ""
+    if prev_pid is not None:
+        inner += link(prev_pid, "prev")
+    if next_pid is not None:
+        inner += link(next_pid, "next")
+    return f'<nav class="page-nav" aria-label="Pagination">{inner}</nav>'
+
+
+# ================================================================
+# INDEX PAGE
+# ================================================================
 
 
 def index_page(
     taxonomy: Taxonomy,
     principle_map: dict[PrincipleId, Principle],
 ) -> str:
-    """Landing page: hero section, group card grid, and searchable principle index."""
-    total_principles = len(taxonomy.get_all_principle_ids())
+    """Landing page: hero, stats, group table, filterable principle index."""
+    all_ids = [pid for pid in taxonomy.get_all_principle_ids() if pid in principle_map]
+    total_principles = len(all_ids)
     total_groups = len(taxonomy.groups)
+
+    # Map each principle ID to its group's display name
+    principle_to_group: dict[PrincipleId, tuple[str, str]] = {}
+    for g in taxonomy.groups:
+        for pid in g.get_all_principle_ids():
+            principle_to_group[pid] = (g.name, display_name(g.name))
 
     parts: list[str] = []
 
-    # Hero section
-    parts.append('<div class="hero">')
-    parts.append("<h1>Design Principles</h1>")
+    # Hero
+    parts.append('<section class="hero">')
+    parts.append('<div class="hero-eyebrow">Design principles · catalog</div>')
+    parts.append('<h1 class="hero-title">System Principles</h1>')
     if taxonomy.description:
-        parts.append(f'<p class="description">{escape(taxonomy.description)}</p>')
-    parts.append('<div class="stats">')
-    parts.append(f"<span>{total_principles} principles</span>")
-    parts.append(f"<span>{total_groups} groups</span>")
-    parts.append("</div>")
+        parts.append(f'<p class="hero-description">{escape(taxonomy.description)}</p>')
+    parts.append("</section>")
+
+    # Stats
+    parts.append('<div class="stats-bar">')
+    parts.append(
+        f'<div class="stat-item">'
+        f'<span class="stat-value">{total_principles}</span>'
+        f'<span class="stat-label">Principles</span>'
+        f"</div>"
+    )
+    parts.append(
+        f'<div class="stat-item">'
+        f'<span class="stat-value">{total_groups}</span>'
+        f'<span class="stat-label">Groups</span>'
+        f"</div>"
+    )
+    parts.append(
+        f'<div class="stat-item">'
+        f'<span class="stat-value">{taxonomy.name.upper()}</span>'
+        f'<span class="stat-label">Taxonomy</span>'
+        f"</div>"
+    )
     parts.append("</div>")
 
-    # Group card grid
-    parts.append('<section class="groups">')
-    parts.append("<h2>Groups</h2>")
-    parts.append('<div class="card-grid">')
-    for group in taxonomy.groups:
-        count = len(group.get_all_principle_ids())
-        dname = display_name(group.name)
-        parts.append(f'<a class="card" href="{group.name}/">')
+    # Groups table
+    parts.append('<section class="section">')
+    parts.append(
+        '<div class="section-heading">'
+        '<h2 class="section-heading-title">Groups</h2>'
+        f'<span class="section-heading-meta">{total_groups} total</span>'
+        "</div>"
+    )
+    parts.append('<div class="data-table-wrap">')
+    parts.append('<table class="data-table">')
+    parts.append(
+        "<thead><tr>"
+        '<th class="col-title">Group</th>'
+        '<th class="col-essence">Description</th>'
+        '<th class="col-count">Count</th>'
+        "</tr></thead>"
+    )
+    parts.append("<tbody>")
+    for g in taxonomy.groups:
+        count = sum(1 for pid in g.get_all_principle_ids() if pid in principle_map)
+        dname = display_name(g.name)
+        desc = escape(g.description) if g.description else ""
         parts.append(
-            f'<div class="card-header">'
-            f'<span class="card-name">{escape(dname)}</span>'
-            f' <span class="card-count">{count}</span>'
-            f"</div>"
+            f"<tr>"
+            f'<td class="col-title">'
+            f'<a href="{escape(g.name)}/">{escape(dname)}</a>'
+            f"</td>"
+            f'<td class="col-essence">{desc}</td>'
+            f'<td class="col-count">{count}</td>'
+            f"</tr>"
         )
-        if group.description:
-            parts.append(f'<p class="card-desc">{escape(group.description)}</p>')
-        parts.append("</a>")
+    parts.append("</tbody>")
+    parts.append("</table>")
     parts.append("</div>")
     parts.append("</section>")
 
-    # Principle index
-    sorted_principles = sorted(
-        (
-            (pid, principle_map[pid])
-            for pid in taxonomy.get_all_principle_ids()
-            if pid in principle_map
-        ),
+    # Principle index (filterable table)
+    sorted_items = sorted(
+        ((pid, principle_map[pid]) for pid in all_ids),
         key=lambda pair: pair[1].title.lower(),
     )
-
-    parts.append('<section class="index">')
-    parts.append("<h2>All Principles</h2>")
+    parts.append('<section class="section">')
     parts.append(
-        '<input type="text" class="search-input" '
-        'placeholder="Filter principles..." autocomplete="off">'
+        '<div class="section-heading">'
+        '<h2 class="section-heading-title">All Principles</h2>'
+        f'<span class="section-heading-meta" id="principle-count">{total_principles} total</span>'
+        "</div>"
     )
-    parts.append('<ul class="index-list">')
-    for pid, p in sorted_principles:
+    parts.append(
+        '<div class="filter-bar">'
+        '<span class="filter-label">Filter</span>'
+        '<input type="text" id="principle-filter" class="filter-input" '
+        'placeholder="Type to filter by title or ID…" autocomplete="off">'
+        '<span class="filter-count" id="filter-count"></span>'
+        "</div>"
+    )
+    parts.append('<div class="data-table-wrap">')
+    parts.append('<table class="data-table" id="principle-index">')
+    parts.append(
+        "<thead><tr>"
+        '<th class="col-title">Title</th>'
+        '<th class="col-essence">Essence</th>'
+        '<th class="col-group">Group</th>'
+        '<th class="col-id">ID</th>'
+        "</tr></thead>"
+    )
+    parts.append("<tbody>")
+    for pid, p in sorted_items:
         title_text = p.title.rstrip(".")
-        lower_title = title_text.lower()
-        parts.append(f'<li data-title="{escape(lower_title)}">')
+        search_key = f"{strip_markup(title_text).lower()} {str(pid).lower()}"
+        group_info = principle_to_group.get(pid)
+        group_cell = ""
+        if group_info:
+            gname, gdisplay = group_info
+            group_cell = f'<a href="{escape(gname)}/">{escape(gdisplay)}</a>'
+        essence = inline_markup(p.essence) if p.essence else ""
         parts.append(
-            f'<a class="index-title" href="principles/{slug(pid)}/">'
-            f"{inline_markup(title_text)}</a>"
+            f'<tr data-search="{escape(search_key)}">'
+            f'<td class="col-title">'
+            f'<a href="principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
+            f"</td>"
+            f'<td class="col-essence">{essence}</td>'
+            f'<td class="col-group">{group_cell}</td>'
+            f'<td class="col-id">{escape(str(pid))}</td>'
+            f"</tr>"
         )
-        if p.essence:
-            parts.append(f'<div class="index-essence">{inline_markup(p.essence)}</div>')
-        parts.append("</li>")
-    parts.append("</ul>")
+    parts.append("</tbody>")
+    parts.append("</table>")
+    parts.append("</div>")
     parts.append("</section>")
 
-    # Inline search script
-    parts.append(
-        "<script>"
-        "document.querySelector('.search-input')"
-        ".addEventListener('input',function(e){"
-        "var q=e.target.value.toLowerCase();"
-        "document.querySelectorAll('.index-list li')"
-        ".forEach(function(li){"
-        "li.style.display=li.dataset.title.indexOf(q)!==-1?'':'none';"
-        "});"
-        "});"
-        "</script>"
-    )
+    # Filter script (served from public/js/filter.js)
+    parts.append('<script src="js/filter.js" defer></script>')
 
-    sidebar_html = sidebar_nav(taxonomy.groups, current_group="", root_path="")
+    sidebar_html = sidebar_nav(taxonomy, principle_map, current_group="", root_path="")
     return base_page(
-        title="Design Principles",
-        content="\n".join(parts),
+        title="System Principles",
+        main_content="\n".join(parts),
         sidebar_html=sidebar_html,
         css_path="css/style.css",
+        root_path="./",
+        context_label="INDEX",
+        wide=True,
+    )
+
+
+# ================================================================
+# GROUP PAGE
+# ================================================================
+
+
+def render_principle_row(
+    pid: PrincipleId,
+    principle_map: dict[PrincipleId, Principle],
+) -> str:
+    """Render one row of the principle list table (for group pages)."""
+    if pid not in principle_map:
+        return (
+            f'<tr><td class="col-id">{escape(str(pid))}</td>'
+            f'<td class="col-title" colspan="2"><em class="text-muted">(missing)</em></td></tr>'
+        )
+    p = principle_map[pid]
+    title_text = p.title.rstrip(".")
+    essence = inline_markup(p.essence) if p.essence else ""
+    return (
+        f"<tr>"
+        f'<td class="col-id">{escape(str(pid))}</td>'
+        f'<td class="col-title">'
+        f'<a href="../principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
+        f"</td>"
+        f'<td class="col-essence">{essence}</td>'
+        f"</tr>"
     )
 
 
@@ -177,64 +464,121 @@ def group_page(
     principle_map: dict[PrincipleId, Principle],
     taxonomy: Taxonomy,
 ) -> str:
-    """Group page: description + list of principles."""
+    """Group page: breadcrumb, title, description, principle table, subgroups."""
     display = display_name(group.name)
-    parts: list[str] = []
-    parts.append(f"<h1>{escape(display)}</h1>")
-    if group.description:
-        parts.append(f'<p class="description">{escape(group.description)}</p>')
+    direct_count = sum(1 for pid in group.principle_ids if pid in principle_map)
+    total_count = sum(
+        1 for pid in group.get_all_principle_ids() if pid in principle_map
+    )
 
-    parts.append('<ul class="principle-list">')
-    for pid in group.principle_ids:
-        if pid in principle_map:
-            p = principle_map[pid]
-            title_text = p.title.rstrip(".")
-            parts.append("<li>")
-            parts.append(
-                f'<div class="principle-title">'
-                f'<a href="../principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
-                f"</div>"
-            )
-            if p.essence:
-                parts.append(
-                    f'<div class="principle-essence">{inline_markup(p.essence)}</div>'
-                )
-            parts.append("</li>")
-    parts.append("</ul>")
+    parts: list[str] = []
+
+    # Breadcrumb
+    parts.append(breadcrumb([("Home", "../"), (display, None)]))
+
+    # Title + description
+    parts.append(f'<h1 class="page-title">{escape(display)}</h1>')
+    if group.description:
+        parts.append(f'<p class="page-description">{escape(group.description)}</p>')
+
+    # Meta strip
+    parts.append('<div class="meta-strip">')
+    parts.append(
+        '<div class="meta-item">'
+        '<span class="meta-label">Principles</span>'
+        f'<span class="meta-value">{total_count}</span>'
+        "</div>"
+    )
+    parts.append(
+        '<div class="meta-item">'
+        '<span class="meta-label">Direct</span>'
+        f'<span class="meta-value">{direct_count}</span>'
+        "</div>"
+    )
+    parts.append(
+        '<div class="meta-item">'
+        '<span class="meta-label">Subgroups</span>'
+        f'<span class="meta-value">{len(group.subgroups)}</span>'
+        "</div>"
+    )
+    parts.append("</div>")
+
+    # Direct principles table
+    if group.principle_ids:
+        parts.append('<section class="section">')
+        parts.append(
+            '<div class="section-heading">'
+            '<h2 class="section-heading-title">Principles</h2>'
+            f'<span class="section-heading-meta">{direct_count} items</span>'
+            "</div>"
+        )
+        parts.append('<div class="data-table-wrap">')
+        parts.append('<table class="data-table">')
+        parts.append(
+            "<thead><tr>"
+            '<th class="col-id">ID</th>'
+            '<th class="col-title">Title</th>'
+            '<th class="col-essence">Essence</th>'
+            "</tr></thead>"
+        )
+        parts.append("<tbody>")
+        for pid in group.principle_ids:
+            parts.append(render_principle_row(pid, principle_map))
+        parts.append("</tbody>")
+        parts.append("</table>")
+        parts.append("</div>")
+        parts.append("</section>")
 
     # Subgroups
     for subgroup in group.subgroups:
         sub_display = display_name(subgroup.name)
-        parts.append(f"<h2>{escape(sub_display)}</h2>")
+        sub_count = sum(1 for pid in subgroup.principle_ids if pid in principle_map)
+        parts.append('<section class="section">')
+        parts.append(
+            '<div class="section-heading">'
+            f'<h2 class="section-heading-title">{escape(sub_display)}</h2>'
+            f'<span class="section-heading-meta">{sub_count} items</span>'
+            "</div>"
+        )
         if subgroup.description:
-            parts.append(f'<p class="description">{escape(subgroup.description)}</p>')
-        parts.append('<ul class="principle-list">')
-        for pid in subgroup.principle_ids:
-            if pid in principle_map:
-                p = principle_map[pid]
-                title_text = p.title.rstrip(".")
-                parts.append("<li>")
-                parts.append(
-                    f'<div class="principle-title">'
-                    f'<a href="../principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
-                    f"</div>"
-                )
-                if p.essence:
-                    parts.append(
-                        f'<div class="principle-essence">{inline_markup(p.essence)}</div>'
-                    )
-                parts.append("</li>")
-        parts.append("</ul>")
+            parts.append(
+                f'<p class="page-description">{escape(subgroup.description)}</p>'
+            )
+        if subgroup.principle_ids:
+            parts.append('<div class="data-table-wrap">')
+            parts.append('<table class="data-table">')
+            parts.append(
+                "<thead><tr>"
+                '<th class="col-id">ID</th>'
+                '<th class="col-title">Title</th>'
+                '<th class="col-essence">Essence</th>'
+                "</tr></thead>"
+            )
+            parts.append("<tbody>")
+            for pid in subgroup.principle_ids:
+                parts.append(render_principle_row(pid, principle_map))
+            parts.append("</tbody>")
+            parts.append("</table>")
+            parts.append("</div>")
+        parts.append("</section>")
 
     sidebar_html = sidebar_nav(
-        taxonomy.groups, current_group=group.name, root_path="../"
+        taxonomy, principle_map, current_group=group.name, root_path="../"
     )
     return base_page(
-        title=f"{display} — Design Principles",
-        content="\n".join(parts),
+        title=f"{display} — System Principles",
+        main_content="\n".join(parts),
         sidebar_html=sidebar_html,
         css_path="../css/style.css",
+        root_path="../",
+        context_label=f"GROUP · {display.upper()}",
+        wide=True,
     )
+
+
+# ================================================================
+# PRINCIPLE PAGE
+# ================================================================
 
 
 def principle_page(
@@ -242,32 +586,65 @@ def principle_page(
     taxonomy: Taxonomy,
     principle_map: dict[PrincipleId, Principle],
 ) -> str:
-    """Individual principle page with full content."""
+    """Principle detail: breadcrumb, title, essence, meta, body, related, prev/next."""
+    paths = taxonomy.get_paths_for_principle(principle.id)
+    group_name = paths[0].split("/")[0] if paths else ""
+    group_display = display_name(group_name) if group_name else ""
+
     parts: list[str] = []
 
     # Breadcrumb
-    paths = taxonomy.get_paths_for_principle(principle.id)
-    if paths:
-        group_name = paths[0].split("/")[0]
-        group_display = display_name(group_name)
-        parts.append(
-            f'<div class="breadcrumb">'
-            f'<a href="../../">Home</a> / '
-            f'<a href="../../{group_name}/">{group_display}</a>'
-            f"</div>"
-        )
+    crumbs: list[tuple[str, str | None]] = [("Home", "../../")]
+    if group_name:
+        crumbs.append((group_display, f"../../{group_name}/"))
+    crumbs.append((str(principle.id), None))
+    parts.append(breadcrumb(crumbs))
 
+    # Title
     title_text = principle.title.rstrip(".")
-    parts.append(f"<h1>{inline_markup(title_text)}</h1>")
+    parts.append(f'<h1 class="page-title-prose">{inline_markup(title_text)}</h1>')
 
+    # Essence
     if principle.essence:
-        parts.append(f'<p class="essence">{inline_markup(principle.essence)}</p>')
+        parts.append(f'<p class="page-essence">{inline_markup(principle.essence)}</p>')
 
-    parts.append(f'<div class="principle-id">{escape(str(principle.id))}</div>')
+    # Meta strip
+    parts.append('<div class="meta-strip">')
+    parts.append(
+        '<div class="meta-item">'
+        '<span class="meta-label">ID</span>'
+        f'<span class="meta-value">{escape(str(principle.id))}</span>'
+        "</div>"
+    )
+    if group_name:
+        parts.append(
+            '<div class="meta-item">'
+            '<span class="meta-label">Group</span>'
+            f'<span class="meta-value">'
+            f'<a href="../../{escape(group_name)}/">{escape(group_display)}</a>'
+            f"</span>"
+            "</div>"
+        )
+    if principle.tags:
+        parts.append(
+            '<div class="meta-item">'
+            '<span class="meta-label">Tags</span>'
+            f'<span class="meta-value">{len(principle.tags)}</span>'
+            "</div>"
+        )
+    if principle.related:
+        parts.append(
+            '<div class="meta-item">'
+            '<span class="meta-label">Related</span>'
+            f'<span class="meta-value">{len(principle.related)}</span>'
+            "</div>"
+        )
+    parts.append("</div>")
 
-    # Render content
+    # Main body
+    body_html, headings = render_markdown(principle.content)
     parts.append('<div class="content">')
-    parts.append(markdown_to_html(principle.content))
+    parts.append(body_html)
     parts.append("</div>")
 
     # Tags
@@ -277,196 +654,50 @@ def principle_page(
             parts.append(f'<span class="tag">{escape(tag)}</span>')
         parts.append("</div>")
 
-    # Related principles
+    # Related
     if principle.related:
-        parts.append('<div class="related">')
-        parts.append("<h3>Related</h3>")
-        parts.append("<ul>")
+        parts.append('<section class="related-section">')
+        parts.append(
+            '<div class="section-heading">'
+            '<h2 class="section-heading-title">Related</h2>'
+            f'<span class="section-heading-meta">{len(principle.related)} principles</span>'
+            "</div>"
+        )
+        parts.append('<div class="related-list">')
         for rid in principle.related:
             if rid in principle_map:
                 rp = principle_map[rid]
+                rp_title = strip_markup(rp.title.rstrip("."))
                 parts.append(
-                    f'<li><a href="../{slug(rid)}/">{escape(str(rid))}: '
-                    f"{escape(rp.title)}</a></li>"
+                    f'<div class="related-item">'
+                    f'<span class="related-id">{escape(str(rid))}</span>'
+                    f'<a class="related-title" href="../{slug(rid)}/">{escape(rp_title)}</a>'
+                    f"</div>"
                 )
             else:
-                parts.append(f"<li>{escape(str(rid))}</li>")
-        parts.append("</ul>")
+                parts.append(
+                    f'<div class="related-item">'
+                    f'<span class="related-id">{escape(str(rid))}</span>'
+                    f'<span class="related-title text-muted">(missing)</span>'
+                    f"</div>"
+                )
         parts.append("</div>")
+        parts.append("</section>")
 
-    # Determine current group for sidebar highlighting
-    current_group = ""
-    if paths:
-        current_group = paths[0].split("/")[0]
+    # Prev/next nav
+    parts.append(page_nav_html(principle.id, taxonomy, principle_map))
 
     sidebar_html = sidebar_nav(
-        taxonomy.groups, current_group=current_group, root_path="../../"
+        taxonomy, principle_map, current_group=group_name, root_path="../../"
     )
+    toc_html = toc_html_from_headings(headings)
+    plain_title = strip_markup(title_text)
     return base_page(
-        title=f"{strip_markup(principle.title)} — Design Principles",
-        content="\n".join(parts),
+        title=f"{plain_title} — System Principles",
+        main_content="\n".join(parts),
         sidebar_html=sidebar_html,
         css_path="../../css/style.css",
+        root_path="../../",
+        context_label=f"PRINCIPLE · {str(principle.id)}",
+        toc_html=toc_html,
     )
-
-
-# === Minimal Markdown to HTML ===
-
-
-def markdown_to_html(text: str) -> str:
-    """Convert simple markdown to HTML.
-
-    Handles: headings, code blocks, inline code, bold, italic,
-    unordered/ordered lists, and paragraphs.
-    """
-    lines = text.split("\n")
-    html_parts: list[str] = []
-    i = 0
-
-    while i < len(lines):
-        line = lines[i]
-
-        # Fenced code block
-        if line.strip().startswith("```"):
-            lang = line.strip()[3:].strip()
-            code_lines: list[str] = []
-            i += 1
-            while i < len(lines) and not lines[i].strip().startswith("```"):
-                code_lines.append(escape(lines[i]))
-                i += 1
-            i += 1  # skip closing ```
-            code_content = "\n".join(code_lines)
-            if lang:
-                html_parts.append(
-                    f'<pre><code class="language-{escape(lang)}">'
-                    f"{code_content}</code></pre>"
-                )
-            else:
-                html_parts.append(f"<pre><code>{code_content}</code></pre>")
-            continue
-
-        # Heading
-        heading_match = re.match(r"^(#{1,6})\s+(.+)$", line)
-        if heading_match:
-            level = len(heading_match.group(1))
-            heading_text = inline_markup(heading_match.group(2))
-            html_parts.append(f"<h{level}>{heading_text}</h{level}>")
-            i += 1
-            continue
-
-        # Table
-        if re.match(r"^\|.+\|$", line):
-            table_lines: list[str] = []
-            while i < len(lines) and re.match(r"^\|.+\|$", lines[i]):
-                table_lines.append(lines[i])
-                i += 1
-            html_parts.append(parse_table(table_lines))
-            continue
-
-        # Unordered list
-        if re.match(r"^[\-\*]\s+", line):
-            html_parts.append("<ul>")
-            while i < len(lines) and re.match(r"^[\-\*]\s+", lines[i]):
-                item_text = re.sub(r"^[\-\*]\s+", "", lines[i])
-                html_parts.append(f"<li>{inline_markup(item_text)}</li>")
-                i += 1
-            html_parts.append("</ul>")
-            continue
-
-        # Ordered list
-        if re.match(r"^\d+\.\s+", line):
-            html_parts.append("<ol>")
-            while i < len(lines) and re.match(r"^\d+\.\s+", lines[i]):
-                item_text = re.sub(r"^\d+\.\s+", "", lines[i])
-                html_parts.append(f"<li>{inline_markup(item_text)}</li>")
-                i += 1
-            html_parts.append("</ol>")
-            continue
-
-        # Blank line
-        if not line.strip():
-            i += 1
-            continue
-
-        # Paragraph: collect consecutive non-blank, non-special lines
-        para_lines: list[str] = []
-        while i < len(lines) and lines[i].strip() and not is_block_start(lines[i]):
-            para_lines.append(lines[i])
-            i += 1
-        if para_lines:
-            html_parts.append(f"<p>{inline_markup(' '.join(para_lines))}</p>")
-        continue
-
-    return "\n".join(html_parts)
-
-
-def is_block_start(line: str) -> bool:
-    """Check if a line starts a block element."""
-    if line.strip().startswith("```"):
-        return True
-    if re.match(r"^#{1,6}\s+", line):
-        return True
-    if re.match(r"^\|.+\|$", line):
-        return True
-    if re.match(r"^[\-\*]\s+", line):
-        return True
-    return bool(re.match(r"^\d+\.\s+", line))
-
-
-def strip_markup(text: str) -> str:
-    """Remove markdown markers for use in plain-text contexts like <title>."""
-    text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
-    text = re.sub(r"__([^_]+)__", r"\1", text)
-    text = re.sub(r"(?<!\w)_([^_]+)_(?!\w)", r"\1", text)
-    text = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"\1", text)
-    text = re.sub(r"`([^`]+)`", r"\1", text)
-    return text
-
-
-def parse_table(lines: list[str]) -> str:
-    """Parse markdown table lines into an HTML table."""
-    parts: list[str] = ["<table>"]
-
-    def split_row(line: str) -> list[str]:
-        # Strip leading/trailing pipes, split on |
-        return [cell.strip() for cell in line.strip("|").split("|")]
-
-    # First line is the header
-    headers = split_row(lines[0])
-    parts.append("<thead><tr>")
-    for h in headers:
-        parts.append(f"<th>{inline_markup(h)}</th>")
-    parts.append("</tr></thead>")
-
-    # Skip separator line (|---|---|), render remaining as body
-    parts.append("<tbody>")
-    for line in lines[2:]:
-        cells = split_row(line)
-        parts.append("<tr>")
-        for cell in cells:
-            parts.append(f"<td>{inline_markup(cell)}</td>")
-        parts.append("</tr>")
-    parts.append("</tbody>")
-
-    parts.append("</table>")
-    return "".join(parts)
-
-
-def inline_markup(text: str) -> str:
-    """Convert inline markdown: code, bold, italic, links."""
-    # Escape HTML first, then apply markdown
-    text = escape(text)
-
-    # Inline code (must come before bold/italic to avoid conflicts)
-    text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
-
-    # Bold
-    text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
-    text = re.sub(r"__([^_]+)__", r"<strong>\1</strong>", text)
-
-    # Italic (using _ only, since * is used for bold)
-    text = re.sub(r"(?<!\w)_([^_]+)_(?!\w)", r"<em>\1</em>", text)
-    # Also handle single * for italic when not part of **
-    text = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", text)
-
-    return text
