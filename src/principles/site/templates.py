@@ -348,11 +348,11 @@ def index_page(
         desc = escape(g.description) if g.description else ""
         parts.append(
             f"<tr>"
-            f'<td class="col-title">'
+            f'<td class="col-title" data-primary="true">'
             f'<a href="{escape(g.name)}/">{escape(dname)}</a>'
             f"</td>"
-            f'<td class="col-essence">{desc}</td>'
-            f'<td class="col-count">{count}</td>'
+            f'<td class="col-essence" data-label="Description">{desc}</td>'
+            f'<td class="col-count" data-label="Count">{count}</td>'
             f"</tr>"
         )
     parts.append("</tbody>")
@@ -386,8 +386,7 @@ def index_page(
         "<thead><tr>"
         '<th class="col-title">Title</th>'
         '<th class="col-essence">Essence</th>'
-        '<th class="col-group">Group</th>'
-        '<th class="col-id">ID</th>'
+        '<th class="col-meta">Group</th>'
         "</tr></thead>"
     )
     parts.append("<tbody>")
@@ -395,19 +394,23 @@ def index_page(
         title_text = p.title.rstrip(".")
         search_key = f"{strip_markup(title_text).lower()} {str(pid).lower()}"
         group_info = principle_to_group.get(pid)
-        group_cell = ""
+        group_line = ""
         if group_info:
             gname, gdisplay = group_info
-            group_cell = f'<a href="{escape(gname)}/">{escape(gdisplay)}</a>'
+            group_line = (
+                f'<a href="{escape(gname)}/" class="meta-group">{escape(gdisplay)}</a>'
+            )
         essence = inline_markup(p.essence) if p.essence else ""
         parts.append(
             f'<tr data-search="{escape(search_key)}">'
-            f'<td class="col-title">'
+            f'<td class="col-title" data-primary="true">'
             f'<a href="principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
             f"</td>"
-            f'<td class="col-essence">{essence}</td>'
-            f'<td class="col-group">{group_cell}</td>'
-            f'<td class="col-id">{escape(str(pid))}</td>'
+            f'<td class="col-essence" data-label="Essence">{essence}</td>'
+            f'<td class="col-meta" data-label="Group">'
+            f"{group_line}"
+            f'<span class="meta-id">{escape(str(pid))}</span>'
+            f"</td>"
             f"</tr>"
         )
     parts.append("</tbody>")
@@ -442,19 +445,19 @@ def render_principle_row(
     """Render one row of the principle list table (for group pages)."""
     if pid not in principle_map:
         return (
-            f'<tr><td class="col-id">{escape(str(pid))}</td>'
-            f'<td class="col-title" colspan="2"><em class="text-muted">(missing)</em></td></tr>'
+            f'<tr><td class="col-title" colspan="2"><em class="text-muted">(missing)</em></td>'
+            f'<td class="col-id">{escape(str(pid))}</td></tr>'
         )
     p = principle_map[pid]
     title_text = p.title.rstrip(".")
     essence = inline_markup(p.essence) if p.essence else ""
     return (
         f"<tr>"
-        f'<td class="col-id">{escape(str(pid))}</td>'
-        f'<td class="col-title">'
+        f'<td class="col-title" data-primary="true">'
         f'<a href="../principles/{slug(pid)}/">{inline_markup(title_text)}</a>'
         f"</td>"
-        f'<td class="col-essence">{essence}</td>'
+        f'<td class="col-essence" data-label="Essence">{essence}</td>'
+        f'<td class="col-id" data-label="ID">{escape(str(pid))}</td>'
         f"</tr>"
     )
 
@@ -516,9 +519,9 @@ def group_page(
         parts.append('<table class="data-table">')
         parts.append(
             "<thead><tr>"
-            '<th class="col-id">ID</th>'
             '<th class="col-title">Title</th>'
             '<th class="col-essence">Essence</th>'
+            '<th class="col-id">ID</th>'
             "</tr></thead>"
         )
         parts.append("<tbody>")

@@ -681,32 +681,17 @@ CSS = """\
         white-space: nowrap;
     }
     .data-table tbody tr:last-child td { border-bottom: none; }
-    .data-table tbody tr:hover td { background: var(--color-hover-bg); }
-    /* Left/right borders on hover complete the adjacent-shade boundary:
-       the hovered row's background meets page-bg on all four sides, and
-       the horizontal row separators already cover top/bottom. Inset
-       box-shadow keeps layout stable (no cell width shift). */
-    .data-table tbody tr:hover td:first-child {
-        box-shadow: inset 1px 0 0 var(--color-border);
-    }
-    .data-table tbody tr:hover td:last-child {
-        box-shadow: inset -1px 0 0 var(--color-border);
-    }
-    /* Last row carries no border-bottom (avoids doubled edge at table end);
-       restore it on hover so the boundary is complete. Corners need both
-       a side and bottom shadow. */
-    .data-table tbody tr:last-child:hover td {
-        box-shadow: inset 0 -1px 0 var(--color-border);
-    }
-    .data-table tbody tr:last-child:hover td:first-child {
-        box-shadow:
-            inset 1px 0 0 var(--color-border),
-            inset 0 -1px 0 var(--color-border);
-    }
-    .data-table tbody tr:last-child:hover td:last-child {
-        box-shadow:
-            inset -1px 0 0 var(--color-border),
-            inset 0 -1px 0 var(--color-border);
+    /* Hover boundary: one outline on the row itself rather than composing
+       corner shadows on individual cells. Row-level outline is independent
+       of column order, hidden columns, last-row rules, and stacked mode,
+       so it can't drift out of sync with DOM structure.
+       Uses --color-border-heavy, not --color-border: the latter collapses
+       to the same value as --color-hover-bg in dark mode (both gray-600),
+       which would make the outline invisible against the hover fill. */
+    .data-table tbody tr:hover {
+        background: var(--color-hover-bg);
+        outline: var(--border-width-thin) solid var(--color-border-heavy);
+        outline-offset: -1px;
     }
 
     .data-table .col-id {
@@ -717,7 +702,10 @@ CSS = """\
         letter-spacing: var(--font-letter-spacing-wide);
     }
     .data-table .col-title {
-        min-width: 18rem;
+        /* Let the browser size this column to its content (capped) so the
+           longest title doesn't dominate the row; essence takes the rest. */
+        min-width: 14rem;
+        max-width: 22rem;
     }
     .data-table .col-title a {
         font-weight: var(--font-weight-semibold);
@@ -726,6 +714,10 @@ CSS = """\
         --mono: 0;
         color: var(--color-text);
         line-height: var(--font-line-height-base);
+        /* Claim the remaining space: with table-layout auto, width:100% on
+           one cell tells the browser "grow me after fixed-width neighbours
+           settle," so this column soaks up what id/group/count leave. */
+        width: 100%;
     }
 
     .data-table .col-group {
@@ -738,6 +730,28 @@ CSS = """\
     }
     .data-table .col-group a { color: var(--color-text-muted); font-weight: var(--font-weight-regular); }
     .data-table .col-group a:hover { color: var(--color-link); }
+
+    /* col-meta stacks group + id in one column, saving horizontal space. */
+    .data-table .col-meta {
+        --mono: 1;
+        font-size: var(--font-size-2xs);
+        text-transform: uppercase;
+        letter-spacing: var(--font-letter-spacing-wide);
+        color: var(--color-text-muted);
+        white-space: nowrap;
+        line-height: var(--font-line-height-base);
+    }
+    .data-table .col-meta .meta-group {
+        display: block;
+        color: var(--color-text-muted);
+        font-weight: var(--font-weight-regular);
+    }
+    .data-table .col-meta .meta-group:hover { color: var(--color-link); }
+    .data-table .col-meta .meta-id {
+        display: block;
+        color: var(--color-text-subtle);
+        font-weight: var(--font-weight-regular);
+    }
     .data-table .col-count {
         --mono: 1;
         font-size: var(--font-size-xs);
@@ -1040,22 +1054,79 @@ CSS = """\
     .main-content { padding: var(--spacing-xl); }
     .app-header { padding: var(--spacing-md) var(--spacing-xl); }
 
-    /* hide less-critical table columns */
-    .data-table .col-id,
-    .data-table .col-group,
-    .data-table .col-count { display: none; }
-
     .hero-title { font-size: var(--font-size-4xl); }
     .stats-bar { gap: var(--spacing-3xl); }
     .stat-value { font-size: var(--font-size-2xl); }
     .page-nav { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     .main-content { padding: var(--spacing-lg); }
     .hero-title { font-size: var(--font-size-3xl); }
     .page-title { font-size: var(--font-size-2xl); }
     .meta-strip { grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); }
+
+    /* Stacked table mode: each row becomes a block with labels inline.
+       Column headers hide; cells promote to block-level; [data-label]
+       renders the header text as a ::before pseudo; [data-primary="true"]
+       cell shows without a label at a larger weight. */
+    .data-table,
+    .data-table tbody,
+    .data-table tr,
+    .data-table td {
+        display: block;
+        width: auto;
+    }
+    .data-table thead { display: none; }
+    .data-table tbody tr {
+        padding: var(--spacing-md) 0;
+        border-bottom: var(--border-width-thin) dashed var(--color-border);
+    }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table td {
+        padding: var(--spacing-xs) 0;
+        border-bottom: none;
+    }
+    .data-table td[data-label] {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: var(--spacing-lg);
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+    .data-table td[data-label]::before {
+        content: attr(data-label);
+        --mono: 1;
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: var(--font-letter-spacing-wider);
+        color: var(--color-text-muted);
+        flex-shrink: 0;
+        text-align: left;
+    }
+    .data-table td[data-primary="true"] {
+        --mono: 0;
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        padding-bottom: var(--spacing-sm);
+        text-align: left;
+    }
+    .data-table td[data-primary="true"][data-label]::before {
+        display: none;
+    }
+    /* Column-scoped overrides that applied in table mode don't belong in
+       stacked mode; force cells back to a single visual rhythm. The
+       explicit display:block also un-hides col-id which mid-width media
+       queries set to display:none. */
+    .data-table .col-id,
+    .data-table .col-group,
+    .data-table .col-count {
+        display: block;
+        white-space: normal;
+        text-align: right;
+    }
 }
 
 @media print {
