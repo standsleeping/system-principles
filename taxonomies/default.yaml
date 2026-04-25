@@ -145,6 +145,7 @@ groups:
     - LAYOUT_QUIRKS
     - OVERFLOW_CAUSES
     - NO_LAYOUT_SHIFT
+    - STABLE_SCROLLBAR_GUTTER
 
   visual-design:
     description: >-
