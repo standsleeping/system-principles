@@ -1,7 +1,7 @@
 ---
 id: RELAX_INPUTS
 title: "Require less by relaxing inputs."
-essence: "\"Requiring less\" means:"
+essence: "Require less by weakening preconditions. Then pick defaults that cover the cases the weaker contract now permits."
 ---
 
 "Requiring less" means:

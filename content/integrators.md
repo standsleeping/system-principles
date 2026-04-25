@@ -1,7 +1,7 @@
 ---
 id: INTEGRATORS
 title: "Integrators."
-essence: "Assemble a complex structure or data type. They \"glue together\" different behaviors and produce composite data structures. Characteristics:"
+essence: "An integrator glues units together to assemble a composite return value. It never makes semantic decisions, and it is tested once per return path."
 ---
 
 Assemble a complex structure or data type. They "glue together" different behaviors and produce composite data structures. Characteristics:

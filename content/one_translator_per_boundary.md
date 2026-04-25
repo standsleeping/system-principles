@@ -1,7 +1,7 @@
 ---
 id: ONE_TRANSLATOR_PER_BOUNDARY
 title: "One translator per boundary type."
-essence: "Create specialized translators for each architectural boundary. Don't create generic \"do everything\" translators."
+essence: "One translator per boundary type. A generic \"do everything\" translator is where boundary coupling creeps back in."
 ---
 
 Create specialized translators for each architectural boundary. Don't create generic "do everything" translators.

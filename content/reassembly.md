@@ -1,7 +1,7 @@
 ---
 id: REASSEMBLY
 title: "Test simplicity by reassembly."
-essence: "Simplicity is measured by ease of reassembly. Pull the system apart and build it back together, many times over."
+essence: "A system is simple to the extent you can build something new from its existing pieces without modifying them. Tangled systems require rewriting to recombine."
 ---
 
 **Simplicity is measured by ease of reassembly.** My working description of achieving simplicity in practice: "pull the system apart, and build it back together again, many times over."

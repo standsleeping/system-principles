@@ -1,7 +1,7 @@
 ---
 id: FUNCTIONAL_PATTERNS
 title: "Functional programming patterns."
-essence: "Prefer pure functions and composition over classes and inheritance. Functions are small, focused, have clear types, and never mutate arguments."
+essence: "Compose with functions, not classes. Each function is pure, typed, focused, and leaves its arguments alone."
 ---
 
 - Prefer functions and composition over classes and inheritance.

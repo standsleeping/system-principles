@@ -1,7 +1,7 @@
 ---
 id: SHAPE_NOT_INVARIANTS
 title: "Interchange types describe shape, not invariants."
-essence: "Interchange types say \"what fields exist\" not \"what values are valid.\" Use primitive types (`str`, `int`, `dict[str, object]`) rather than refined types (`Literal[\"active\"]`, `PositiveInt`, domain-..."
+essence: "Interchange types describe what fields exist, not which values are valid. Invariants belong to the translator and the domain type, not to the wire format."
 ---
 
 Interchange types say "what fields exist" not "what values are valid." Use primitive types (`str`, `int`, `dict[str, object]`) rather than refined types (`Literal["active"]`, `PositiveInt`, domain-specific TypedDicts).

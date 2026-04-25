@@ -1,7 +1,7 @@
 ---
 id: AVOID_RETURNING_BOOL
 title: "Avoid returning bool."
-essence: "Before writing `foo() -> bool`, ask: what information does the caller need after the check? Usually it's not just \"yes/no\" but the validated result, found value, or error details."
+essence: "A bool throws away the evidence the caller needs next. Return the validated result or the error instead."
 ---
 
 Before writing `foo() -> bool`, ask: what information does the caller need after the check? Usually it's not just "yes/no" but the validated result, found value, or error details.

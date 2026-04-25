@@ -1,7 +1,7 @@
 ---
 id: TESTABLE_MARKUP
 title: "Markup must carry test hooks."
-essence: "Every page includes data-testid attributes so that system tests have stable, consistent selectors. Only use data-testid to locate elements in tests."
+essence: "Test selectors need their own attribute so tests don't couple to class names, text content, or CSS paths. `data-testid` is the explicit contract between markup and tests."
 ---
 
 Every page includes `data-testid` attributes so that system tests have stable, consistent selectors. Only use `data-testid` to locate elements in tests.

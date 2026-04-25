@@ -1,7 +1,7 @@
 ---
 id: EVENT_SOURCING
 title: "Event sourcing."
-essence: "Events are living documentation of system behaviors. Note that all \"entities\" or objects that appear as nouns are almost always _composed_ from streams of events."
+essence: "A User isn't a row. It's the sum of UserCreated, EmailChanged, and the rest. The entity is a convenience view. The event stream is the truth."
 ---
 
 Events are living documentation of system behaviors. Note that all "entities" or objects that appear as nouns are almost always _composed_ from streams of events.

@@ -1,7 +1,7 @@
 ---
 id: STRENGTHEN_OUTPUTS
 title: "Provide more by strengthening outputs."
-essence: "\"Providing more\" means:"
+essence: "Provide more by tightening postconditions. Then update the callers that can now rely on the stronger output."
 ---
 
 "Providing more" means:

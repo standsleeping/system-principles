@@ -1,7 +1,7 @@
 ---
 id: STORE_FACTS_WITH_TIME
 title: "Store facts with time."
-essence: "Hickey points out that the Resource Description Framework lacks a time component. \"Sally likes pizza...\" _as of when, exactly?_"
+essence: "Stamp every fact with the time it was asserted or retracted. Current state becomes a view derived from the history of facts."
 ---
 
 Hickey points out that the Resource Description Framework lacks a time component. "Sally likes pizza..." _as of when, exactly?_
