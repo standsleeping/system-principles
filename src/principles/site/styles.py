@@ -144,7 +144,10 @@ CSS = """\
         --color-border-heavy:     light-dark(var(--color-gray-400), var(--color-gray-500));
         --color-code-bg:          light-dark(var(--color-gray-100), var(--color-gray-600));
         --color-focus-ring:       light-dark(var(--color-purple-500), var(--color-purple-400));
-        --color-focus-ring-light: light-dark(var(--color-purple-100), var(--color-purple-700));
+        /* Dark value uses purple-600, not purple-700: purple-700 has nearly
+           identical luminance to gray-700 page bg, so the active-nav tint and
+           ::selection highlight would vanish. TOKEN_PAIR_CONTRAST in action. */
+        --color-focus-ring-light: light-dark(var(--color-purple-100), var(--color-purple-600));
         --color-hover-bg:         light-dark(var(--color-gray-100), var(--color-gray-600));
         --color-active-bg:        light-dark(var(--color-gray-200), var(--color-gray-500));
         --color-syntax-keyword:   light-dark(var(--color-purple-500), var(--color-purple-300));
