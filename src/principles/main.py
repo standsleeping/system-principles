@@ -10,6 +10,7 @@ from principles.cli.commands import (
     run_list,
     run_show,
     run_site,
+    run_validate,
 )
 from principles.logging import configure_logging, get_logger
 
@@ -30,7 +31,7 @@ def main(args: list[str] | None = None) -> int:
     if command is None:
         # No subcommand given, show usage hint
         print("Usage: principles <command> [options]")
-        print("Commands: list, show, compile, export, site")
+        print("Commands: list, show, compile, export, site, validate")
         print("Use 'principles --help' for more information.")
         return 0
 
@@ -45,6 +46,8 @@ def main(args: list[str] | None = None) -> int:
             return run_export(parsed_args)
         elif command == "site":
             return run_site(parsed_args)
+        elif command == "validate":
+            return run_validate(parsed_args)
         else:
             print(f"Unknown command: {command}")
             return 1
