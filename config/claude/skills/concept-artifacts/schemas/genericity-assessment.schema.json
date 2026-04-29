@@ -4,6 +4,7 @@
   "description": "Output of genericity-review. Identifies unnecessary specificity in a concept.",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string" },
     "concept": {
       "type": "string",
       "description": "Concept name."
