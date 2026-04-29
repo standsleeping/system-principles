@@ -58,6 +58,7 @@ Run stages 8–10 across the full set of concepts:
 | 8 | `/dependency-mapping` | `DependencyGraph` — inter-concept dependencies |
 | 9 | `/coherence-analysis` | `CoherenceAssessment` + `DesignCheck` |
 | 10 | `/genericity-review` | `GenericityAssessment` per concept |
+| 11 | `/challenge-testing` | `ChallengeAssessment` — taxonomy resilience against externally sourced scenarios |
 
 ### Part 4: Artifact Organization and Validation
 
@@ -65,8 +66,8 @@ Run after composition (or after implementation) to capture design as data and ve
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 11 | `/concept-artifacts` | `concepts/` directory — organized JSON files with schemas |
-| 12 | `/concept-validation` | Validation report — schema, cross-artifact, and codebase checks |
+| 12 | `/concept-artifacts` | `concepts/` directory — organized JSON files with schemas |
+| 13 | `/concept-validation` | Validation report — schema, cross-artifact, and codebase checks |
 
 These stages are re-runnable checkpoints. Run `/concept-validation` any time artifacts or implementation change.
 
@@ -74,18 +75,19 @@ These stages are re-runnable checkpoints. Run `/concept-validation` any time art
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 13 | `/data-model-integration` | `IntegratedDataModel` — merged micromodels into a global data model |
-| 14 | `/concept-implementation` | Code modules — concepts translated to module boundaries |
+| 14 | `/data-model-integration` | `IntegratedDataModel` — merged micromodels into a global data model |
+| 15 | `/concept-implementation` | Code modules — concepts translated to module boundaries |
 
 ## How to use this workflow
 
 You don't have to run every stage every time. Common entry points:
 
 - **Greenfield design:** Start at stage 1, work through sequentially.
-- **Existing system audit:** Start at stage 1 with `source: "existing"`, then jump to stages 8–10 to assess composition.
+- **Existing system audit:** Start at stage 1 with `source: "existing"`, then jump to stages 8–11 to assess composition and resilience.
 - **Single concept deepening:** Enter at whichever stage the concept is missing (e.g., it has a name but no formal purpose — start at stage 2).
 - **Surface audit:** Jump to stage 7 to check whether concepts are properly surfaced to users.
-- **Validation checkpoint:** Run stages 11–12 to organize artifacts and verify consistency.
+- **Resilience check:** Jump to stage 11 to challenge an existing taxonomy with new scenarios.
+- **Validation checkpoint:** Run stages 12–13 to organize artifacts and verify consistency.
 
 ## Artifact flow
 
@@ -99,12 +101,12 @@ ConceptSeed ──► Purpose ──► OperationalPrinciple ──► Action[] 
                             ConceptManifest
                           (surface planning)
                                     │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-             DependencyGraph   Coherence    Genericity
-                    │           Assessment   Assessment
-                    │               │               │
-                    └───────────────┴───────────────┘
+                    ┌───────────────┬───────────────┬──────────────┐
+                    ▼               ▼               ▼              ▼
+             DependencyGraph   Coherence    Genericity      Challenge
+                    │           Assessment   Assessment    Assessment
+                    │               │               │              │
+                    └───────────────┴───────────────┴──────────────┘
                                     │
                           Concept Artifacts
                            (JSON + schemas)
