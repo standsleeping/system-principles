@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: principles-validate
+        name: principles validate
+        entry: uv run principles validate
+        language: system
+        pass_filenames: false
+        files: ^(content|taxonomies|sets)/
