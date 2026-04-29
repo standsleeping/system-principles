@@ -13,6 +13,19 @@ A guided workflow for designing software concepts, organized around a "design as
 - Analyzing an existing system to surface and formalize its implicit concepts
 - Reviewing a system's concept design for coherence, gaps, or unnecessary specificity
 
+## Pacing: one stage at a time
+
+This workflow is **strictly stage-by-stage**. After each stage produces its artifact, **stop and surface the result for review**. Do not proceed to the next stage until the user has acknowledged the output (explicitly approving it, requesting revisions, or saying to continue).
+
+This applies even when:
+- The user's initial request says "run the full chain end-to-end."
+- A stage's output looks straightforward and uncontroversial.
+- Multiple concepts are being processed at once (each *stage* still pauses, even if it covers all concepts in a batch).
+
+The reason: concept design is a thinking exercise, not a generation exercise. Compounding decisions across stages without review locks in mistakes that are expensive to undo at stage 10 but cheap to fix at stage 2. The user's review at each stage is part of the design process, not a courtesy interrupt.
+
+When you finish a stage, end your message with the artifact and a short prompt like "Ready to continue to Stage N+1?" or "Want to revise any of these before moving on?" — then wait.
+
 ## Workflow
 
 ### Part 1: Single-Concept Definition
