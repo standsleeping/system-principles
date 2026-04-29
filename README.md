@@ -52,6 +52,14 @@ principles site build
 principles site serve
 ```
 
+### Validate references
+
+```bash
+principles validate
+```
+
+Lints content, taxonomies, and sets. Reports duplicate IDs, filename/ID mismatches, broken `related:` references, and unknown principle IDs in taxonomy groups or sets. Exits non-zero on any finding.
+
 ## Development
 
 ```bash
