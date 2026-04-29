@@ -52,6 +52,17 @@ principles site build
 principles site serve
 ```
 
+### Search
+
+```bash
+principles search dispatch
+principles search "dispatch tables" --field title
+```
+
+Case-insensitive substring match across id, title, essence, content, and tags. `--field` restricts to one field; `--limit N` caps results (default 20).
+
+The static site has the same search built into the index page filter.
+
 ### Validate references
 
 ```bash
