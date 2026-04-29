@@ -102,6 +102,8 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
     dep_graph = load_json(concepts_dir / "dependency-graph.json")
     coherence = load_json(concepts_dir / "coherence.json")
     mapping = load_json(concepts_dir / "action-mapping.json")
+    challenges_path = concepts_dir / "challenges.json"
+    challenges = load_json(challenges_path) if challenges_path.exists() else None
 
     # Load all concept definitions
     definitions: dict[str, dict[str, object]] = {}
@@ -185,6 +187,44 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
         f"mismatch: {coherence_concepts ^ graph_concepts}" if not passed else "",
     )
     failures += 0 if passed else 1
+
+    if challenges is not None:
+        challenge_concepts = {as_str(c) for c in as_list(challenges["concepts"])}
+        passed = challenge_concepts == graph_concepts
+        print_result(
+            "Challenges cover all concepts",
+            passed,
+            f"mismatch: {challenge_concepts ^ graph_concepts}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        scenarios = [as_dict(s) for s in as_list(challenges["scenarios"])]
+
+        unknown_refs: set[str] = set()
+        for scenario in scenarios:
+            for concept in as_list(scenario["concepts_involved"]):
+                name = as_str(concept)
+                if name not in graph_concepts:
+                    unknown_refs.add(name)
+        passed = len(unknown_refs) == 0
+        print_result(
+            "Challenge concepts_involved exist",
+            passed,
+            f"unknown: {unknown_refs}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        ids = [as_str(s["id"]) for s in scenarios]
+        duplicate_ids = {i for i in ids if ids.count(i) > 1}
+        passed = len(duplicate_ids) == 0
+        print_result(
+            "Challenge scenario IDs unique",
+            passed,
+            f"duplicates: {duplicate_ids}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+    else:
+        print_result("Challenges (skipped — no challenges.json)", True)
 
     # Mapping concepts match
     passed = mapping_concepts == graph_concepts
