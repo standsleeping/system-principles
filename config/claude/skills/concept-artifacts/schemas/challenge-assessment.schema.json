@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ChallengeAssessment",
+  "description": "Output of challenge-testing. Stress-tests a concept taxonomy against externally sourced scenarios and classifies how well it holds.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "concepts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Concepts being challenged. Matches dependency-graph.concepts."
+    },
+    "scenarios": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/scenario" },
+      "description": "Externally sourced scenarios mapped onto the concept set."
+    },
+    "resilience": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Overall taxonomy resilience after proposed responses are applied. 1 = brittle, 5 = robust."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Patterns across scenarios, weak source caveats, follow-up actions."
+    }
+  },
+  "required": ["concepts", "scenarios", "resilience"],
+  "additionalProperties": false,
+  "$defs": {
+    "scenario": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable identifier for the scenario."
+        },
+        "description": {
+          "type": "string",
+          "description": "One-paragraph description of what someone wants to do or what is happening."
+        },
+        "source": {
+          "type": "string",
+          "description": "Where the scenario came from (user request, support ticket, edge case, competitor feature, etc.)."
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["clean", "strained", "missing", "awkward"],
+          "description": "How the scenario maps onto the taxonomy. clean = fits without strain; strained = stretches a concept's purpose; missing = no concept/action covers it; awkward = covered but composition is unnatural."
+        },
+        "concepts_involved": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concepts that participated or would need to."
+        },
+        "details": {
+          "type": "string",
+          "description": "What specifically happens: which concept stretches, which action is missing, which composition is awkward."
+        },
+        "proposed_response": {
+          "type": "string",
+          "description": "What to do: extend an action, split a concept, add a concept, or accept the gap."
+        }
+      },
+      "required": ["id", "description", "source", "outcome", "concepts_involved", "details", "proposed_response"],
+      "additionalProperties": false
+    }
+  }
+}
