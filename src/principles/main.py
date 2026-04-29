@@ -8,6 +8,7 @@ from principles.cli.commands import (
     run_compile,
     run_export,
     run_list,
+    run_search,
     run_show,
     run_site,
     run_validate,
@@ -31,7 +32,7 @@ def main(args: list[str] | None = None) -> int:
     if command is None:
         # No subcommand given, show usage hint
         print("Usage: principles <command> [options]")
-        print("Commands: list, show, compile, export, site, validate")
+        print("Commands: list, show, compile, export, site, validate, search")
         print("Use 'principles --help' for more information.")
         return 0
 
@@ -48,6 +49,8 @@ def main(args: list[str] | None = None) -> int:
             return run_site(parsed_args)
         elif command == "validate":
             return run_validate(parsed_args)
+        elif command == "search":
+            return run_search(parsed_args)
         else:
             print(f"Unknown command: {command}")
             return 1

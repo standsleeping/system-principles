@@ -111,6 +111,27 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
         help="Path to principles repo root (default: current directory)",
     )
 
+    # principles search <query>
+    search_parser = subparsers.add_parser(
+        "search",
+        help="Full-text search across principles",
+    )
+    search_parser.add_argument(
+        "query",
+        help="Search query (case-insensitive substring)",
+    )
+    search_parser.add_argument(
+        "--field",
+        choices=["id", "title", "essence", "content", "tags"],
+        help="Restrict search to one field (default: all)",
+    )
+    search_parser.add_argument(
+        "--limit",
+        type=int,
+        default=20,
+        help="Maximum results to display (default: 20, 0 for all)",
+    )
+
     # principles validate
     subparsers.add_parser(
         "validate",
