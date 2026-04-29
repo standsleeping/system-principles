@@ -12,8 +12,8 @@
       },
       "type": {
         "type": "string",
-        "description": "Type using Alloy-style notation: 'one X' (exactly one), 'lone X' (zero or one), 'set X' (collection), 'X -> Y' (relation).",
-        "pattern": "^(one|lone|set) \\w+$|^\\w+( -> ((one|lone|set) )?\\w+)+$"
+        "description": "Type using Alloy-style notation: 'one X' (exactly one), 'lone X' (zero or one), 'set X' (unordered collection), 'seq X' (ordered sequence), 'X -> Y' (relation).",
+        "pattern": "^(one|lone|set|seq) \\w+$|^\\w+( -> ((one|lone|set|seq) )?\\w+)+$"
       },
       "description": {
         "type": "string",
