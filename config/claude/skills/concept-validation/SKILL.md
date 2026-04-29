@@ -27,6 +27,7 @@ Validate each file in `concepts/` against its corresponding JSON Schema from the
 | Concept definition files (contain `"seed"` key) | `concept-definition.schema.json` |
 | `dependency-graph.json` | `dependency-graph.schema.json` |
 | `coherence.json` | `coherence-assessment.schema.json` |
+| `challenges.json` | `challenge-assessment.schema.json` |
 | `action-mapping.json` | `action-mapping.schema.json` |
 
 Use the `jsonschema` library (Python) or `ajv` (Node) with a registry that can resolve `$ref` across schema files.
@@ -42,6 +43,9 @@ Load all concept artifact files and verify cross-references.
 | Dependencies valid | Every `depends_on` target exists in `dependency-graph.concepts` | dependency-graph |
 | No circular dependencies | The dependency graph is a DAG | dependency-graph |
 | Coherence covers all | `coherence.concepts` matches `dependency-graph.concepts` | coherence + dependency-graph |
+| Challenges cover all | `challenges.concepts` matches `dependency-graph.concepts` | challenges + dependency-graph |
+| Challenge concepts exist | Every `concepts_involved` entry in `challenges.scenarios` is in `dependency-graph.concepts` | challenges + dependency-graph |
+| Challenge IDs unique | No duplicate `scenario.id` within `challenges.scenarios` | challenges |
 | Mapping concepts match | `action-mapping.concepts` matches `dependency-graph.concepts` | action-mapping + dependency-graph |
 | Mapping actions exist | Every `mapping.action` exists in that concept's actions list | action-mapping + definitions |
 | Mapping complete | Every (concept, action) pair in definitions has exactly one mapping | action-mapping + definitions |

@@ -29,6 +29,7 @@ concepts/
   <concept-name>.json        # ConceptDefinition (one per concept)
   dependency-graph.json       # DependencyGraph
   coherence.json              # CoherenceAssessment
+  challenges.json             # ChallengeAssessment
   action-mapping.json         # ActionMapping
 ```
 
@@ -58,6 +59,7 @@ JSON Schema files for every artifact type live in the `schemas/` subdirectory of
 | `coherence-assessment.schema.json` | CoherenceAssessment | coherence-analysis |
 | `concept-manifest.schema.json` | ConceptManifest | surface-planning |
 | `genericity-assessment.schema.json` | GenericityAssessment | genericity-review |
+| `challenge-assessment.schema.json` | ChallengeAssessment | challenge-testing |
 | `action-mapping.schema.json` | ActionMapping | concept-artifacts (this skill) |
 
 ## Linting Rules
@@ -81,6 +83,9 @@ These rules verify that artifacts reference each other correctly. They require l
 | **Dependencies valid** | Every depends_on target exists in dependency-graph.concepts | dependency-graph |
 | **No circular dependencies** | The dependency graph is a DAG | dependency-graph |
 | **Coherence covers all** | coherence.concepts matches dependency-graph.concepts | coherence + dependency-graph |
+| **Challenges cover all** | challenges.concepts matches dependency-graph.concepts | challenges + dependency-graph |
+| **Challenge concepts exist** | Every concepts_involved entry in challenges.scenarios is in dependency-graph.concepts | challenges + dependency-graph |
+| **Challenge IDs unique** | No duplicate scenario.id within challenges.scenarios | challenges |
 | **Mapping concepts match** | action-mapping.concepts matches dependency-graph.concepts | action-mapping + dependency-graph |
 | **Mapping actions exist** | Every mapping.action exists in that concept's actions list | action-mapping + definitions |
 | **Mapping complete** | Every (concept, action) pair in definitions has exactly one mapping | action-mapping + definitions |
