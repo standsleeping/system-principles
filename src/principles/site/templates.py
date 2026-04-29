@@ -376,7 +376,7 @@ def index_page(
         '<div class="filter-bar">'
         '<span class="filter-label">Filter</span>'
         '<input type="text" id="principle-filter" class="filter-input" '
-        'placeholder="Type to filter by title or ID…" autocomplete="off">'
+        'placeholder="Type to filter by title, ID, essence, or tag…" autocomplete="off">'
         '<span class="filter-count" id="filter-count"></span>'
         "</div>"
     )
@@ -392,7 +392,14 @@ def index_page(
     parts.append("<tbody>")
     for pid, p in sorted_items:
         title_text = p.title.rstrip(".")
-        search_key = f"{strip_markup(title_text).lower()} {str(pid).lower()}"
+        essence_text = strip_markup(p.essence) if p.essence else ""
+        tags_text = " ".join(p.tags)
+        search_key = (
+            f"{strip_markup(title_text).lower()} "
+            f"{str(pid).lower()} "
+            f"{essence_text.lower()} "
+            f"{tags_text.lower()}"
+        )
         group_info = principle_to_group.get(pid)
         group_line = ""
         if group_info:
