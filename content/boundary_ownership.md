@@ -2,6 +2,7 @@
 id: BOUNDARY_OWNERSHIP
 title: "Boundary Ownership."
 essence: "Each component should look visually complete in isolation; relying on a neighbor for your edge is implicit coupling."
+related: [ADJACENT_BAR_BASELINE, CONTAINER_OWNS_INSET, CONTENT_DRIVES_SIZE]
 ---
 
 Components own their own visual boundaries. This applies to both parent/child and sibling relationships.
@@ -54,3 +55,29 @@ nav {
 ```
 
 The content area shouldn't add a top border to compensate for the nav's missing boundary. That creates implicit coupling.
+
+**Detection: doubled parallel rules**
+
+The most common violation is two elements drawing the same edge — a wrapper's `border-right` and the wrapped component's `border-right` rendered at the same x-coordinate, producing a sub-pixel "shadow" (often around 0.8px) that reads as a rendering bug. CSS lint can't see this because adjacency is layout-dependent.
+
+Detect at runtime. For each visible element, project its four border edges onto axis-pos line segments (top/bottom = horizontal at y, left/right = vertical at x). Flag any pair of *parallel* segments (same axis) whose positions sit within ~1px of each other AND whose orthogonal ranges meaningfully overlap (≥ 4px). Tip-to-tip continuations are excluded by the overlap floor; corner intersections are excluded because they're orthogonal axes.
+
+```js
+// Sketch — minus details, this is the whole algorithm:
+for (const el of doc.querySelectorAll('*')) {
+  const cs = getComputedStyle(el);
+  const r = el.getBoundingClientRect();
+  for (const side of ['top', 'right', 'bottom', 'left']) {
+    if (parseFloat(cs[`border${side[0].toUpperCase()}${side.slice(1)}Width`]) < 0.5) continue;
+    if (cs[`border${side[0].toUpperCase()}${side.slice(1)}Color`] === 'rgba(0, 0, 0, 0)') continue;
+    lines.push({ el, side, axis: /top|bottom/.test(side) ? 'h' : 'v',
+                 pos: r[side === 'top' || side === 'left' ? side : (side === 'right' ? 'right' : 'bottom')],
+                 start: /top|bottom/.test(side) ? r.left : r.top,
+                 end:   /top|bottom/.test(side) ? r.right : r.bottom });
+  }
+}
+// Pairs of (a, b) where a.axis === b.axis, |a.pos - b.pos| < 1.5,
+// and overlap between their ranges ≥ 4 → doubled rule.
+```
+
+Wire this as a build-time check by loading each shipped page in a headless iframe and running the audit. Failures get a clear report (selector pair, axis, position, overlap length); fixing means deciding which element owns the edge and removing the duplicate.

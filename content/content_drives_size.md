@@ -2,6 +2,7 @@
 id: CONTENT_DRIVES_SIZE
 title: "Content Sizes the Container; Decoration Fills It."
 essence: "A container's dimensions should be driven by its content children, not by decorative or structural children. Use min-width for floors, not width for overrides."
+related: [ADJACENT_BAR_BASELINE]
 ---
 
 **Content sizes the container; decoration fills it.** When a component has both content elements (text, labels, data) and decorative elements (color tiles, icons, visual indicators), the content determines the container's natural size. Decorative elements stretch to fill that size. Inverting this relationship (letting a fixed-size decorative child dictate the container width) suppresses content and causes overflow.
@@ -57,3 +58,7 @@ Use `width` only on elements with no content-driven siblings. When a container h
 1. Set `min-width` on the container (a floor, not an override)
 2. Let the content child determine natural width
 3. Use `align-items: stretch` so decorative children fill the content-determined width
+
+**Boundary: cross-container alignment**
+
+This principle governs *one* container's internal sizing. When two adjacent containers (e.g., a sidebar header and a main-pane title bar) need their bottom edges to form a single continuous rule, content-sizing each independently won't keep them aligned — their content heights will diverge. That cross-container case is `ADJACENT_BAR_BASELINE`: pin both to a shared height contract, typically a CSS variable consumed by each.
