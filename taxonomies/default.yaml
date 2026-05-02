@@ -146,6 +146,7 @@ groups:
     - OVERFLOW_CAUSES
     - NO_LAYOUT_SHIFT
     - STABLE_SCROLLBAR_GUTTER
+    - PEER_HEADER_RAIL
 
   visual-design:
     description: >-
