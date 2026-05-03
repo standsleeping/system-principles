@@ -51,6 +51,43 @@
     "notes": {
       "type": "string",
       "description": "Additional observations, especially for any failed design checks."
+    },
+    "demotions": {
+      "type": "array",
+      "description": "Optional. Concepts being reclassified as Specs (or dropped) on the basis of consistent evidence across stages.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from_concept": {
+            "type": "string",
+            "description": "Name of the concept being demoted."
+          },
+          "to": {
+            "enum": ["spec", "drop"],
+            "description": "'spec' to reclassify as a SpecDefinition; 'drop' to remove from the design entirely."
+          },
+          "signals": {
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "stage_4_zero_actions",
+                "stage_5_no_dynamic_state",
+                "stage_7_fully_unsurfaced",
+                "stage_8_state_reference_cycle"
+              ]
+            },
+            "description": "Stage signals supporting the demotion. Must include at least two distinct signals; a single weak signal is insufficient grounds for demotion."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Free-form context: which specific actions/state/cycles from the listed signals motivated the demotion."
+          }
+        },
+        "required": ["from_concept", "to", "signals", "rationale"],
+        "additionalProperties": false
+      }
     }
   },
   "required": ["concepts", "common_mission", "reformulable", "non_conflicting", "design_check"],
