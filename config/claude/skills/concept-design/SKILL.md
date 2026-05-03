@@ -13,6 +13,29 @@ A guided workflow for designing software concepts, organized around a "design as
 - Analyzing an existing system to surface and formalize its implicit concepts
 - Reviewing a system's concept design for coherence, gaps, or unnecessary specificity
 
+## Concepts vs Specs
+
+The framework distinguishes two kinds of design objects:
+
+- **Concept** — a user-facing element with its own purpose, actions, and stateful behavior. The unit of the per-concept stages (1–6).
+- **Spec** — a named, documented contract or shared data shape that multiple concepts reference but which has no actions, no dynamic state, and no user-facing surface of its own. Load-bearing infrastructure that fulfills no concept-shaped purpose.
+
+A candidate is a Spec if all five tests pass:
+
+| # | Test |
+|---|---|
+| 1 | Referenced by at least two concepts. |
+| 2 | Carries documented semantics. |
+| 3 | Has no actions of its own. |
+| 4 | Has no dynamic state. |
+| 5 | Has no user-facing surface. |
+
+If a candidate fails any of tests 3, 4, or 5, it has the responsibility of a concept. If it passes 3–5 but fails 1 or 2, it is an internal sub-shape or helper, not a Spec.
+
+Within this chain, a Spec arises only via *demotion* at Stage 9 — when Coherence analysis surfaces consistent evidence (no actions, no dynamic state, unsurfaceable, in a state-reference cycle) that a candidate concept should be reclassified. Demoted concepts produce SpecDefinitions through the `/spec-definition` stage. Composition stages (dependencies, coherence, artifacts, validation) cover concepts and any demoted specs together.
+
+Bottom-up spec design — identifying load-bearing infrastructure (shared data shapes, named contracts, cross-cutting envelopes) that was never a concept candidate — is **out of scope** for this chain. A standalone `spec-design` skill chain is planned; the work item lives on the prinzfiles roadmap.
+
 ## Pacing: one stage at a time
 
 This workflow is **strictly stage-by-stage**. After each stage produces its artifact, **stop and surface the result for review**. Do not proceed to the next stage until the user has acknowledged the output (explicitly approving it, requesting revisions, or saying to continue).
@@ -28,7 +51,7 @@ When you finish a stage, end your message with the artifact and a short prompt l
 
 ## Workflow
 
-### Part 1: Single-Concept Definition
+### Part 1: Per-Concept Definition
 
 Run stages 1–6 for each concept:
 
@@ -40,6 +63,16 @@ Run stages 1–6 for each concept:
 | 4 | `/concept-actions` | `Action[]` — operations the user can perform |
 | 5 | `/concept-state` | `State` — the local micromodel of data |
 | 6 | `/concept-assembly` | `ConceptDefinition` — all parts composed |
+
+### Part 1B: Per-Spec Definition (post-demotion only)
+
+For each concept demoted at Stage 9, run a single combined assembly to convert the demotion into a SpecDefinition:
+
+| Skill | Produces |
+|-------|----------|
+| `/spec-definition` | `SpecDefinition` — name, description, shape, referenced_by, semantics, invariants |
+
+This part runs only when Stage 9 emits one or more demotions. There is no bottom-up SpecSeed creation in this chain (see `Concepts vs Specs` above).
 
 ### Part 2: Surface Planning
 
@@ -55,9 +88,9 @@ Run stages 8–10 across the full set of concepts:
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 8 | `/dependency-mapping` | `DependencyGraph` — inter-concept dependencies |
-| 9 | `/coherence-analysis` | `CoherenceAssessment` + `DesignCheck` |
-| 10 | `/genericity-review` | `GenericityAssessment` per concept |
+| 8 | `/dependency-mapping` | `DependencyGraph` — inter-concept dependencies (concepts and specs) |
+| 9 | `/coherence-analysis` | `CoherenceAssessment` + `DesignCheck` + optional `Demotion[]` (concept → spec) |
+| 10 | `/genericity-review` | `GenericityAssessment` per concept and per spec |
 | 11 | `/challenge-testing` | `ChallengeAssessment` — taxonomy resilience against externally sourced scenarios |
 
 ### Part 4: Artifact Organization and Validation
@@ -66,8 +99,8 @@ Run after composition (or after implementation) to capture design as data and ve
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 12 | `/concept-artifacts` | `concepts/` directory — organized JSON files with schemas |
-| 13 | `/concept-validation` | Validation report — schema, cross-artifact, and codebase checks |
+| 12 | `/concept-artifacts` | `concepts/` directory — organized JSON files (concept definitions and spec definitions) |
+| 13 | `/concept-validation` | Validation report — schema, cross-artifact, and codebase checks (concepts and specs) |
 
 These stages are re-runnable checkpoints. Run `/concept-validation` any time artifacts or implementation change.
 
@@ -104,12 +137,17 @@ ConceptSeed ──► Purpose ──► OperationalPrinciple ──► Action[] 
                     ┌───────────────┬───────────────┬──────────────┐
                     ▼               ▼               ▼              ▼
              DependencyGraph   Coherence    Genericity      Challenge
-                    │           Assessment   Assessment    Assessment
-                    │               │               │              │
-                    └───────────────┴───────────────┴──────────────┘
+                    │       Assessment +         │              │
+                    │       Demotion[] (opt)     │              │
+                    │           │                │              │
+                    │           ▼                │              │
+                    │     SpecDefinition         │              │
+                    │     (per demotion)         │              │
+                    │           │                │              │
+                    └───────────┴────────────────┴──────────────┘
                                     │
                           Concept Artifacts
-                           (JSON + schemas)
+                       (concepts/ + specs/)
                                     │
                         Concept Validation
                          (3-level checks)

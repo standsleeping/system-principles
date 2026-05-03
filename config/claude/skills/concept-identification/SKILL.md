@@ -20,12 +20,15 @@ Identify and name the concepts in a system. This is the entry point to concept d
 3. Name each concept. Names should be recognizable to users, not implementation jargon.
 4. Write a brief description of what the concept is about.
 
+This stage produces only `ConceptSeed`s. SpecSeeds do not originate here; they arise only via Stage 9 demotion (when a candidate fails the concept tests after working through Stages 2–8). If you encounter a candidate that obviously looks like a Spec (a shared data shape or named contract referenced by multiple concepts but with no actions, no dynamic state, no user-facing surface), set it aside; bottom-up spec discovery is out of scope here. Do not introduce SpecSeeds at this stage.
+
 ## Artifact
 
 Produce one `ConceptSeed` per identified concept:
 
 ```
 ConceptSeed {
+  kind:        "concept"
   name:        str
   description: str
   source:      "new" | "existing"
