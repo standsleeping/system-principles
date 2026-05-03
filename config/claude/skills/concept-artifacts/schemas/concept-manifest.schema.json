@@ -4,6 +4,10 @@
   "description": "Output of surface-planning. Maps how a concept's actions and state surface to users per channel.",
   "type": "object",
   "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference."
+    },
     "concept": {
       "type": "string",
       "description": "Concept name."

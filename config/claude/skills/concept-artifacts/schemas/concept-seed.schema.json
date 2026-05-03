@@ -1,9 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ConceptSeed",
-  "description": "Output of concept-identification. One seed per identified concept.",
+  "description": "Output of concept-identification when a candidate is user-facing and has its own purpose, actions, and stateful behavior. One seed per identified concept.",
   "type": "object",
   "properties": {
+    "kind": {
+      "const": "concept",
+      "description": "Discriminator: distinguishes a ConceptSeed from a SpecSeed."
+    },
     "name": {
       "type": "string",
       "description": "Concept name, recognizable to users, not implementation jargon."
@@ -17,6 +21,6 @@
       "description": "'new' for greenfield concepts, 'existing' for decomposed from existing system."
     }
   },
-  "required": ["name", "description", "source"],
+  "required": ["kind", "name", "description", "source"],
   "additionalProperties": false
 }

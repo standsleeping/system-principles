@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SpecDefinition",
+  "description": "Output of spec-definition. Complete definition of a Spec: a named, documented contract or shared data shape that multiple concepts reference.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "seed": { "$ref": "spec-seed.schema.json" },
+    "description": {
+      "type": "string",
+      "description": "One-paragraph description naming the contract or data shape and why it exists."
+    },
+    "shape": {
+      "type": "string",
+      "description": "Type or structural definition. Use whichever notation is clearest (record syntax, BNF, recursive enum, or table of patterns rendered as a string)."
+    },
+    "referenced_by": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "concept": {
+            "type": "string",
+            "description": "Name of a Concept that references this Spec."
+          },
+          "via": {
+            "type": "string",
+            "description": "Which state component or action of the named Concept references this Spec."
+          }
+        },
+        "required": ["concept", "via"],
+        "additionalProperties": false
+      },
+      "description": "Concepts whose state or actions reference this Spec. Must contain at least two entries (Spec test #1)."
+    },
+    "semantics": {
+      "type": "string",
+      "description": "Labeling conventions, role of each field, intended use, and rules of interpretation that aren't obvious from the shape alone."
+    },
+    "invariants": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Properties the Spec promises to maintain (totality, uniqueness, stability across edits, etc.)."
+    }
+  },
+  "required": ["seed", "description", "shape", "referenced_by", "semantics", "invariants"],
+  "additionalProperties": false
+}

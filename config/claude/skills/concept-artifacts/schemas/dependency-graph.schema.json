@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DependencyGraph",
-  "description": "Output of dependency-mapping. Directed graph of concept dependencies.",
+  "description": "Output of dependency-mapping. Directed graph of dependencies among concepts and specs.",
   "type": "object",
   "properties": {
     "$schema": { "type": "string" },
@@ -11,6 +11,12 @@
       "uniqueItems": true,
       "description": "All concept names in the system."
     },
+    "specs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "All spec names in the system. Optional; omit or leave empty if the system has no specs."
+    },
     "dependencies": {
       "type": "array",
       "items": {
@@ -18,11 +24,11 @@
         "properties": {
           "concept": {
             "type": "string",
-            "description": "The dependent concept."
+            "description": "The dependent concept (or spec)."
           },
           "depends_on": {
             "type": "string",
-            "description": "The concept it depends on."
+            "description": "The concept or spec it depends on."
           },
           "reason": {
             "type": "string",

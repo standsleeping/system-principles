@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SpecSeed",
+  "description": "Output of concept-identification when a candidate passes all five Spec-diagnostic tests. One seed per identified spec.",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "spec",
+      "description": "Discriminator: distinguishes a SpecSeed from a ConceptSeed."
+    },
+    "name": {
+      "type": "string",
+      "description": "Spec name, recognizable to authors and developers."
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the spec is about."
+    },
+    "source": {
+      "enum": ["new", "existing"],
+      "description": "'new' for greenfield specs, 'existing' for specs surfaced from an existing system or demoted from a concept."
+    }
+  },
+  "required": ["kind", "name", "description", "source"],
+  "additionalProperties": false
+}
