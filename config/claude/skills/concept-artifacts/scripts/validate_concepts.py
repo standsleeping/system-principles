@@ -51,18 +51,42 @@ def build_schema_registry(schemas_dir: Path) -> Registry:
     return Registry().with_resources(resources)
 
 
+def iter_seeded_files(concepts_dir: Path) -> list[tuple[Path, dict[str, object]]]:
+    """Walk concepts_dir and return every (path, data) where data has a `seed` key."""
+    seeded: list[tuple[Path, dict[str, object]]] = []
+    for path in sorted(concepts_dir.rglob("*.json")):
+        data = load_json(path)
+        if "seed" in data:
+            seeded.append((path, data))
+    return seeded
+
+
+def load_definitions(concepts_dir: Path, kind: str) -> dict[str, dict[str, object]]:
+    """Load every definition whose seed.kind matches `kind`, indexed by seed.name."""
+    definitions: dict[str, dict[str, object]] = {}
+    for _path, data in iter_seeded_files(concepts_dir):
+        seed = as_dict(data["seed"])
+        if seed.get("kind") == kind:
+            definitions[as_str(seed["name"])] = data
+    return definitions
+
+
 def discover_artifacts(concepts_dir: Path, schemas_dir: Path) -> dict[Path, Path]:
-    """Map each concept file to its schema by reading the $schema field."""
+    """Map each concept file to its schema by reading the $schema field.
+
+    Recursive: walks subdirectories (specs/, surfaces/, genericity/, ...) so
+    every artifact is validated regardless of where it lives in the tree.
+    """
     mapping: dict[Path, Path] = {}
-    for path in sorted(concepts_dir.glob("*.json")):
+    for path in sorted(concepts_dir.rglob("*.json")):
         data = load_json(path)
         schema_ref = data.get("$schema")
         if schema_ref is None:
-            print_result(path.name, False, "no $schema field, skipping")
+            print_result(str(path.relative_to(concepts_dir)), False, "no $schema field, skipping")
             continue
         schema_path = schemas_dir / as_str(schema_ref)
         if not schema_path.exists():
-            print_result(path.name, False, f"schema not found: {schema_ref}")
+            print_result(str(path.relative_to(concepts_dir)), False, f"schema not found: {schema_ref}")
             continue
         mapping[path] = schema_path
     return mapping
@@ -85,11 +109,12 @@ def level_1_schema_validation(concepts_dir: Path, schemas_dir: Path) -> int:
     for filepath, schema_path in artifacts.items():
         instance = load_json(filepath)
         schema = load_json(schema_path)
+        label = str(filepath.relative_to(concepts_dir))
         try:
             validate(instance, schema, registry=registry)
-            print_result(filepath.name, True)
+            print_result(label, True)
         except ValidationError as e:
-            print_result(filepath.name, False, e.message)
+            print_result(label, False, e.message)
             failures += 1
     return failures
 
@@ -105,14 +130,29 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
     challenges_path = concepts_dir / "challenges.json"
     challenges = load_json(challenges_path) if challenges_path.exists() else None
 
-    # Load all concept definitions
-    definitions: dict[str, dict[str, object]] = {}
-    for path in concepts_dir.glob("*.json"):
-        data = load_json(path)
-        if "seed" in data:
-            definitions[as_str(as_dict(data["seed"])["name"])] = data
+    # Every seeded file must declare a recognized kind. Catches silent
+    # misclassification before any downstream check filters by kind.
+    seeded = iter_seeded_files(concepts_dir)
+    valid_kinds = {"concept", "spec"}
+    bad_kinds: dict[str, str] = {}
+    for path, data in seeded:
+        seed = as_dict(data["seed"])
+        kind = seed.get("kind")
+        label = str(path.relative_to(concepts_dir))
+        if not isinstance(kind, str) or kind not in valid_kinds:
+            bad_kinds[label] = repr(kind)
+    passed = len(bad_kinds) == 0
+    print_result(
+        "Every seeded file has a recognized seed.kind",
+        passed,
+        f"bad: {bad_kinds}" if not passed else "",
+    )
+    failures += 0 if passed else 1
+
+    definitions = load_definitions(concepts_dir, "concept")
 
     graph_concepts = {as_str(c) for c in as_list(dep_graph["concepts"])}
+    graph_specs = {as_str(s) for s in as_list(dep_graph.get("specs", []))}
     def_concepts = set(definitions.keys())
     mapping_concepts = {as_str(c) for c in as_list(mapping["concepts"])}
 
@@ -136,11 +176,12 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
     )
     failures += 0 if passed else 1
 
-    # Dependencies valid: every depends_on target exists
+    # Dependencies valid: every depends_on target exists in concepts or specs
     dep_targets = {
         as_str(as_dict(d)["depends_on"]) for d in as_list(dep_graph["dependencies"])
     }
-    invalid_targets = dep_targets - graph_concepts
+    valid_targets = graph_concepts | graph_specs
+    invalid_targets = dep_targets - valid_targets
     passed = len(invalid_targets) == 0
     print_result(
         "Dependency targets exist",
