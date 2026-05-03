@@ -16,19 +16,22 @@ Organize the outputs of the concept design workflow into a well-structured proje
 ## Process
 
 1. Create a `concepts/` directory in the project root.
-2. For each concept, export its `ConceptDefinition` as a JSON file.
-3. Export composition artifacts (dependency graph, coherence assessment).
-4. Export the action mapping, connecting concept actions to surfaces and implementations.
-5. Run schema validation on each file.
-6. Run cross-artifact linting to verify consistency.
+2. For each concept, export its `ConceptDefinition` as a JSON file under `concepts/`.
+3. For each spec, export its `SpecDefinition` as a JSON file under `concepts/specs/`.
+4. Export composition artifacts (dependency graph, coherence assessment, including any `Demotion` entries).
+5. Export the action mapping, connecting concept actions to surfaces and implementations.
+6. Run schema validation on each file.
+7. Run cross-artifact linting to verify consistency.
 
 ## Directory Structure
 
 ```
 concepts/
-  <concept-name>.json        # ConceptDefinition (one per concept)
-  dependency-graph.json       # DependencyGraph
-  coherence.json              # CoherenceAssessment
+  <concept-name>.json         # ConceptDefinition (one per concept)
+  specs/
+    <spec-name>.json          # SpecDefinition (one per spec)
+  dependency-graph.json       # DependencyGraph (covers concepts and specs)
+  coherence.json              # CoherenceAssessment (with optional demotions)
   challenges.json             # ChallengeAssessment
   action-mapping.json         # ActionMapping
 ```
@@ -41,6 +44,8 @@ concepts/
     <concept-name>.json       # ConceptManifest (one per concept)
   genericity/
     <concept-name>.json       # GenericityAssessment (one per concept)
+    specs/
+      <spec-name>.json        # GenericityAssessment for specs
 ```
 
 ## Schemas
@@ -50,13 +55,15 @@ JSON Schema files for every artifact type live in the `schemas/` subdirectory of
 | Schema file | Validates | Produced by |
 |-------------|-----------|-------------|
 | `concept-seed.schema.json` | ConceptSeed | concept-identification |
+| `spec-seed.schema.json` | SpecSeed | concept-identification |
 | `purpose.schema.json` | Purpose | concept-purpose |
 | `operational-principle.schema.json` | OperationalPrinciple | operational-principle |
 | `actions.schema.json` | Action[] | concept-actions |
 | `state.schema.json` | State | concept-state |
 | `concept-definition.schema.json` | ConceptDefinition | concept-assembly |
+| `spec-definition.schema.json` | SpecDefinition | spec-definition |
 | `dependency-graph.schema.json` | DependencyGraph | dependency-mapping |
-| `coherence-assessment.schema.json` | CoherenceAssessment | coherence-analysis |
+| `coherence-assessment.schema.json` | CoherenceAssessment (with optional Demotion[]) | coherence-analysis |
 | `concept-manifest.schema.json` | ConceptManifest | surface-planning |
 | `genericity-assessment.schema.json` | GenericityAssessment | genericity-review |
 | `challenge-assessment.schema.json` | ChallengeAssessment | challenge-testing |
@@ -78,10 +85,17 @@ These rules verify that artifacts reference each other correctly. They require l
 
 | Rule | Check | Files involved |
 |------|-------|----------------|
+| **Seed kind present** | Every file with a `seed` key declares a recognized `seed.kind` (`"concept"` or `"spec"`) | all definitions |
 | **Names match** | Every concept name in dependency-graph.concepts has a ConceptDefinition file | dependency-graph + definitions |
 | **Names symmetric** | Every ConceptDefinition file's concept name appears in dependency-graph.concepts | definitions + dependency-graph |
-| **Dependencies valid** | Every depends_on target exists in dependency-graph.concepts | dependency-graph |
+| **Spec names match** | Every spec name in dependency-graph.specs has a SpecDefinition file under specs/ | dependency-graph + spec definitions |
+| **Spec names symmetric** | Every SpecDefinition file's spec name appears in dependency-graph.specs | spec definitions + dependency-graph |
+| **Dependencies valid** | Every depends_on target exists in dependency-graph.concepts or .specs | dependency-graph |
 | **No circular dependencies** | The dependency graph is a DAG | dependency-graph |
+| **Spec referenced_by valid** | Every concept named in a SpecDefinition's referenced_by exists | spec definitions + concept definitions |
+| **Spec references reciprocated** | Every concept named in a Spec's referenced_by has a state component or action that mentions the Spec | spec definitions + concept definitions |
+| **Spec has ≥2 references** | Every SpecDefinition's referenced_by list has at least two entries (Spec test #1) | spec definitions |
+| **Demotions resolve** | Every Demotion.from_concept names a ConceptDefinition that no longer exists in concepts/ (because it was reclassified) and either appears as a SpecDefinition under specs/ or is absent (if dropped) | coherence + definitions |
 | **Coherence covers all** | coherence.concepts matches dependency-graph.concepts | coherence + dependency-graph |
 | **Challenges cover all** | challenges.concepts matches dependency-graph.concepts | challenges + dependency-graph |
 | **Challenge concepts exist** | Every concepts_involved entry in challenges.scenarios is in dependency-graph.concepts | challenges + dependency-graph |

@@ -24,9 +24,10 @@ Validate each file in `concepts/` against its corresponding JSON Schema from the
 
 | File pattern | Schema |
 |--------------|--------|
-| Concept definition files (contain `"seed"` key) | `concept-definition.schema.json` |
+| Concept definition files at `concepts/<name>.json` (contain `"seed"` key with `kind: "concept"`) | `concept-definition.schema.json` |
+| Spec definition files at `concepts/specs/<name>.json` (contain `"seed"` key with `kind: "spec"`) | `spec-definition.schema.json` |
 | `dependency-graph.json` | `dependency-graph.schema.json` |
-| `coherence.json` | `coherence-assessment.schema.json` |
+| `coherence.json` (with optional `demotions`) | `coherence-assessment.schema.json` |
 | `challenges.json` | `challenge-assessment.schema.json` |
 | `action-mapping.json` | `action-mapping.schema.json` |
 
@@ -38,10 +39,17 @@ Load all concept artifact files and verify cross-references.
 
 | Rule | Check | Files |
 |------|-------|-------|
+| Seed kind present | Every file with a `seed` key declares a recognized `seed.kind` (`"concept"` or `"spec"`) | all definitions |
 | Names match | Every concept in `dependency-graph.concepts` has a definition file | dependency-graph + definitions |
 | Names symmetric | Every definition file's concept appears in `dependency-graph.concepts` | definitions + dependency-graph |
-| Dependencies valid | Every `depends_on` target exists in `dependency-graph.concepts` | dependency-graph |
+| Spec names match | Every spec in `dependency-graph.specs` has a SpecDefinition file under `specs/` | dependency-graph + spec definitions |
+| Spec names symmetric | Every SpecDefinition file's spec appears in `dependency-graph.specs` | spec definitions + dependency-graph |
+| Dependencies valid | Every `depends_on` target exists in `dependency-graph.concepts` or `.specs` | dependency-graph |
 | No circular dependencies | The dependency graph is a DAG | dependency-graph |
+| Spec referenced_by valid | Every concept named in a SpecDefinition's `referenced_by` exists | spec definitions + concept definitions |
+| Spec references reciprocated | Every concept named in a Spec's `referenced_by` has a state component or action that mentions the Spec | spec definitions + concept definitions |
+| Spec has ≥2 references | Every SpecDefinition's `referenced_by` list has at least two entries (Spec test #1) | spec definitions |
+| Demotions resolve | Every `coherence.demotions[].from_concept` names a concept that is no longer present in `concepts/` (the file was reclassified or removed) | coherence + definitions |
 | Coherence covers all | `coherence.concepts` matches `dependency-graph.concepts` | coherence + dependency-graph |
 | Challenges cover all | `challenges.concepts` matches `dependency-graph.concepts` | challenges + dependency-graph |
 | Challenge concepts exist | Every `concepts_involved` entry in `challenges.scenarios` is in `dependency-graph.concepts` | challenges + dependency-graph |
@@ -62,9 +70,13 @@ For every action mapping where `implementation.type` is `"code"`:
 
 Verification: split on `:`, import the module, check `hasattr` for the function.
 
-## Artifact
+## Output
 
-This skill produces a validation report. Format:
+This skill prints a transient validation report to stdout. Do not persist it. The report is a snapshot of one validator run; rerunning `validate_concepts.py` is the source of truth and the report decays the moment any artifact changes. Surface the report in the conversation; do not write it to `concepts/VALIDATION.md` or any other file.
+
+If a validator run reveals upstream patches needed in another skill (e.g. a missing `$schema` field, a discovery bug), record those in the patched skill's git history, not in a per-project memo.
+
+Report format:
 
 ```
 Level 1: Schema validation
