@@ -30,7 +30,7 @@ Formulate the operational principle for a concept — the narrative showing how 
 
 ```
 OperationalPrinciple {
-  narrative: str
+  narrative: str   // wrap the scenario as { "narrative": "..." }, not a bare string
 }
 ```
 

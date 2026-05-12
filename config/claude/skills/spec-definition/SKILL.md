@@ -42,6 +42,8 @@ SpecReference {
 }
 ```
 
+Top-level keys are snake_case (`referenced_by`). The seed wraps identification metadata (`kind: "spec"`, `name`, `description`, `source`); top-level identification fields are not allowed.
+
 ## Validation
 
 - The originating `Demotion` must list at least two distinct entries in `signals` (schema-enforced). If the demotion is weakly motivated, revisit it before assembling the spec.

@@ -15,7 +15,7 @@ Enumerate the actions for a concept.
 ## Process
 
 1. List every operation a user or system can perform on this concept.
-2. Each action should have a clear name and a brief description of what it does.
+2. For each action, give it a name (verb), a function-style signature, a precondition (`requires`), a postcondition (`effects`), and an optional prose description.
 3. Actions should be derivable from the operational principle — they are the steps that make the OP's narrative possible.
 4. If you can't list actions, the concept may not be a real concept (p. 57).
 
@@ -23,12 +23,23 @@ Enumerate the actions for a concept.
 
 ```
 Action {
-  name:        str
-  description: str
+  name:         str           // verb; recognizable to users
+  signature:    str           // e.g. "spawn(parent: Process, image: Executable) -> Process"
+  requires:     str | null    // precondition; null when always valid
+  effects:      str           // postcondition: what changes after the action runs
+  description?: str           // optional prose when signature/requires/effects are insufficient
 }
 ```
 
 Produced as a list: `Action[]`
+
+## Synthesizing signatures and preconditions
+
+- Use entity names from the concept's state model so signatures cohere across actions.
+- Identify what entities are inputs vs outputs vs modified; use `->` to show the return type.
+- A query that yields information should return a value; an action that mutates state may return `void` or the modified entity.
+- Preconditions express when the action is callable — existence of a referent, an authority check, a state predicate. Use `null` when the action is always valid.
+- Keep `description` for nuance that doesn't fit cleanly into signature/requires/effects.
 
 ## Validation
 

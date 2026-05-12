@@ -30,9 +30,11 @@ ConceptDefinition {
   purpose:               Purpose
   operational_principle: OperationalPrinciple
   actions:               Action[]
-  state:                 State
+  state:                 StateComponent[]
 }
 ```
+
+Top-level keys are snake_case (`operational_principle`, not `operationalPrinciple`). The seed wraps identification metadata (`kind`, `name`, `description`, `source`); top-level identification fields are not allowed.
 
 ## Validation
 
