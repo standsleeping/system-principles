@@ -22,16 +22,13 @@ The author tried to square the metrics container but noticed a double gap betwee
 
 **Why it's a smell, not a rule**
 
-Legitimate zero-side padding exists — flow children are designed with `padding: Y 0` because their container owns the horizontal inset (see `CONTAINER_OWNS_INSET`). The difference is ownership:
+Earlier formulations carved out `padding: Y 0` as a legitimate flow-child pattern (the parent owned horizontal inset; the child owned vertical flow). Under `PADDING_IS_INSET_ONLY` and the updated `CONTAINER_OWNS_INSET`, that exception is gone: the flow rhythm lives in the parent's `gap`, not in the child's vertical padding. Both forms of zero-side padding — the smelly subtraction and the old "intentional" flow-child shape — migrate to a single fix.
 
-- **Flow child**: the zero side is intentional — the parent fills that axis via its own padding or gap. Consistent, declarative.
-- **Smell**: the zero side is reactive — the author is *subtracting* to neutralize a sibling's space. Coupled, fragile.
-
-The test: if removing the zero-side override would cause spacing to *double*, the rule is a smell. The fix lives upstream.
+The test is the same: if removing the zero-side override would cause spacing to *double* or *vanish*, the rule is a smell. The fix lives upstream — either at a shared parent's `gap`/`padding`, or by separating the concern that wanted asymmetry into the property that owns it.
 
 **The fix**
 
-Three options, in order of preference:
+Two options, in order of preference:
 
 1. **Lift to a parent gap.** Put the spacing on the common parent:
    ```css
@@ -43,16 +40,16 @@ Three options, in order of preference:
    .metrics { padding: var(--spacing-xl); }
    .list    { padding: var(--spacing-xl); }
    ```
-   No cancellation. Each container has square, symmetric padding. The parent orchestrates flow.
+   No cancellation. Each container has square padding. The parent orchestrates flow.
 
 2. **Remove the redundant neighbor padding.** If the list's padding-top was also cosmetic, delete it; the metrics container already provides the space.
 
-3. **If neither fits, own the asymmetry.** Move the element into a flow-child role explicitly: strip horizontal padding from the flow child and put it on the container. This is no longer the smell — it's the flow-child pattern.
+The older "intentional flow-child" escape hatch (`padding: Y 0` on a row whose container owns horizontal inset) is no longer recommended — the same outcome is reachable with square padding on the container and `gap` on the container, leaving the row with square (or zero) padding. See `PADDING_IS_INSET_ONLY` and the updated `CONTAINER_OWNS_INSET`.
 
 **Relationship to other principles**
 
-Complements `SPACING_STRATEGY`'s "square padding by default" with a specific diagnostic for the most common violation: the container-in-flow that cancels its own bottom padding. Refines `CONTAINER_OWNS_INSET` by distinguishing intentional flow-child asymmetry from reactive anti-padding.
+Complements `SPACING_STRATEGY`'s square-padding rule with a specific diagnostic for the most common violation: the container-in-flow that cancels its own bottom padding. Under `PADDING_IS_INSET_ONLY` this smell becomes a hard signal — any non-1-value padding shorthand is a candidate for relocation, with no "legitimate flow-child asymmetry" exception left to carve out.
 
 **How to catch it**
 
-A grep for three-value `padding:` declarations (or `padding-*: 0` overrides on selectors that also set a general `padding:`) surfaces candidates quickly. Most hits are smells; a small minority are legitimate flow-child declarations that should instead be written as `padding: Y 0` unambiguously.
+A scanner for non-1-value `padding:` shorthands (or `padding-*: 0` overrides on selectors that also set a general `padding:`) surfaces every site. With the exception list removed, the scanner becomes mechanical: each hit either lifts to the parent's `gap`, drops to square padding, or moves the asymmetric concern into `min-width` or `margin`.
