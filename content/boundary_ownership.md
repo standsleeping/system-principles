@@ -2,7 +2,7 @@
 id: BOUNDARY_OWNERSHIP
 title: "Boundary Ownership."
 essence: "Each component should look visually complete in isolation; relying on a neighbor for your edge is implicit coupling."
-related: [ADJACENT_BAR_BASELINE, CONTAINER_OWNS_INSET, CONTENT_DRIVES_SIZE]
+related: [ADJACENT_BAR_BASELINE, CONTAINER_OWNS_INSET, CONTENT_DRIVES_SIZE, PADDING_IS_INSET_ONLY]
 ---
 
 Components own their own visual boundaries. This applies to both parent/child and sibling relationships.
@@ -11,29 +11,28 @@ Components own their own visual boundaries. This applies to both parent/child an
 
 When a container has structural borders (separating header from content, for example), the container defines those borders. Children provide their own internal padding.
 
-**Separator Containers**
+**Separator Containers: Frame and Content Split**
 
-When a container uses borders to separate repeated sections (e.g. a scrollable list of sections with horizontal rules between them), the container must not also carry content padding. Putting horizontal padding and a horizontal separator on the same element couples two concerns: the separator's visual extent depends on box-model details (border renders outside padding). It works by coincidence, not by structure.
-
-The separator container gets zero horizontal padding. Its children inherit content inset:
+When a container uses borders to separate repeated sections (e.g. a scrollable list of sections with horizontal rules between them), separate the *frame* (which owns the structural border and spans full width) from the *content* (which owns its own square inset). One element does one job:
 
 ```css
-.section                { padding: var(--spacing-2xl) 0 var(--spacing-xl); }
-.section + .section     { border-top: 1px solid var(--color-border); }
-.section > *            { padding-left: var(--spacing-2xl); padding-right: var(--spacing-2xl); }
+.section-frame                    { /* full-width frame owns the separator */ }
+.section-frame + .section-frame   { border-top: 1px solid var(--color-border); }
+.section-frame > .section-content { padding: var(--spacing-2xl); }
 ```
 
-The section owns the separator (zero horizontal padding means the border spans full width). The children own their content inset. No position tricks, no pseudo-elements; the box model does what it says.
-
-**CSS shorthand trap:** Children that set their own vertical padding must use longhand properties (`padding-top`/`padding-bottom`), not the `padding` shorthand. The shorthand resets all four sides, silently clobbering the horizontal values inherited from `.section > *`.
-
-```css
-/* Wrong: shorthand resets padding-left/right to 0 */
-.demo-block { padding: var(--spacing-lg) 0; }
-
-/* Right: longhands leave horizontal padding alone */
-.demo-block { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+```html
+<div class="section-frame">
+  <div class="section-content">…</div>
+</div>
+<div class="section-frame">
+  <div class="section-content">…</div>
+</div>
 ```
+
+The frame element owns the border, which spans pane-edge to pane-edge because the frame has no padding to interfere. The content element owns square inset on every side. No box-model coincidences, no position tricks, no pseudo-elements; each element has exactly one structural job.
+
+This is the same pattern DK calls "bookend frame for flush dividers" (see `visual-language.md`) and what makes `PADDING_IS_INSET_ONLY` reachable in the separator-container case: instead of folding two concerns (border placement + content inset) into one element with an asymmetric padding shape, separate them into two elements with one concern each.
 
 **Siblings: Each Component Completes Itself**
 

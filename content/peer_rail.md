@@ -40,7 +40,7 @@ Define one token per rail and bind every peer strip to it as `height`, with `dis
   height: var(--layout-header-height);
   display: flex;
   align-items: center;
-  padding: 0 var(--spacing-md);
+  padding: var(--spacing-md);  /* square, per PADDING_IS_INSET_ONLY */
   flex-shrink: 0;
 }
 
