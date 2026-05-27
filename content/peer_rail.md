@@ -136,10 +136,13 @@ The override is in markup, not buried in component CSS — greppable, reviewable
 
 ### Enforcement
 
-The cascade is the *expression* arm: it makes coordination free for components that opt into the formula. A component can still bypass the formula and hardcode `height: 3.5rem`. The complementary *enforcement* arm is a layout-rendering audit that walks the rendered page and flags two horizontal rules that sit *near-but-not-aligned* across sibling columns — close enough to look like an intended rail (within ~12px y), far enough to read as a stutter (more than ~1.5px y), with overlapping x ranges. The pair is what makes the rail robust:
+The cascade is the *expression* arm: it makes coordination free for components that opt into the formula. A component can still bypass the formula and hardcode `height: 3.5rem`. The complementary *enforcement* arm is a layout-rendering audit that walks the rendered page and flags two horizontal rules that sit *near-but-not-aligned* across sibling columns: close enough to look like an intended rail (within ~12px y), far enough to read as a stutter (more than ~1.5px y), with overlapping x ranges.
 
-- **Cascade** — coordination by default; no per-component opt-in
-- **Audit** — backstop for strips that escaped the cascade
+A stronger, declarative arm sits between cascade and shape detection: each rail member opts into the rail by setting a registered custom property (`--peer-rail: chrome`) in the same CSS rule that binds its height. An audit walks the DOM, finds every element computing the token, and verifies each member's rendered height matches `--layout-chrome-bar-h × --chrome-bar-rows` (resolved at the member's cascaded position via an inline probe). This catches drift that the near-miss border check cannot see: a rail member whose height *and* its neighbors' heights are all wrong by the same amount, a member in an unmeasured state (a drilled nav level, a collapsed sidebar), a member whose mismatch happens to align with no neighbor's border. The opt-in nature is the point: the contract belongs to the component, not to the framework's registry of class names.
+
+- **Cascade**: coordination by default; no per-component opt-in
+- **Declarative contract**: members tag themselves with `--peer-rail`; audit verifies each member's height against the formula
+- **Near-miss border audit**: backstop for strips that escaped both the cascade and the contract
 
 ### When the multiplier doesn't apply
 
