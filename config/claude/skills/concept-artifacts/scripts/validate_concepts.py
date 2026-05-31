@@ -6,7 +6,6 @@ Dependencies: jsonschema, referencing
 """
 
 import argparse
-import importlib
 import json
 import sys
 from pathlib import Path
@@ -82,11 +81,17 @@ def discover_artifacts(concepts_dir: Path, schemas_dir: Path) -> dict[Path, Path
         data = load_json(path)
         schema_ref = data.get("$schema")
         if schema_ref is None:
-            print_result(str(path.relative_to(concepts_dir)), False, "no $schema field, skipping")
+            print_result(
+                str(path.relative_to(concepts_dir)), False, "no $schema field, skipping"
+            )
             continue
         schema_path = schemas_dir / as_str(schema_ref)
         if not schema_path.exists():
-            print_result(str(path.relative_to(concepts_dir)), False, f"schema not found: {schema_ref}")
+            print_result(
+                str(path.relative_to(concepts_dir)),
+                False,
+                f"schema not found: {schema_ref}",
+            )
             continue
         mapping[path] = schema_path
     return mapping
@@ -126,7 +131,6 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
 
     dep_graph = load_json(concepts_dir / "dependency-graph.json")
     coherence = load_json(concepts_dir / "coherence.json")
-    mapping = load_json(concepts_dir / "action-mapping.json")
     challenges_path = concepts_dir / "challenges.json"
     challenges = load_json(challenges_path) if challenges_path.exists() else None
 
@@ -154,7 +158,6 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
     graph_concepts = {as_str(c) for c in as_list(dep_graph["concepts"])}
     graph_specs = {as_str(s) for s in as_list(dep_graph.get("specs", []))}
     def_concepts = set(definitions.keys())
-    mapping_concepts = {as_str(c) for c in as_list(mapping["concepts"])}
 
     # Names match: every concept in dep graph has a definition
     missing_defs = graph_concepts - def_concepts
@@ -267,112 +270,12 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
     else:
         print_result("Challenges (skipped — no challenges.json)", True)
 
-    # Mapping concepts match
-    passed = mapping_concepts == graph_concepts
-    print_result(
-        "Mapping concepts match dependency graph",
-        passed,
-        f"mismatch: {mapping_concepts ^ graph_concepts}" if not passed else "",
-    )
-    failures += 0 if passed else 1
-
-    # Build expected (concept, action) pairs from definitions
-    expected_pairs: set[tuple[str, str]] = set()
-    for concept_name, defn in definitions.items():
-        for action in as_list(defn["actions"]):
-            expected_pairs.add((concept_name, as_str(as_dict(action)["name"])))
-
-    # Build actual (concept, action) pairs from mapping
-    actual_pairs: set[tuple[str, str]] = set()
-    for m_obj in as_list(mapping["mappings"]):
-        m = as_dict(m_obj)
-        actual_pairs.add((as_str(m["concept"]), as_str(m["action"])))
-
-    # Mapping actions exist in definitions
-    orphan_mappings = actual_pairs - expected_pairs
-    passed = len(orphan_mappings) == 0
-    print_result(
-        "No orphan mappings",
-        passed,
-        f"orphans: {orphan_mappings}" if not passed else "",
-    )
-    failures += 0 if passed else 1
-
-    # Mapping complete: every (concept, action) has a mapping
-    missing_mappings = expected_pairs - actual_pairs
-    passed = len(missing_mappings) == 0
-    print_result(
-        "Mapping complete (all actions covered)",
-        passed,
-        f"missing: {missing_mappings}" if not passed else "",
-    )
-    failures += 0 if passed else 1
-
-    # No duplicate mappings
-    pairs_list: list[tuple[str, str]] = [
-        (as_str(as_dict(m)["concept"]), as_str(as_dict(m)["action"]))
-        for m in as_list(mapping["mappings"])
-    ]
-    duplicates = {p for p in pairs_list if pairs_list.count(p) > 1}
-    passed = len(duplicates) == 0
-    print_result(
-        "No duplicate mappings",
-        passed,
-        f"duplicates: {duplicates}" if not passed else "",
-    )
-    failures += 0 if passed else 1
-
-    return failures
-
-
-def level_3_codebase(concepts_dir: Path, schemas_dir: Path) -> int:
-    """Verify that code entry points are importable."""
-    print("\nLevel 3: Codebase verification")
-    failures = 0
-    mapping = load_json(concepts_dir / "action-mapping.json")
-
-    for m_obj in as_list(mapping["mappings"]):
-        m = as_dict(m_obj)
-        impl = as_dict(m["implementation"])
-        if impl["type"] != "code":
-            continue
-
-        entry = as_str(impl.get("entry_point", ""))
-        calls = as_list(impl.get("calls", []))
-        targets = [entry] + [as_str(c) for c in calls]
-
-        for target in targets:
-            if not target:
-                continue
-            module_path, func_name = target.rsplit(":", 1)
-            try:
-                mod = importlib.import_module(module_path)
-                passed = hasattr(mod, func_name)
-                print_result(
-                    target,
-                    passed,
-                    "" if passed else f"function '{func_name}' not found in module",
-                )
-            except ImportError as e:
-                print_result(target, False, f"import failed: {e}")
-                failures += 1
-                continue
-            failures += 0 if passed else 1
-
-    if failures == 0 and not any(
-        as_dict(m)["implementation"]
-        for m in as_list(mapping["mappings"])
-        if as_dict(as_dict(m)["implementation"])["type"] == "code"
-    ):
-        print("  (no code implementations to verify)")
-
     return failures
 
 
 LEVELS = {
     1: level_1_schema_validation,
     2: level_2_cross_artifact,
-    3: level_3_codebase,
 }
 
 
@@ -393,7 +296,7 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--level",
         type=int,
-        choices=[1, 2, 3],
+        choices=[1, 2],
         action="append",
         dest="levels",
         help="Validation level(s) to run (default: all). Repeatable.",
@@ -405,7 +308,7 @@ def main(args: list[str] | None = None) -> int:
     parsed = parse_args(args)
     concepts_dir: Path = parsed.concepts_dir.resolve()
     schemas_dir: Path = parsed.schemas_dir.resolve()
-    levels: list[int] = sorted(parsed.levels) if parsed.levels else [1, 2, 3]
+    levels: list[int] = sorted(parsed.levels) if parsed.levels else [1, 2]
 
     failures = 0
     for level in levels:

@@ -19,9 +19,8 @@ Organize the outputs of the concept design workflow into a well-structured proje
 2. For each concept, export its `ConceptDefinition` as a JSON file under `concepts/`.
 3. For each spec, export its `SpecDefinition` as a JSON file under `concepts/specs/`.
 4. Export composition artifacts (dependency graph, coherence assessment, including any `Demotion` entries).
-5. Export the action mapping, connecting concept actions to surfaces and implementations.
-6. Run schema validation on each file.
-7. Run cross-artifact linting to verify consistency.
+5. Run schema validation on each file.
+6. Run cross-artifact linting to verify consistency.
 
 ## Directory Structure
 
@@ -33,7 +32,6 @@ concepts/
   dependency-graph.json       # DependencyGraph (covers concepts and specs)
   coherence.json              # CoherenceAssessment (with optional demotions)
   challenges.json             # ChallengeAssessment
-  action-mapping.json         # ActionMapping
 ```
 
 Optional subdirectories for larger systems:
@@ -67,11 +65,10 @@ JSON Schema files for every artifact type live in the `schemas/` subdirectory of
 | `concept-manifest.schema.json` | ConceptManifest | surface-planning |
 | `genericity-assessment.schema.json` | GenericityAssessment | genericity-review |
 | `challenge-assessment.schema.json` | ChallengeAssessment | challenge-testing |
-| `action-mapping.schema.json` | ActionMapping | concept-artifacts (this skill) |
 
 ## Linting Rules
 
-Verification is organized into three levels. Each level builds on the previous.
+Verification is organized into two levels. Each level builds on the previous.
 
 ### Level 1: Schema validation
 
@@ -100,23 +97,8 @@ These rules verify that artifacts reference each other correctly. They require l
 | **Challenges cover all** | challenges.concepts matches dependency-graph.concepts | challenges + dependency-graph |
 | **Challenge concepts exist** | Every concepts_involved entry in challenges.scenarios is in dependency-graph.concepts | challenges + dependency-graph |
 | **Challenge IDs unique** | No duplicate scenario.id within challenges.scenarios | challenges |
-| **Mapping concepts match** | action-mapping.concepts matches dependency-graph.concepts | action-mapping + dependency-graph |
-| **Mapping actions exist** | Every mapping.action exists in that concept's actions list | action-mapping + definitions |
-| **Mapping complete** | Every (concept, action) pair in definitions has exactly one mapping | action-mapping + definitions |
-| **No orphan mappings** | No mapping references a non-existent concept or action | action-mapping + definitions |
 | **Surface actions valid** | Every action in surface manifests exists in the concept's actions | manifests + definitions |
 | **Surface state valid** | Every state component in surface manifests exists in the concept's state | manifests + definitions |
-
-### Level 3: Codebase verification
-
-These rules verify that implementation references in the action mapping resolve to actual code.
-
-| Rule | Check | Requires |
-|------|-------|----------|
-| **Entry points resolve** | If implementation.type is "code", entry_point is importable | action-mapping + codebase |
-| **Called functions exist** | If implementation.calls are specified, each is importable | action-mapping + codebase |
-
-Entry points and calls use `module:function` notation (e.g., `compgrid.main:main`). Verification attempts to import the module and check for the function attribute.
 
 ## Artifact
 
@@ -124,13 +106,13 @@ This skill produces: a `concepts/` directory containing validated JSON files, or
 
 ## Validation
 
-A reference implementation of all three levels lives in `scripts/validate_concepts.py`. It takes two required arguments: the path to the project's `concepts/` directory and the path to this skill's `schemas/` directory.
+A reference implementation of both levels lives in `scripts/validate_concepts.py`. It takes two required arguments: the path to the project's `concepts/` directory and the path to this skill's `schemas/` directory.
 
 ```
 python scripts/validate_concepts.py <concepts_dir> <schemas_dir> [--level N ...]
 ```
 
-Run specific levels with `--level` (repeatable), or omit for all three. The script auto-discovers which schema validates each file by reading the `$schema` field in each JSON artifact.
+Run specific levels with `--level` (repeatable), or omit for both. The script auto-discovers which schema validates each file by reading the `$schema` field in each JSON artifact.
 
 Dependencies: `jsonschema`, `referencing` (must be in the project's dev dependencies).
 
@@ -138,6 +120,4 @@ Acceptance criteria:
 
 - All files pass Level 1 (schema validation).
 - All cross-references pass Level 2 (consistency).
-- If action mapping includes code implementations, Level 3 passes (codebase verification).
 - No concept definition file is missing for a concept that appears in the dependency graph.
-- The action mapping has exactly one entry per (concept, action) pair.

@@ -5,18 +5,17 @@ description: Validate concept artifacts against schemas and cross-artifact consi
 
 # Concept Validation
 
-Verify that a project's concept artifacts are structurally valid, internally consistent, and correctly linked to the codebase.
+Verify that a project's concept artifacts are structurally valid and internally consistent.
 
 ## When to use
 
 - After running `/concept-artifacts` to organize concept definitions into a directory
 - After modifying concept definitions (adding concepts, changing actions, updating state)
-- After implementation changes that may affect action mapping entry points
 - As a pre-commit or CI check to prevent concept drift
 
 ## Process
 
-Run three levels of validation in order. Each level builds on the previous.
+Run two levels of validation in order. Each level builds on the previous.
 
 ### Level 1: Schema validation
 
@@ -29,7 +28,6 @@ Validate each file in `concepts/` against its corresponding JSON Schema from the
 | `dependency-graph.json` | `dependency-graph.schema.json` |
 | `coherence.json` (with optional `demotions`) | `coherence-assessment.schema.json` |
 | `challenges.json` | `challenge-assessment.schema.json` |
-| `action-mapping.json` | `action-mapping.schema.json` |
 
 Use the `jsonschema` library (Python) or `ajv` (Node) with a registry that can resolve `$ref` across schema files.
 
@@ -54,21 +52,6 @@ Load all concept artifact files and verify cross-references.
 | Challenges cover all | `challenges.concepts` matches `dependency-graph.concepts` | challenges + dependency-graph |
 | Challenge concepts exist | Every `concepts_involved` entry in `challenges.scenarios` is in `dependency-graph.concepts` | challenges + dependency-graph |
 | Challenge IDs unique | No duplicate `scenario.id` within `challenges.scenarios` | challenges |
-| Mapping concepts match | `action-mapping.concepts` matches `dependency-graph.concepts` | action-mapping + dependency-graph |
-| Mapping actions exist | Every `mapping.action` exists in that concept's actions list | action-mapping + definitions |
-| Mapping complete | Every (concept, action) pair in definitions has exactly one mapping | action-mapping + definitions |
-| No orphan mappings | No mapping references a non-existent concept or action | action-mapping + definitions |
-
-### Level 3: Codebase verification
-
-For every action mapping where `implementation.type` is `"code"`:
-
-| Rule | Check |
-|------|-------|
-| Entry points resolve | `entry_point` is importable as `module:function` |
-| Called functions exist | Each entry in `calls` is importable as `module:function` |
-
-Verification: split on `:`, import the module, check `hasattr` for the function.
 
 ## Output
 
@@ -87,11 +70,7 @@ Level 1: Schema validation
 
 Level 2: Cross-artifact consistency
   ✓ Names match
-  ✗ Mapping complete — missing: {('Grid', 'view')}
-  ...
-
-Level 3: Codebase verification
-  ✓ compgrid.main:main
+  ✗ Coherence covers all concepts — mismatch: {'Grid'}
   ...
 
 N failure(s). / All checks passed.
@@ -99,7 +78,6 @@ N failure(s). / All checks passed.
 
 ## Validation
 
-- All three levels should pass for a project's concept artifacts to be considered valid.
+- Both levels should pass for a project's concept artifacts to be considered valid.
 - Level 1 failures indicate malformed files; fix the JSON.
 - Level 2 failures indicate inconsistency between artifacts; update the files that are out of sync.
-- Level 3 failures indicate concept drift from implementation; update either the action mapping or the code.
