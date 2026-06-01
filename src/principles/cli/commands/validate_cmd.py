@@ -51,9 +51,13 @@ def run_validate(args: argparse.Namespace) -> int:
         result = load_taxonomy(tax_path)
         section_name = f"Taxonomy references ({tax_path.stem})"
         if isinstance(result, Taxonomy):
-            sections.append((section_name, check_taxonomy_references(result, known_ids)))
+            sections.append(
+                (section_name, check_taxonomy_references(result, known_ids))
+            )
         else:
-            sections.append((section_name, (_parse_error_to_finding(result, "taxonomy"),)))
+            sections.append(
+                (section_name, (_parse_error_to_finding(result, "taxonomy"),))
+            )
 
     for set_path in sorted(sets_dir.glob("*.yaml")):
         result = load_set(set_path)
@@ -145,4 +149,6 @@ def _print_report(
             suffix = f" ({f.location})" if f.location else ""
             print(f"      {prefix}{f.message}{suffix}")
     print()
-    print("All checks passed." if total_failures == 0 else f"{total_failures} finding(s).")
+    print(
+        "All checks passed." if total_failures == 0 else f"{total_failures} finding(s)."
+    )

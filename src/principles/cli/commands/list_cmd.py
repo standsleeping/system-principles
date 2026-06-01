@@ -58,7 +58,9 @@ def run_list(args: argparse.Namespace) -> int:
         if isinstance(taxonomy_result, Taxonomy):
             taxonomy = taxonomy_result
         else:
-            print(f"Warning: Could not load taxonomy '{args.taxonomy}': {taxonomy_result.message}")
+            print(
+                f"Warning: Could not load taxonomy '{args.taxonomy}': {taxonomy_result.message}"
+            )
 
     # Filter by group path if specified (requires taxonomy)
     if args.group and taxonomy:
