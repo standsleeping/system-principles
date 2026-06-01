@@ -1,7 +1,7 @@
 ---
 id: PADDING_IS_INSET_ONLY
 title: "Padding is Inset Only."
-essence: "Padding represents a box's uniform inset and is square on every element. Asymmetric concerns — horizontal breathing around inline text, vertical rhythm between flow children, edge-heavy emphasis — live in the property that owns the asymmetric concern: min-width/min-height for control sizing, gap for inter-element rhythm, margin for layout."
+essence: "Padding represents a box's uniform inset and is square on every element. Asymmetric concerns — horizontal breathing around inline text, vertical rhythm between flow children, edge-heavy emphasis — live in the property that owns the asymmetric concern: min-width/min-height for control sizing, gap for inter-element rhythm, a structural sibling spacer for explicit gaps between unrelated regions (see NEVER_MARGIN)."
 related: [SQUARE_PADDING_DEFAULT, CONTAINER_OWNS_INSET, ZERO_SIDE_PADDING_SMELL, SPACING_STRATEGY, CONTENT_DRIVES_SIZE]
 ---
 
@@ -9,7 +9,7 @@ Padding is the space between an element's border and its content — its *inset*
 
 - **Horizontal breathing room around inline text** is a content-sizing concern. A button "needs" wider than tall because Latin (and most proportional) text in a button has horizontal extent: letters cluster wider than they are tall, so a square-padded button with a 2-character label reads as cramped. That concern belongs in `min-width`: the button is square-padded around its content, and `min-width` sets the floor that makes short labels still feel clickable. The breathing comes from a sizing token, not from padding.
 - **Vertical rhythm between flow children** is a between-element concern. List rows, stack children, derivation steps need consistent vertical spacing without horizontal padding doubling up against the container's inset. That concern belongs in the parent's `gap`: children carry zero (or square) padding; the parent's flex/grid `gap` orchestrates the flow.
-- **Top-heavy or bottom-heavy emphasis** is a layout concern. A section header that wants tight bottom and generous top is asking for vertical breathing *above* it, not asymmetric padding *inside* it. That concern belongs in `margin-top`.
+- **Top-heavy or bottom-heavy emphasis** is a layout concern. A section header that wants tight bottom and generous top is asking for vertical breathing *above* it, not asymmetric padding *inside* it. That concern belongs in the parent's `gap` (and, when the gap above the header differs from the regular section rhythm, in a structural sibling spacer). See `NEVER_MARGIN`.
 
 Conflate these into `padding` and every asymmetric-padding line becomes a re-litigation: which role is this, does it qualify for the exception, did the author classify it right? Separate them and the role table collapses to one column.
 
@@ -70,14 +70,32 @@ Both container and child have square (or zero) padding. The vertical rhythm has 
   padding: var(--spacing-lg) var(--spacing-md) var(--spacing-xs);
 }
 
-/* ✅ Square inset; margin for layout rhythm */
+/* ✅ Square inset on the header; rhythm on the parent */
+.section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
 .section-header {
   padding: var(--spacing-md);
-  margin-top: var(--spacing-lg);
 }
 ```
 
-`margin-top` *means* "space above this element"; `padding-top` does not.
+The parent owns the rhythm; the header owns only its inset. When a particular header needs more space above it than the regular section rhythm provides, insert a structural sibling spacer:
+
+```html
+<div class="section-stack">
+  <section class="content">…</section>
+  <div class="spacer" aria-hidden="true"></div>
+  <section class="section-header">Next section</section>
+</div>
+```
+
+```css
+.spacer { height: var(--spacing-2xl); }
+```
+
+The spacer is a DOM-visible artifact; the rhythm is in `gap`. Both name the concern. See `NEVER_MARGIN`.
 
 ## Why this matters
 
@@ -90,7 +108,7 @@ When asymmetric padding is permitted "only at inline scale" or "only on flow chi
 ## Costs
 
 - **A `--control-min-width-*` token scale becomes load-bearing.** Picking sizes badly produces buttons that are always-too-wide or always-too-narrow. The scale belongs alongside the spacing tokens (DK ships `sm` / `md` / `lg` variants).
-- **Flow-child rhythm requires a flex/grid parent.** Plain block flow has no `gap`; the rhythm there has to live in `margin-top` instead. Most modern layouts already use flex/grid, but legacy block stacks need conversion.
+- **Flow-child rhythm requires a flex/grid parent.** Plain block flow has no `gap`. Under `NEVER_MARGIN`, legacy block stacks must convert to flex/grid (or insert structural sibling spacers); `margin-top` is no longer an option. Most modern layouts already use flex/grid; the conversion cost is borne by the migration.
 - **Existing codebases need migration.** A scanner for non-1-value `padding` shorthands (e.g. `scan-asymmetric-spacing.py`) surfaces every site to revisit. The migration is mechanical but broad.
 
 ## Relationship to `SQUARE_PADDING_DEFAULT`

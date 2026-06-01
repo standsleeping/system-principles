@@ -1,7 +1,7 @@
 ---
 id: SQUARE_PADDING_DEFAULT
 title: "Square Padding Default."
-essence: "Padding is one token on all four sides on every element. The role classification picks which token; it does not pick the shape. Asymmetric concerns — text-shape compensation, flow rhythm, top-vs-bottom emphasis — live in min-width, gap, or margin, not in padding (see PADDING_IS_INSET_ONLY)."
+essence: "Padding is one token on all four sides on every element. The role classification picks which token; it does not pick the shape. Asymmetric concerns — text-shape compensation, flow rhythm, top-vs-bottom emphasis — live in min-width, gap, or a structural sibling spacer, not in padding (see PADDING_IS_INSET_ONLY and NEVER_MARGIN)."
 related: [PADDING_IS_INSET_ONLY, PEER_EDGE_RESERVATION, ZERO_SIDE_PADDING_SMELL, CONTAINER_OWNS_INSET, RESET_FIRST, SPACING_STRATEGY]
 ---
 
@@ -9,7 +9,7 @@ Most CSS habits encourage asymmetric padding — `padding: 8px 16px` on a button
 
 The rule reverses the reflex: every `padding` declaration has one token applied to all four sides. The role classification determines *which* token; it does not determine the shape. Two- and three-value `padding` shorthands are not used.
 
-Concerns that look like they need asymmetric padding — horizontal breathing for inline text, vertical rhythm between flow children, extra space above a section header — are not padding concerns. They live in the property that owns the asymmetric concern: `min-width` for text-shape compensation, parent `gap` for inter-element rhythm, `margin` for layout. See `PADDING_IS_INSET_ONLY` for the responsibility separation.
+Concerns that look like they need asymmetric padding — horizontal breathing for inline text, vertical rhythm between flow children, extra space above a section header — are not padding concerns. They live in the property that owns the asymmetric concern: `min-width` for text-shape compensation, parent `gap` for inter-element rhythm, a structural sibling spacer for explicit gaps between unrelated regions. See `PADDING_IS_INSET_ONLY` for the responsibility separation, and `NEVER_MARGIN` for why margin is excluded.
 
 ## Why asymmetric is the wrong default
 
@@ -65,9 +65,9 @@ Two cases used to be considered legitimate asymmetric padding: inline-scale cont
 
 The visual result matches the asymmetric originals at typical content sizes; the failure modes get better (short labels stop looking cramped, the rhythm stays consistent when row contents grow). See `PADDING_IS_INSET_ONLY` for the full responsibility separation and additional worked examples.
 
-## Margin handles what padding can't
+## Gap handles what padding can't
 
-If symmetric padding doesn't give the visual rhythm an element needs — e.g. a section header that wants tight bottom and generous top — the asymmetry belongs in *margin*, not padding. Margin is a layout concern (this element's relationship to its neighbours); padding is a box concern (this element's content-to-edge spacing). Conflating them is what produces three-value padding declarations like `padding: lg lg xs`.
+If symmetric padding doesn't give the visual rhythm an element needs — e.g. a section header that wants tight bottom and generous top — the asymmetry belongs in the parent's `gap` (and, when the gap above the header differs from the regular section rhythm, in a structural sibling spacer), not in padding. Gap is a between-siblings concern (the rhythm of the flow); padding is a box concern (this element's content-to-edge spacing). Conflating them is what produces three-value padding declarations like `padding: lg lg xs`. See `NEVER_MARGIN` for why margin is no longer the destination.
 
 ```css
 /* ❌ Asymmetric padding to push items below away */
@@ -75,10 +75,14 @@ If symmetric padding doesn't give the visual rhythm an element needs — e.g. a 
   padding: var(--spacing-lg) var(--spacing-md) var(--spacing-xs);
 }
 
-/* ✅ Square padding + margin for layout rhythm */
+/* ✅ Square padding on the header; rhythm on the parent */
+.section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
 .section-header {
   padding: var(--spacing-md);
-  margin-top: var(--spacing-lg);
 }
 ```
 
