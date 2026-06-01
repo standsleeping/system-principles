@@ -2,6 +2,7 @@
 id: LABEL_CONTAINMENT
 title: "Label Containment."
 essence: "If an element has a text label, its container must be wide enough to display the full label without clipping or overflow."
+related: [ELASTIC_CONTENT_NEEDS_GIVE]
 ---
 
 A container that shows a text label is responsible for sizing itself to contain that label fully. Truncated or clipped labels are a sizing bug, not a content problem.
