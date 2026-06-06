@@ -25,7 +25,7 @@ The bug is silent because each strip compiles in isolation. Four common ways the
 
 2. **Each strip picks its own token.** `.topbar` uses `--layout-topbar-height`, `.aside-label` uses `--layout-label-height`. Both are tokens, both are deliberate, but no contract ties them together — someone tunes one and the rail steps. The same trap applies to footer rails: `.main-footer { height: var(--layout-status-height) }` and `.aside-footer { height: var(--layout-toolbar-height) }` will drift independently.
 
-3. **A strip is nested inside its column's scroll container.** Even with `SCROLLBAR_HIDDEN_BY_DEFAULT` in force (no gutter to cut into the strip), nesting a rail strip inside a scroll container couples its visibility to the scroll position — a `position: sticky` strip can lag, jitter, or fall out of view at certain scroll positions. Rail strips go *outside* the scroll context, as siblings of the scroll container, not as children of it.
+3. **A strip is nested inside its column's scroll container.** Even under `NATIVE_SCROLLBAR`, nesting a rail strip inside a scroll container couples its visibility to the scroll position — a `position: sticky` strip can lag, jitter, or fall out of view at certain scroll positions. Rail strips go *outside* the scroll context, as siblings of the scroll container, not as children of it.
 
 4. **The strip belongs to a surface that enters the layout later — an overlay, flyout, drawer, or modal header bar.** It compiles in isolation from the page chrome, so no one notices the height drift until both surfaces are visible at once. The same fix applies: bind to the rail's token. The rail is defined by what the eye sees when the overlay is open, not by DOM ancestry or stacking context.
 

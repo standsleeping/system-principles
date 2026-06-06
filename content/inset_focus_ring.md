@@ -2,7 +2,7 @@
 id: INSET_FOCUS_RING
 title: "Inset the focus ring."
 essence: "Draw the focus ring inside the element with a negative outline-offset whenever an outwardly offset ring would be clipped by an ancestor or collide with a sibling — list items, tabs, breadcrumbs, and any element inside a scroll or overflow-hidden container."
-related: [FOCUS_STATES, SCROLL_CONTAINMENT, SCROLLBAR_HIDDEN_BY_DEFAULT]
+related: [FOCUS_STATES, SCROLL_CONTAINMENT, NATIVE_SCROLLBAR]
 ---
 
 The default focus ring (`outline: 2px solid ...; outline-offset: 2px`) draws 2px outside the element's border box. That works for elements that float in normal flow with margin around them. It breaks in two situations: when the element sits inside a clipped ancestor (the ring is cut off), and when the element is a sibling in a tight list or chrome strip (the ring overlaps neighbors).

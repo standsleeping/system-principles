@@ -2,7 +2,7 @@
 id: SCROLL_CONTAINMENT
 title: "Scroll Containment."
 essence: "Vertical scroll is allowed in exactly two layout slots: sidebars and the center content area. Horizontal scroll is allowed only inside individual content elements (a wide table, a code block) within the center — never at any layout container, including the center itself. Every container above a scrolling leaf clips with `overflow: hidden`."
-related: [VIEWPORT_LOCKED, NO_PAGE_SCROLL, EDGE_ALWAYS_CHROME, INSET_VS_FLUSH_LAYOUT, SCROLLBAR_HIDDEN_BY_DEFAULT, ELASTIC_CONTENT_NEEDS_GIVE]
+related: [VIEWPORT_LOCKED, NO_PAGE_SCROLL, EDGE_ALWAYS_CHROME, INSET_VS_FLUSH_LAYOUT, NATIVE_SCROLLBAR, ELASTIC_CONTENT_NEEDS_GIVE]
 ---
 
 Scrolling is contained within an explicit allowlist of slots, never at the layout level. The shell clips; only specific leaves scroll, and the leaves are different for the two axes.
@@ -74,4 +74,4 @@ The static arm prevents the common authoring mistake; the runtime arm catches ov
 - `VIEWPORT_LOCKED` is the foundation: the root never scrolls.
 - `EDGE_ALWAYS_CHROME` works downstream: chrome doesn't scroll, so it can own its edge slot stably.
 - `INSET_VS_FLUSH_LAYOUT` chooses how chrome and content relate; the scrollbar treatment is uniform across both modes.
-- `SCROLLBAR_HIDDEN_BY_DEFAULT` defines how every scroll container in this allowlist expresses scrolling: the bar is never painted, so the contract is structural (where scroll lives) without any visible-bar consequences.
+- `NATIVE_SCROLLBAR` defines how every scroll container in this allowlist expresses scrolling: the platform paints its own bar, so the contract here stays structural (where scroll lives).

@@ -23,7 +23,7 @@ In a flush layout, content surfaces are *items* in a list: they touch the chrome
 Inset/flush first appeared as a card-level pattern (Apple's `insetGrouped` vs `plain`). But the same asymmetry-of-ownership operates at every nested level — the layout shell, the regions inside the chrome, the surfaces inside those regions, the items inside those surfaces. Each level independently picks inset or flush, and the choice cascades:
 
 - **Background tokens.** An inset content region needs a recessed background that makes the gutter visible against the chrome. A flush content region shares the chrome's background and relies on the rule to mark transitions.
-- **Scrollbar treatment.** Both modes hide the bar (see `SCROLLBAR_HIDDEN_BY_DEFAULT`); a visible bar would break the inset's gutter symmetry or the flush column's edge continuity in different but equally visible ways. The single hidden-bar config sidesteps the entire decision.
+- **Scrollbar treatment.** Both modes use the native bar (see `NATIVE_SCROLLBAR`); neither hides, tints, nor reserves a gutter for it. On overlay-scrollbar platforms the bar floats and neither mode pays a cost; on classic platforms the bar takes its width at the container's inline-end edge, the accepted platform cost in both modes.
 - **Selected-item indicators.** Inset cards indicate active state with a border-color shift on all four sides plus a fill. Flush items indicate active state with a single-side border (left for vertical lists, bottom for horizontal) plus a full-bleed fill.
 - **Padding role.** Inset cards are *containers* (square padding, larger token range). Flush items are *flow children* (square or zero padding; rhythm via the parent's `gap`).
 
@@ -43,5 +43,5 @@ A single application can compose both — an inset layout in one pane, a flush l
 - `VIEWPORT_LOCKED` provides the foundation: chrome is flush because the viewport is the boundary.
 - `BOUNDARY_OWNERSHIP` extends downward: in an inset layout, each card owns four boundaries; in a flush layout, the chrome and the rules own the boundaries.
 - `FIXED_FLEXIBLE_REGIONS` describes how chrome claims its space; this principle describes what happens *inside* the flexible region.
-- `SCROLL_CONTAINMENT` defines where scroll is allowed; `SCROLLBAR_HIDDEN_BY_DEFAULT` defines how those containers express it. This principle is independent of both — it governs the chrome/content boundary.
+- `SCROLL_CONTAINMENT` defines where scroll is allowed; `NATIVE_SCROLLBAR` defines how those containers express it. This principle is independent of both — it governs the chrome/content boundary.
 - `PADDING_IS_INSET_ONLY` becomes mode-dependent: in inset layouts, each card carries square container padding plus the field's gutter; in flush layouts, items carry square (or zero) padding while the chrome (and the container row above the item) carries the inset.
