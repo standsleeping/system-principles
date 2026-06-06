@@ -32,16 +32,16 @@ If an action of the concept never appears in any scenario, either the OP is inco
 
 1. **Anchor on the purpose.** The OP must end with that need met. If it ends anywhere else, it is demonstrating something other than this concept.
 2. **List the concept's actions** — a first pass; Stage 4 formalizes them. The OP is partly how you discover them.
-3. **Order them into the run a user would actually perform**, with concrete, illustrative specifics — "the knob halfway, *say*"; a named actor doing a named thing. Write "Maya sets the darkness to 4," not "the user configures the setting."
+3. **Order them into the run the User would actually perform**, with concrete, illustrative specifics — "the knob halfway, *say*"; the actor performing a named thing with named values. The actor is always the generic token **User** (never an invented personal name like "Maya"). Concreteness comes from the actions and the values, not from a personal name. Write "User sets the darkness to 4," not "the user configures the setting" (too vague) and not "Maya sets the darkness to 4" (invented name).
 4. **Let the purpose result from the chain**, visibly — the last beat is the need met *as a consequence of* the steps, not an assertion appended to them.
 5. **Add scenarios until every characteristic action has appeared**, each fulfilling its function in combination with the others.
-6. **Demonstration, not description.** Could the reader act it out? If you have written "after X, the system does Y, so that Z" — a schema with no actor and no specifics — you have described the pattern, not demonstrated the concept. Rewrite it with someone in it.
+6. **Demonstration, not description.** Could the reader act it out? If you have written "after X, the system does Y, so that Z" — a schema with no actor and no specifics — you have described the pattern, not demonstrated the concept. Rewrite it with the User in it, performing concrete actions on concrete values.
 
 ## Form
 
-`After [actor does action₁], [action₂], … [actionₙ] — [the purpose is met].`
+`After [User does action₁], [action₂], … [actionₙ] — [the purpose is met].`
 
-Keep it short; Jackson's toaster OP is two sentences. Minimal is correct. *Schematic* is not — aim for minimal-and-concrete, never minimal-and-abstract. Brevity comes from cutting detail, not from generalizing away the actor and the values.
+Keep it short; Jackson's toaster OP is two sentences. Minimal is correct. *Schematic* is not — aim for minimal-and-concrete, never minimal-and-abstract. Brevity comes from cutting detail, not from generalizing away the User's concrete actions and values.
 
 ## OP vs. use case
 
@@ -64,5 +64,5 @@ Writing the OP names the actions and touches the state informally. Once Stage 4 
 - Does the chain of actions visibly produce the purpose — is the need met *because of* the steps?
 - Does every characteristic action appear in some scenario, doing its job in combination with the others?
 - Could someone who has never seen the system understand the concept from the narrative alone — and act it out?
-- Is it a demonstration (a named actor, concrete specifics) rather than a schematic restatement of the pattern?
+- Is it a demonstration (the generic **User** actor, concrete specifics) rather than a schematic restatement of the pattern?
 - If you could not write a compelling OP: is this actually a concept? A mechanism, a fragment, or two concepts conflated often cannot be given one (p. 57).

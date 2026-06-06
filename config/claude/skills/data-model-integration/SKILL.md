@@ -48,6 +48,16 @@ IntegratedRelation {
 }
 ```
 
+## Persistence
+
+The `IntegratedDataModel` is a first-class concept artifact. Export it to
+`concepts/integrated-data-model.json` with a `$schema` field; it validates
+against `integrated-data-model.schema.json` (Level 1) and against two
+cross-artifact rules at Level 2 (covers all concepts, sources are known
+concepts), run by `/concept-validation`. It is optional: a project that stops
+before implementation prep simply has no `integrated-data-model.json`, and the
+validator reports the check as skipped.
+
 ## Validation
 
 - Does every concept's `State` map cleanly into the integrated model?

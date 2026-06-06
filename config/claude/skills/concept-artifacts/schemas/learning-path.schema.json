@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LearningPath",
+  "description": "Output of concept-ordering. A topological introduction order over the dependency graph, grouped into tiers, proving no concept is introduced before the ones it assumes.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "primitives": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Foundational concepts: dependency-DAG roots (in-degree zero), learned first."
+    },
+    "tiers": {
+      "type": "array",
+      "description": "Ordered ranks; tier n may assume only concepts in tiers < n.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "integer", "minimum": 0 },
+          "concepts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "concept": { "type": "string" },
+                "assumes": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "uniqueItems": true,
+                  "description": "Direct prerequisites; each must appear in an earlier tier."
+                },
+                "rationale": {
+                  "type": "string",
+                  "description": "The one new idea this concept adds atop its prerequisites."
+                }
+              },
+              "required": ["concept", "assumes", "rationale"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["level", "concepts"],
+        "additionalProperties": false
+      }
+    },
+    "no_forward_references": {
+      "type": "boolean",
+      "description": "True when every concept's assumes resolve to a strictly earlier tier."
+    },
+    "cycles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Concept names in any dependency cycle found; empty when the graph is acyclic."
+    },
+    "tie_breaks": {
+      "type": "string",
+      "description": "How ambiguous orderings were resolved (e.g. fewer prerequisites first, then highest out-degree)."
+    }
+  },
+  "required": ["primitives", "tiers", "no_forward_references", "cycles"],
+  "additionalProperties": false
+}

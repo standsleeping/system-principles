@@ -18,11 +18,12 @@
         "type": "object",
         "properties": {
           "channel": {
-            "enum": ["web-ui", "cli", "mcp", "api"],
-            "description": "The channel through which the concept surfaces."
+            "type": "string",
+            "description": "The channel key through which the concept surfaces. Open string; when a channels.json registry is present, must be a registered key (e.g. web-ui, cli, mcp, api, http-rest, webhook)."
           },
           "actions": {
             "type": "array",
+            "description": "Affordances: how each canonical concept action is invoked on this channel. Each entry references one action and describes its channel-specific projection.",
             "items": {
               "type": "object",
               "properties": {
@@ -32,7 +33,7 @@
                 },
                 "element": {
                   "type": "string",
-                  "description": "What the user sees or types (button, command, form, file edit)."
+                  "description": "The affordance: what the user sees or types (button, command, tool descriptor, route, slash command)."
                 },
                 "label": {
                   "type": "string",
@@ -40,6 +41,25 @@
                 }
               },
               "required": ["action", "element", "label"],
+              "additionalProperties": false
+            }
+          },
+          "exclusions": {
+            "type": "array",
+            "description": "Actions intentionally not surfaced on this channel, each with a reason. Satisfies the coverage rule for an action that has no sensible affordance here.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "description": "Action name (must match an action in the concept definition)."
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why this action is not surfaced on this channel (e.g. 'interactive hover gesture; no CLI analogue')."
+                }
+              },
+              "required": ["action", "reason"],
               "additionalProperties": false
             }
           },

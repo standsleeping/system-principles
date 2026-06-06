@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IntegratedDataModel",
+  "description": "Output of data-model-integration. The merged global data model: concept micromodels unified on shared entities, with relations kept concept-specific.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Entity name; shared across the source concepts that contribute it."
+          },
+          "source_concepts": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true,
+            "description": "Concepts whose micromodels contribute this entity. May be empty for an entity synthesized during integration (owned by no single concept)."
+          },
+          "fields": {
+            "type": "array",
+            "description": "The entity's merged fields (StateComponent shape). May be empty for a pure shared/reference entity.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["name", "type", "description"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["name", "source_concepts", "fields"],
+        "additionalProperties": false
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "source_concept": {
+            "type": "string",
+            "description": "The concept this relation belongs to; relations are not merged across concepts."
+          },
+          "from_entity": { "type": "string" },
+          "to_entity": { "type": "string" },
+          "cardinality": {
+            "type": "string",
+            "description": "Multiplicity on the codomain (e.g. one, lone, set, seq)."
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional prose describing the relation."
+          }
+        },
+        "required": ["name", "source_concept", "from_entity", "to_entity", "cardinality"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["entities", "relations"],
+  "additionalProperties": true
+}

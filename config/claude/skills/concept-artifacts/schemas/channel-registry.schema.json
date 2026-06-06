@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ChannelRegistry",
+  "description": "Registers the channel kinds a system surfaces concepts through. A channel is a named bundle of transport, encoding, and surface axes plus direction/sync/auth properties, referenced by key from ConceptManifest surfaces.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Channel identifier referenced by ConceptManifest surfaces (e.g. web-ui, cli, http-rest, slack-bot)."
+          },
+          "transport": {
+            "type": "string",
+            "description": "How bytes move (e.g. HTTP, WebSocket, gRPC, IPC, AMQP, local)."
+          },
+          "encoding": {
+            "type": "string",
+            "description": "Wire format (e.g. JSON, HTML, protobuf, plaintext)."
+          },
+          "surface": {
+            "type": "string",
+            "description": "How the action is discovered and invoked (e.g. button, slash-command, tool-descriptor, OpenAPI route, command-palette)."
+          },
+          "direction": {
+            "enum": ["caller->system", "system->caller", "bi"],
+            "description": "Who initiates: caller->system (most), system->caller (emissions), or bi-directional."
+          },
+          "sync": {
+            "enum": ["sync", "async", "streaming"],
+            "description": "Interaction synchrony."
+          },
+          "auth_model": {
+            "type": "string",
+            "description": "How the channel authenticates (e.g. session, bearer, capability, OAuth, none)."
+          }
+        },
+        "required": ["key", "transport", "encoding", "surface", "direction", "sync", "auth_model"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["channels"],
+  "additionalProperties": false
+}

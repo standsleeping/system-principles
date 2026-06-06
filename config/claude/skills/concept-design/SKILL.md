@@ -64,6 +64,14 @@ Run stages 1–6 for each concept:
 | 5 | `/concept-state` | `State` — the local micromodel of data |
 | 6 | `/concept-assembly` | `ConceptDefinition` — all parts composed |
 
+**Artifact visibility.** Stages 1–5 do not persist as standalone files. Stage 6
+(`/concept-assembly`) composes the seed, purpose, operational principle, actions,
+and state into the single `ConceptDefinition` at `concepts/<name>.json`, and
+`concept-definition.schema.json` embeds all five sub-artifacts via `$ref`. So the
+presence of a concept's file attests stages 1–6 *as a bundle*; an individual
+Part-1 stage leaving no separate artifact is by design, not an omission. (Stage
+14 validation is likewise transient by design — a report, not a file.)
+
 ### Part 1B: Per-Spec Definition (post-demotion only)
 
 For each concept demoted at Stage 9, run a single combined assembly to convert the demotion into a SpecDefinition:
@@ -84,7 +92,7 @@ Run stage 7 for each concept, once you know the target channels:
 
 ### Part 3: Concept Composition
 
-Run stages 8–10 across the full set of concepts:
+Run stages 8–12 across the full set of concepts:
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
@@ -92,6 +100,11 @@ Run stages 8–10 across the full set of concepts:
 | 9 | `/coherence-analysis` | `CoherenceAssessment` + `DesignCheck` + optional `Demotion[]` (concept → spec) |
 | 10 | `/genericity-review` | `GenericityAssessment` per concept and per spec |
 | 11 | `/challenge-testing` | `ChallengeAssessment` — taxonomy resilience against externally sourced scenarios |
+| 12 | `/concept-ordering` | `LearningPath` — topological introduction order (primitives, tiers, assumed-prior per concept); proves no forward references |
+
+Stage 12 consumes the dependency graph from Stage 8 and the **settled** concept
+set (after Stage 9 demotions and Stage 10 collapses), so it runs last in this
+part. It is re-runnable: re-run whenever the set or its dependencies change.
 
 ### Part 4: Artifact Organization and Validation
 
@@ -99,8 +112,8 @@ Run after composition (or after implementation) to capture design as data and ve
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 12 | `/concept-artifacts` | `concepts/` directory — organized JSON files (concept definitions and spec definitions) |
-| 13 | `/concept-validation` | Validation report — schema, cross-artifact, and codebase checks (concepts and specs) |
+| 13 | `/concept-artifacts` | `concepts/` directory — organized JSON files (concept definitions and spec definitions) |
+| 14 | `/concept-validation` | Validation report — schema, cross-artifact, and codebase checks (concepts and specs) |
 
 These stages are re-runnable checkpoints. Run `/concept-validation` any time artifacts or implementation change.
 
@@ -108,19 +121,32 @@ These stages are re-runnable checkpoints. Run `/concept-validation` any time art
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 14 | `/data-model-integration` | `IntegratedDataModel` — merged micromodels into a global data model |
-| 15 | `/concept-implementation` | Code modules — concepts translated to module boundaries |
+| 15 | `/data-model-integration` | `IntegratedDataModel` — merged micromodels into a global data model (persisted to `concepts/integrated-data-model.json`) |
+| 16 | `/concept-implementation` | Code modules — concepts translated to module boundaries |
+
+## Persistence protocol
+
+The chain persists incrementally so a run is pausable, resumable, and buildable in pieces. Disk is canonical; the conversation is the editor.
+
+**Persist on approval.** When a stage's output is approved (the pacing pause above), write its artifact immediately — do not defer writes to Stage 13.
+
+**Per-concept stages (1–6) accrete one file.** Stage 1 writes `concepts/<name>.json` carrying just `seed`, referencing `concept-definition.partial.schema.json` with `draft: true`. Stages 2–5 add `purpose`, `operational_principle`, `actions`, `state` to that same file. Stage 6 (`concept-assembly`) completes it: switch its `$schema` to `concept-definition.schema.json` and drop `draft`. Progress for a concept = which sub-fields its file carries; a non-draft file = done through Stage 6.
+
+**Composition stages (8–15) write their own standalone files** when they run (`dependency-graph.json`, `coherence.json`, `learning-path.json`, `integrated-data-model.json`, `surfaces/<name>.json`, …). Stage 13 (`concept-artifacts`) is therefore an **organizer + completeness/staleness checkpoint**, not the first writer.
+
+**Resume** by reading `concepts/`: drafts show which concepts are mid-definition; absent composition files show which later stages have not run; `concept-validation` Level 3 (upstream-timestamp staleness) shows which existing artifacts an upstream edit left out of date and must be re-run. There is no separate status ledger — the artifacts are the progress.
 
 ## How to use this workflow
 
 You don't have to run every stage every time. Common entry points:
 
 - **Greenfield design:** Start at stage 1, work through sequentially.
-- **Existing system audit:** Start at stage 1 with `source: "existing"`, then jump to stages 8–11 to assess composition and resilience.
+- **Existing system audit:** Start at stage 1 with `source: "existing"`, then jump to stages 8–12 to assess composition, resilience, and introduction order.
 - **Single concept deepening:** Enter at whichever stage the concept is missing (e.g., it has a name but no formal purpose — start at stage 2).
 - **Surface audit:** Jump to stage 7 to check whether concepts are properly surfaced to users.
 - **Resilience check:** Jump to stage 11 to challenge an existing taxonomy with new scenarios.
-- **Validation checkpoint:** Run stages 12–13 to organize artifacts and verify consistency.
+- **Onboarding / reading order:** Jump to stage 12 (needs a `DependencyGraph` from stage 8) to derive the order a newcomer should pick up the concepts.
+- **Validation checkpoint:** Run stages 13–14 to organize artifacts and verify consistency.
 
 ## Artifact flow
 
@@ -145,6 +171,9 @@ ConceptSeed ──► Purpose ──► OperationalPrinciple ──► Action[] 
                     │     (per demotion)         │              │
                     │           │                │              │
                     └───────────┴────────────────┴──────────────┘
+                                    │
+                             LearningPath
+                       (topological intro order)
                                     │
                           Concept Artifacts
                        (concepts/ + specs/)

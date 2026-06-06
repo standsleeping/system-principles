@@ -25,6 +25,22 @@
       "description": {
         "type": "string",
         "description": "Optional prose description when signature/requires/effects are insufficient."
+      },
+      "streaming": {
+        "type": "boolean",
+        "description": "Optional trait. The action yields progressive output (tokens, chunks) before a final value. Channel-portable: SSE in web-ui, chunked over HTTP, progressive print in CLI."
+      },
+      "async": {
+        "type": "boolean",
+        "description": "Optional trait. The action returns a job handle rather than a result; completion arrives later. Required shape for webhook/cron/event-bus channels."
+      },
+      "idempotent": {
+        "type": "boolean",
+        "description": "Optional trait. Re-running with the same inputs is safe (no additional effect). Relevant to HTTP idempotency keys, event delivery, CLI re-run safety."
+      },
+      "requires_capability": {
+        "type": ["string", "null"],
+        "description": "Optional trait. The capability/authorization a caller must hold to invoke the action. Null or absent when no special capability is required."
       }
     },
     "required": ["name", "signature", "requires", "effects"],

@@ -18,7 +18,7 @@ Organize the outputs of the concept design workflow into a well-structured proje
 1. Create a `concepts/` directory in the project root.
 2. For each concept, export its `ConceptDefinition` as a JSON file under `concepts/`.
 3. For each spec, export its `SpecDefinition` as a JSON file under `concepts/specs/`.
-4. Export composition artifacts (dependency graph, coherence assessment, including any `Demotion` entries).
+4. Export composition artifacts (dependency graph, coherence assessment including any `Demotion` entries, and the learning path).
 5. Run schema validation on each file.
 6. Run cross-artifact linting to verify consistency.
 
@@ -30,8 +30,11 @@ concepts/
   specs/
     <spec-name>.json          # SpecDefinition (one per spec)
   dependency-graph.json       # DependencyGraph (covers concepts and specs)
+  channels.json               # ChannelRegistry (optional; channel kinds for surfaces)
   coherence.json              # CoherenceAssessment (with optional demotions)
   challenges.json             # ChallengeAssessment
+  learning-path.json          # LearningPath (topological introduction order)
+  integrated-data-model.json  # IntegratedDataModel (Stage 15; present once produced)
 ```
 
 Optional subdirectories for larger systems:
@@ -59,12 +62,16 @@ JSON Schema files for every artifact type live in the `schemas/` subdirectory of
 | `actions.schema.json` | Action[] | concept-actions |
 | `state.schema.json` | State | concept-state |
 | `concept-definition.schema.json` | ConceptDefinition | concept-assembly |
+| `concept-definition.partial.schema.json` | ConceptDefinition (draft, accreting) | stages 1–5 (incremental) |
 | `spec-definition.schema.json` | SpecDefinition | spec-definition |
 | `dependency-graph.schema.json` | DependencyGraph | dependency-mapping |
 | `coherence-assessment.schema.json` | CoherenceAssessment (with optional Demotion[]) | coherence-analysis |
 | `concept-manifest.schema.json` | ConceptManifest | surface-planning |
+| `channel-registry.schema.json` | ChannelRegistry | surface-planning |
 | `genericity-assessment.schema.json` | GenericityAssessment | genericity-review |
 | `challenge-assessment.schema.json` | ChallengeAssessment | challenge-testing |
+| `learning-path.schema.json` | LearningPath | concept-ordering |
+| `integrated-data-model.schema.json` | IntegratedDataModel | data-model-integration |
 
 ## Linting Rules
 
@@ -97,12 +104,35 @@ These rules verify that artifacts reference each other correctly. They require l
 | **Challenges cover all** | challenges.concepts matches dependency-graph.concepts | challenges + dependency-graph |
 | **Challenge concepts exist** | Every concepts_involved entry in challenges.scenarios is in dependency-graph.concepts | challenges + dependency-graph |
 | **Challenge IDs unique** | No duplicate scenario.id within challenges.scenarios | challenges |
-| **Surface actions valid** | Every action in surface manifests exists in the concept's actions | manifests + definitions |
+| **Surface actions valid** | Every affordance (and exclusion) in surface manifests references an action that exists in the concept's actions | manifests + definitions |
 | **Surface state valid** | Every state component in surface manifests exists in the concept's state | manifests + definitions |
+| **Surface channels registered** | If `channels.json` exists, every surface's `channel` is a registered key | manifests + channels |
+| **Surface coverage** | For each surfaced channel, every concept action has an affordance or a documented exclusion | manifests + definitions |
+| **Learning path covers all** | Every concept in dependency-graph.concepts appears in the learning path (specs optional); no phantom nodes | learning-path + dependency-graph |
+| **Learning path assumes valid** | Every `assumes` target is a concept or spec in the dependency graph | learning-path + dependency-graph |
+| **Learning path no forward refs** | For every dependency edge, the dependent sits in a strictly later tier than what it depends on | learning-path + dependency-graph |
+| **Learning path primitives are roots** | Every `primitives` entry has no outgoing dependency (in-degree zero) | learning-path + dependency-graph |
+| **Integrated model covers all** | Every concept in dependency-graph.concepts appears as a `source_concept` in some entity or relation | integrated-data-model + dependency-graph |
+| **Integrated model sources valid** | Every `source_concept` named is a concept in the dependency graph | integrated-data-model + dependency-graph |
+
+### Level 3: Staleness (upstream timestamps)
+
+A derived artifact must be at least as new as every artifact it derives from. Catches an edit that leaves a downstream artifact out of date because its stage was never re-run. File-mtime based; skips any absent artifact.
+
+| Rule | Check |
+|------|-------|
+| **dependency-graph fresh** | `dependency-graph.json` is not older than any concept/spec definition |
+| **assessments fresh** | `coherence.json`, `challenges.json`, `learning-path.json` are not older than `dependency-graph.json` |
+| **integrated model fresh** | `integrated-data-model.json` is not older than any definition or the dependency graph |
+| **per-concept views fresh** | each `surfaces/<name>.json` and `genericity/<name>.json` is not older than its concept definition |
+
+### Draft (accreting) definitions
+
+While a concept is being built, `concepts/<name>.json` references `concept-definition.partial.schema.json` and may carry `draft: true` with only `seed` required (Stages 1–5 add fields incrementally). `concept-assembly` (Stage 6) completes it: switch its `$schema` to `concept-definition.schema.json` and drop `draft`. A `concepts/` whose files all reference the full schema (no drafts) is fully defined through Stage 6.
 
 ## Artifact
 
-This skill produces: a `concepts/` directory containing validated JSON files, organized per the directory structure above.
+This skill produces: a `concepts/` directory containing validated JSON files, organized per the directory structure above. With incremental persistence, this skill no longer first-writes those files; stages persist their own artifacts as they complete, and this stage **organizes and runs the completeness/staleness checks** over them.
 
 ## Validation
 

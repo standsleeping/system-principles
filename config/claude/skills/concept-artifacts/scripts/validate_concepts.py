@@ -270,12 +270,271 @@ def level_2_cross_artifact(concepts_dir: Path, schemas_dir: Path) -> int:
     else:
         print_result("Challenges (skipped — no challenges.json)", True)
 
+    lp_path = concepts_dir / "learning-path.json"
+    learning_path = load_json(lp_path) if lp_path.exists() else None
+    if learning_path is not None:
+        all_nodes = graph_concepts | graph_specs
+        tier_of: dict[str, int] = {}
+        assumes_all: set[str] = set()
+        path_nodes: set[str] = set()
+        for tier_obj in as_list(learning_path["tiers"]):
+            tier = as_dict(tier_obj)
+            level = int(as_str(tier["level"])) if not isinstance(
+                tier["level"], int
+            ) else tier["level"]
+            for co_obj in as_list(tier["concepts"]):
+                co = as_dict(co_obj)
+                name = as_str(co["concept"])
+                tier_of[name] = level
+                path_nodes.add(name)
+                assumes_all |= {as_str(a) for a in as_list(co.get("assumes", []))}
+
+        # Covers all concepts (specs optional); no phantom nodes.
+        missing = graph_concepts - path_nodes
+        unknown = path_nodes - all_nodes
+        passed = not missing and not unknown
+        print_result(
+            "Learning path covers all concepts",
+            passed,
+            f"missing: {missing} unknown: {unknown}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        # Every assumes target is a known node.
+        bad_assumes = assumes_all - all_nodes
+        passed = len(bad_assumes) == 0
+        print_result(
+            "Learning path assumes resolve to known nodes",
+            passed,
+            f"unknown: {bad_assumes}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        # No forward references: a dependent sits in a strictly later tier than
+        # what it depends on. The dependency graph is the source of truth.
+        violations: set[str] = set()
+        for dep_obj in as_list(dep_graph["dependencies"]):
+            dep = as_dict(dep_obj)
+            c = as_str(dep["concept"])
+            t = as_str(dep["depends_on"])
+            if c in tier_of and t in tier_of and tier_of[c] <= tier_of[t]:
+                violations.add(f"{c}@{tier_of[c]}<-{t}@{tier_of[t]}")
+        passed = len(violations) == 0
+        print_result(
+            "Learning path tiers respect dependencies (no forward references)",
+            passed,
+            f"violations: {violations}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        # Primitives are dependency roots (they depend on nothing).
+        dep_sources = {
+            as_str(as_dict(d)["concept"]) for d in as_list(dep_graph["dependencies"])
+        }
+        primitives = {as_str(p) for p in as_list(learning_path.get("primitives", []))}
+        non_roots = primitives & dep_sources
+        passed = len(non_roots) == 0
+        print_result(
+            "Learning path primitives are dependency roots",
+            passed,
+            f"non-roots: {non_roots}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+    else:
+        print_result("Learning path (skipped — no learning-path.json)", True)
+
+    idm_path = concepts_dir / "integrated-data-model.json"
+    idm = load_json(idm_path) if idm_path.exists() else None
+    if idm is not None:
+        sources: set[str] = set()
+        for ent_obj in as_list(idm["entities"]):
+            ent = as_dict(ent_obj)
+            sources |= {as_str(s) for s in as_list(ent["source_concepts"])}
+        for rel_obj in as_list(idm["relations"]):
+            sources.add(as_str(as_dict(rel_obj)["source_concept"]))
+
+        # Every concept's micromodel is represented in the merged model.
+        missing = graph_concepts - sources
+        passed = len(missing) == 0
+        print_result(
+            "Integrated model covers all concepts",
+            passed,
+            f"missing: {missing}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        # Every source concept named is a real concept (not a spec or typo).
+        unknown = sources - graph_concepts
+        passed = len(unknown) == 0
+        print_result(
+            "Integrated model sources are known concepts",
+            passed,
+            f"unknown: {unknown}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+    else:
+        print_result(
+            "Integrated data model (skipped — no integrated-data-model.json)", True
+        )
+
+    surfaces_dir = concepts_dir / "surfaces"
+    manifests = (
+        [load_json(p) for p in sorted(surfaces_dir.glob("*.json"))]
+        if surfaces_dir.is_dir()
+        else []
+    )
+    channels_path = concepts_dir / "channels.json"
+    channels = load_json(channels_path) if channels_path.exists() else None
+
+    if manifests:
+        actions_by_concept: dict[str, set[str]] = {}
+        state_by_concept: dict[str, set[str]] = {}
+        for cname, cdef in definitions.items():
+            actions_by_concept[cname] = {
+                as_str(as_dict(a)["name"]) for a in as_list(cdef.get("actions", []))
+            }
+            state_by_concept[cname] = {
+                as_str(as_dict(s)["name"]) for s in as_list(cdef.get("state", []))
+            }
+
+        registered: set[str] | None = None
+        if channels is not None:
+            registered = {
+                as_str(as_dict(c)["key"]) for c in as_list(channels["channels"])
+            }
+
+        bad_action_refs: set[str] = set()
+        bad_state_refs: set[str] = set()
+        unregistered: set[str] = set()
+        uncovered: set[str] = set()
+
+        for manifest in manifests:
+            concept = as_str(manifest["concept"])
+            concept_actions = actions_by_concept.get(concept, set())
+            concept_state = state_by_concept.get(concept, set())
+            for surf_obj in as_list(manifest["surfaces"]):
+                surf = as_dict(surf_obj)
+                channel = as_str(surf["channel"])
+                if registered is not None and channel not in registered:
+                    unregistered.add(f"{concept}:{channel}")
+                afforded = {as_str(as_dict(a)["action"]) for a in as_list(surf["actions"])}
+                excluded = {
+                    as_str(as_dict(e)["action"])
+                    for e in as_list(surf.get("exclusions", []))
+                }
+                for ref in afforded | excluded:
+                    if ref not in concept_actions:
+                        bad_action_refs.add(f"{concept}:{channel}:{ref}")
+                for s_obj in as_list(surf["state"]):
+                    comp = as_str(as_dict(s_obj)["component"])
+                    if comp not in concept_state:
+                        bad_state_refs.add(f"{concept}:{channel}:{comp}")
+                for missing in concept_actions - (afforded | excluded):
+                    uncovered.add(f"{concept}:{channel}:{missing}")
+
+        passed = len(bad_action_refs) == 0
+        print_result(
+            "Surface affordances reference real actions",
+            passed,
+            f"unknown: {bad_action_refs}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        passed = len(bad_state_refs) == 0
+        print_result(
+            "Surface state references real components",
+            passed,
+            f"unknown: {bad_state_refs}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+
+        if registered is not None:
+            passed = len(unregistered) == 0
+            print_result(
+                "Surface channels are registered in channels.json",
+                passed,
+                f"unregistered: {unregistered}" if not passed else "",
+            )
+            failures += 0 if passed else 1
+        else:
+            print_result(
+                "Surface channels registered (skipped — no channels.json)", True
+            )
+
+        passed = len(uncovered) == 0
+        print_result(
+            "Surface coverage: every action afforded or excluded per channel",
+            passed,
+            f"uncovered: {uncovered}" if not passed else "",
+        )
+        failures += 0 if passed else 1
+    else:
+        print_result("Surfaces (skipped — no surfaces/ manifests)", True)
+
+    return failures
+
+
+def level_3_staleness(concepts_dir: Path, schemas_dir: Path) -> int:
+    """Upstream-timestamp staleness check.
+
+    A derived artifact must be at least as new as every artifact it derives
+    from. Catches an edit that leaves a downstream artifact out of date because
+    its stage was never re-run. Timestamp-based (file mtime); a content-hash
+    variant can come later if mtime proves too coarse.
+    """
+    print("\nLevel 3: Staleness (upstream timestamps)")
+    failures = 0
+
+    def mtime(p: Path) -> float | None:
+        return p.stat().st_mtime if p.exists() else None
+
+    # Definition files (concept + spec), indexed by file stem for per-name views.
+    def_paths: list[Path] = []
+    stem_to_def: dict[str, Path] = {}
+    for path, data in iter_seeded_files(concepts_dir):
+        seed = as_dict(data.get("seed", {}))
+        if seed.get("kind") in {"concept", "spec"}:
+            def_paths.append(path)
+            stem_to_def[path.stem] = path
+
+    def check(downstream: Path, inputs: list[Path], label: str) -> None:
+        nonlocal failures
+        if not downstream.exists():
+            print_result(f"{label} (skipped — absent)", True)
+            return
+        d = mtime(downstream) or 0.0
+        offenders = sorted(p.name for p in inputs if (mtime(p) or 0.0) > d)
+        passed = not offenders
+        print_result(label, passed, f"older than: {offenders}" if not passed else "")
+        failures += 0 if passed else 1
+
+    dg = concepts_dir / "dependency-graph.json"
+    check(dg, def_paths, "dependency-graph not older than any definition")
+    for fname in ("coherence.json", "challenges.json", "learning-path.json"):
+        check(concepts_dir / fname, [dg], f"{fname} not older than dependency-graph")
+    check(
+        concepts_dir / "integrated-data-model.json",
+        [*def_paths, dg],
+        "integrated-data-model not older than definitions or dependency-graph",
+    )
+
+    # Per-concept derived views.
+    for sub in ("surfaces", "genericity"):
+        d = concepts_dir / sub
+        if not d.is_dir():
+            continue
+        for f in sorted(d.glob("*.json")):
+            src = stem_to_def.get(f.stem)
+            if src is not None:
+                check(f, [src], f"{sub}/{f.name} not older than its definition")
+
     return failures
 
 
 LEVELS = {
     1: level_1_schema_validation,
     2: level_2_cross_artifact,
+    3: level_3_staleness,
 }
 
 
@@ -296,7 +555,7 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--level",
         type=int,
-        choices=[1, 2],
+        choices=[1, 2, 3],
         action="append",
         dest="levels",
         help="Validation level(s) to run (default: all). Repeatable.",
@@ -308,7 +567,7 @@ def main(args: list[str] | None = None) -> int:
     parsed = parse_args(args)
     concepts_dir: Path = parsed.concepts_dir.resolve()
     schemas_dir: Path = parsed.schemas_dir.resolve()
-    levels: list[int] = sorted(parsed.levels) if parsed.levels else [1, 2]
+    levels: list[int] = sorted(parsed.levels) if parsed.levels else [1, 2, 3]
 
     failures = 0
     for level in levels:

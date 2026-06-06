@@ -28,6 +28,10 @@ Validate each file in `concepts/` against its corresponding JSON Schema from the
 | `dependency-graph.json` | `dependency-graph.schema.json` |
 | `coherence.json` (with optional `demotions`) | `coherence-assessment.schema.json` |
 | `challenges.json` | `challenge-assessment.schema.json` |
+| `learning-path.json` (optional) | `learning-path.schema.json` |
+| `integrated-data-model.json` (optional) | `integrated-data-model.schema.json` |
+| `channels.json` (optional) | `channel-registry.schema.json` |
+| Surface manifests at `surfaces/<name>.json` | `concept-manifest.schema.json` |
 
 Use the `jsonschema` library (Python) or `ajv` (Node) with a registry that can resolve `$ref` across schema files.
 
@@ -52,6 +56,29 @@ Load all concept artifact files and verify cross-references.
 | Challenges cover all | `challenges.concepts` matches `dependency-graph.concepts` | challenges + dependency-graph |
 | Challenge concepts exist | Every `concepts_involved` entry in `challenges.scenarios` is in `dependency-graph.concepts` | challenges + dependency-graph |
 | Challenge IDs unique | No duplicate `scenario.id` within `challenges.scenarios` | challenges |
+| Learning path covers all | Every `dependency-graph.concepts` entry appears in the learning path; no phantom nodes | learning-path + dependency-graph |
+| Learning path assumes valid | Every `assumes` target exists in the dependency graph | learning-path + dependency-graph |
+| Learning path no forward refs | Each dependent sits in a strictly later tier than what it depends on | learning-path + dependency-graph |
+| Learning path primitives are roots | Every `primitives` entry has in-degree zero in the dependency graph | learning-path + dependency-graph |
+| Integrated model covers all | Every `dependency-graph.concepts` entry appears as a `source_concept` in the integrated model | integrated-data-model + dependency-graph |
+| Integrated model sources valid | Every `source_concept` is a concept in the dependency graph | integrated-data-model + dependency-graph |
+| Surface affordances reference real actions | Every affordance/exclusion `action` exists in the concept's actions | manifests + definitions |
+| Surface state references real components | Every surface `state[].component` exists in the concept's state | manifests + definitions |
+| Surface channels registered | If `channels.json` exists, every surface `channel` is a registered key | manifests + channels |
+| Surface coverage | For each surfaced channel, every concept action is afforded or excluded | manifests + definitions |
+
+### Level 3: Staleness (upstream timestamps)
+
+A derived artifact must be at least as new as every artifact it derives from (file mtime). Catches a downstream artifact left out of date because its stage was not re-run after an upstream edit. Skips any absent artifact.
+
+| Rule | Check |
+|------|-------|
+| dependency-graph fresh | `dependency-graph.json` not older than any concept/spec definition |
+| assessments fresh | `coherence.json` / `challenges.json` / `learning-path.json` not older than `dependency-graph.json` |
+| integrated model fresh | `integrated-data-model.json` not older than any definition or the dependency graph |
+| per-concept views fresh | each `surfaces/<name>.json` and `genericity/<name>.json` not older than its concept definition |
+
+When incremental persistence is in use (see the `concept-design` Persistence protocol), Level 3 is the primary signal that a resumed run needs a stage re-run rather than a fresh start.
 
 ## Output
 

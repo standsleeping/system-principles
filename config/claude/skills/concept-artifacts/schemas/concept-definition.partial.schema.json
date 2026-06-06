@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConceptDefinition (draft)",
+  "description": "An accreting, in-progress ConceptDefinition. Stages 1-5 fill in sub-fields incrementally; only `seed` is required. Carries `draft: true` until concept-assembly (Stage 6) completes it, switches its $schema to concept-definition.schema.json, and drops the draft flag.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "draft": { "const": true, "description": "Marks the definition as in-progress (accreting)." },
+    "seed": { "$ref": "concept-seed.schema.json" },
+    "purpose": { "$ref": "purpose.schema.json" },
+    "operational_principle": { "$ref": "operational-principle.schema.json" },
+    "actions": { "$ref": "actions.schema.json" },
+    "state": { "$ref": "state.schema.json" }
+  },
+  "required": ["seed"],
+  "additionalProperties": false
+}

@@ -28,10 +28,22 @@ Action {
   requires:     str | null    // precondition; null when always valid
   effects:      str           // postcondition: what changes after the action runs
   description?: str           // optional prose when signature/requires/effects are insufficient
+  streaming?:   bool          // trait: yields progressive output before a final value
+  async?:       bool          // trait: returns a job handle; completion arrives later
+  idempotent?:  bool          // trait: re-running with the same inputs is safe
+  requires_capability?: str | null  // trait: capability a caller must hold
 }
 ```
 
 Produced as a list: `Action[]`
+
+The four optional **traits** are channel-portable properties: any per-channel projection (Stage 7) reads them to decide how to surface the action (an SSE stream vs a chunked HTTP body vs progressive CLI print; a job handle for webhook/cron channels; an idempotency key over HTTP; a capability gate). They live on the action, not the channel, so every channel sees the same truth. Omit a trait when it does not apply.
+
+## Action vs affordance
+
+An **action** is the canonical, channel-portable operation: one signature, the contract. An **affordance** is how a *particular channel* invokes that action: a button click, a `hover`, a slash command, a CLI flag, an HTTP route, an MCP tool descriptor.
+
+Keep affordances out of the action list. `hover` and `click` are pointer affordances, not actions; the action beneath them is something like `inspect(target)` or `enter(modeKey)`. If a candidate "action" only makes sense in one channel (no analogue in CLI/API/MCP without translation), it is an affordance: demote it to the canonical action it invokes. Affordances are recorded per channel at Stage 7 (`surface-planning`), each referencing the action it projects.
 
 ## Synthesizing signatures and preconditions
 
