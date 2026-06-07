@@ -122,6 +122,10 @@ ConceptManifest {
 
 For each channel a concept surfaces on, **every** concept action must have an affordance projection or an exclusion. For each outbound-capable surfaced channel, **every** concept emission must have an emission projection or emission exclusion. `concept-validation` enforces this (it reports uncovered `concept:channel:action` and `concept:channel:emission` triples), so a forgotten projection no longer passes silently. When `target_channels` is present, every target channel must also have a surface unless it appears in `channel_exclusions` with a reason. When `channels.json` is present, every surface, target channel, and channel exclusion must reference a registered key; projected emissions must use `system->caller` or `bi` channels.
 
+## Persistence
+
+Persist on approval: write each `ConceptManifest` to `concepts/surfaces/<name>.json`, and the optional `ChannelRegistry` to `concepts/channels.json`. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - Is every concept action either afforded or explicitly excluded on each surfaced channel?

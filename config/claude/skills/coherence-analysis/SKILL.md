@@ -85,6 +85,10 @@ Signal = "stage_4_zero_actions"
        | "stage_8_state_reference_cycle"
 ```
 
+## Persistence
+
+Persist on approval: write the `CoherenceAssessment` (with any `Demotion[]`) to `concepts/coherence.json`. When a demotion reclassifies a concept as a spec, run `/spec-definition` and remove the obsolete `concepts/<name>.json`. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - If coherence scores are low, consider splitting or merging concepts.

@@ -32,6 +32,10 @@ GenericityAssessment {
 }
 ```
 
+## Persistence
+
+Persist on approval: write each `GenericityAssessment` to `concepts/genericity/<name>.json` (specs under `concepts/genericity/specs/<name>.json`). See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - Genericity is not an end in itself. A concept should be as generic as it can be *without* diluting its purpose.

@@ -35,6 +35,10 @@ DependencyGraph {
 }
 ```
 
+## Persistence
+
+Persist on approval: write the `DependencyGraph` to `concepts/dependency-graph.json` (with a `$schema` field). This is a standalone composition artifact, written when this stage runs rather than deferred to Stage 13. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - Are there circular dependencies? These suggest concepts that should be merged or redesigned.

@@ -72,6 +72,10 @@ Scenario {
 
 The artifact lives at `concepts/challenges.json` and validates against `challenge-assessment.schema.json` in the `concept-artifacts` skill.
 
+## Persistence
+
+Persist on approval: write the `ChallengeAssessment` to `concepts/challenges.json` when this stage runs, rather than deferring to Stage 13. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - Resilience is not a coverage score. A taxonomy can score 5 with one `missing` scenario if the proposed response is "accept gap" and the gap is genuinely out of scope.

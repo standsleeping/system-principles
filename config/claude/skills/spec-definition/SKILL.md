@@ -44,6 +44,10 @@ SpecReference {
 
 Top-level keys are snake_case (`referenced_by`). The seed wraps identification metadata (`kind: "spec"`, `name`, `description`, `source`); top-level identification fields are not allowed.
 
+## Persistence
+
+Persist on approval: write each `SpecDefinition` to `concepts/specs/<name>.json`. The originating demotion (Stage 9) should also have removed the obsolete `concepts/<name>.json`. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - The originating `Demotion` must list at least two distinct entries in `signals` (schema-enforced). If the demotion is weakly motivated, revisit it before assembling the spec.
