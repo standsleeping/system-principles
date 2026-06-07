@@ -6,7 +6,6 @@ from principles.types import Principle, PrincipleId, Taxonomy, TaxonomyGroup
 
 from .markdown import inline_markup, render_markdown, strip_markup
 
-
 # ================================================================
 # NAMING / SLUGS
 # ================================================================
@@ -220,7 +219,7 @@ def find_container(
         groups: tuple[TaxonomyGroup, ...], prefix: tuple[str, ...]
     ) -> tuple[TaxonomyGroup | None, tuple[str, ...]]:
         for g in groups:
-            path = prefix + (g.name,)
+            path = (*prefix, g.name)
             if principle_id in g.principle_ids:
                 return g, path
             sub, sub_path = walk(g.subgroups, path)
@@ -708,6 +707,6 @@ def principle_page(
         sidebar_html=sidebar_html,
         css_path="../../css/style.css",
         root_path="../../",
-        context_label=f"PRINCIPLE · {str(principle.id)}",
+        context_label=f"PRINCIPLE · {principle.id!s}",
         toc_html=toc_html,
     )

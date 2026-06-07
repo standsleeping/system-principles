@@ -11,7 +11,6 @@ from principles.site.contrast_check import (
     resolve,
 )
 
-
 # === parse_tokens ===
 
 
@@ -146,7 +145,7 @@ def test_audit_passes_on_current_palette() -> None:
     """The live palette satisfies every declared contrast contract in both themes."""
     failures = [r for r in audit() if not r.passed]
     assert failures == [], "\n".join(
-        f"--{f.pair.a} × --{f.pair.b} ({f.theme}): "
+        f"--{f.pair.a} x --{f.pair.b} ({f.theme}): "
         f"{f.ratio:.2f} < {f.pair.min_ratio} — {f.pair.reason}"
         for f in failures
     )

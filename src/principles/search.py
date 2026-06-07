@@ -9,7 +9,6 @@ from dataclasses import dataclass
 
 from principles.types import Principle
 
-
 SEARCHABLE_FIELDS = ("id", "title", "essence", "content", "tags")
 
 

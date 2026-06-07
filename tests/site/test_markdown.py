@@ -2,7 +2,6 @@
 
 from principles.site.markdown import extract_headings, heading_slug
 
-
 # === heading_slug ===
 
 

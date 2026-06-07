@@ -5,7 +5,7 @@ adjacent in the rendered site must remain visually distinguishable in every
 theme. Failures are token-level bugs (the wrong token used for a context, or
 two tokens collapsing to the same primitive in one theme).
 
-Outputs a table of pairs × themes with their computed WCAG contrast ratios,
+Outputs a table of pairs x themes with their computed WCAG contrast ratios,
 and exits non-zero if any fall below their declared minimum.
 """
 
@@ -216,7 +216,7 @@ def format_report(results: list[Result]) -> str:
     )
     lines.append("-" * 100)
     for r in results:
-        pair_label = f"--{r.pair.a} × --{r.pair.b}"[:50]
+        pair_label = f"--{r.pair.a} x --{r.pair.b}"[:50]
         status = "ok" if r.passed else "FAIL"
         lines.append(
             f"{pair_label:<50}  {r.theme:<5}  {r.value_a:<8}  {r.value_b:<8}  "
@@ -235,11 +235,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{len(failures)} pair(s) below their declared minimum:")
         for f in failures:
             print(
-                f"  --{f.pair.a} × --{f.pair.b} ({f.theme}): "
+                f"  --{f.pair.a} x --{f.pair.b} ({f.theme}): "
                 f"{f.ratio:.2f} < {f.pair.min_ratio} — {f.pair.reason}"
             )
         return 1
-    print(f"ok: {len(results)} checks passed ({len(PAIRS)} pairs × 2 themes)")
+    print(f"ok: {len(results)} checks passed ({len(PAIRS)} pairs x 2 themes)")
     return 0
 
 
