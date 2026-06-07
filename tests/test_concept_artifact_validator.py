@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 from jsonschema import validate
@@ -388,9 +389,7 @@ def test_projection_matrix_generator_derives_statuses_and_valid_schema(
 
     action_row = matrix["actions"][0]
     assert isinstance(action_row, dict)
-    action_cells = {
-        cell["channel"]: cell["status"] for cell in action_row["cells"]
-    }
+    action_cells = {cell["channel"]: cell["status"] for cell in action_row["cells"]}
     assert action_cells == {
         "web-ui": "projected",
         "cli": "projected",
@@ -399,9 +398,7 @@ def test_projection_matrix_generator_derives_statuses_and_valid_schema(
 
     emission_row = matrix["emissions"][0]
     assert isinstance(emission_row, dict)
-    emission_cells = {
-        cell["channel"]: cell["status"] for cell in emission_row["cells"]
-    }
+    emission_cells = {cell["channel"]: cell["status"] for cell in emission_row["cells"]}
     assert emission_cells == {
         "web-ui": "projected",
         "cli": "not-applicable",
@@ -464,3 +461,130 @@ def test_projection_matrix_missing_cells_fail_level_2(
     assert failures == 1
     assert "Projection matrix coverage: no missing cells" in captured.out
     assert "Task:action:web-ui:create" in captured.out
+
+
+# Accreting-draft lifecycle (Stages 1-6). Valid sub-artifacts, one per stage,
+# so each accretion step genuinely passes Level 1 schema validation.
+_DRAFT_SEED = {
+    "kind": "concept",
+    "name": "Reservation",
+    "description": "Holds a resource for a user so it is not taken by others.",
+    "source": "new",
+}
+_DRAFT_PURPOSE = {
+    "statement": "Let a user hold a resource so it is not taken by others.",
+    "specific": 5,
+    "distinguishing": 5,
+    "measurable": 4,
+    "concept_focused": 5,
+}
+_DRAFT_OP = {
+    "narrative": (
+        "After User reserves a free table for 7pm the table is held; "
+        "when User cancels, the table is released."
+    )
+}
+_DRAFT_ACTIONS = [
+    {
+        "name": "reserve",
+        "signature": "reserve(resource: Resource, user: User) -> Reservation",
+        "requires": None,
+        "effects": "The resource is held for the user.",
+    }
+]
+_DRAFT_STATE = [
+    {"name": "reservations", "type": "set Reservation", "description": "Active holds."}
+]
+
+
+def test_draft_definition_accretes_through_lifecycle(tmp_path: Path) -> None:
+    """Each accretion step (seed -> +purpose -> +op -> +actions -> +state) validates as a draft, and finalizing validates against the full schema."""
+    concepts_dir = tmp_path / "concepts"
+    concepts_dir.mkdir()
+    path = concepts_dir / "reservation.json"
+
+    fields: dict[str, object] = {}
+    for key, value in (
+        ("seed", _DRAFT_SEED),
+        ("purpose", _DRAFT_PURPOSE),
+        ("operational_principle", _DRAFT_OP),
+        ("actions", _DRAFT_ACTIONS),
+        ("state", _DRAFT_STATE),
+    ):
+        fields[key] = value
+        _write_json(
+            path,
+            {
+                "$schema": "concept-definition.partial.schema.json",
+                "draft": True,
+                **fields,
+            },
+        )
+        assert (
+            concept_validator.level_1_schema_validation(concepts_dir, SCHEMAS_PATH) == 0
+        )
+
+    # Stage 6 finalizes: switch the schema and drop the draft flag.
+    _write_json(path, {"$schema": "concept-definition.schema.json", **fields})
+    assert concept_validator.level_1_schema_validation(concepts_dir, SCHEMAS_PATH) == 0
+
+
+def test_draft_without_seed_is_rejected(tmp_path: Path) -> None:
+    """The partial schema requires `seed` even in draft mode."""
+    concepts_dir = tmp_path / "concepts"
+    concepts_dir.mkdir()
+    _write_json(
+        concepts_dir / "reservation.json",
+        {
+            "$schema": "concept-definition.partial.schema.json",
+            "draft": True,
+            "purpose": _DRAFT_PURPOSE,
+        },
+    )
+    assert concept_validator.level_1_schema_validation(concepts_dir, SCHEMAS_PATH) == 1
+
+
+def test_finalized_definition_keeping_draft_flag_is_rejected(tmp_path: Path) -> None:
+    """Switching to the full schema without dropping `draft` fails: finalization must remove the flag."""
+    concepts_dir = tmp_path / "concepts"
+    concepts_dir.mkdir()
+    _write_json(
+        concepts_dir / "reservation.json",
+        {
+            "$schema": "concept-definition.schema.json",
+            "draft": True,
+            "seed": _DRAFT_SEED,
+            "purpose": _DRAFT_PURPOSE,
+            "operational_principle": _DRAFT_OP,
+            "actions": _DRAFT_ACTIONS,
+            "state": _DRAFT_STATE,
+        },
+    )
+    assert concept_validator.level_1_schema_validation(concepts_dir, SCHEMAS_PATH) == 1
+
+
+def test_draft_definition_counts_as_staleness_input(tmp_path: Path) -> None:
+    """A dependency-graph older than a draft definition is flagged stale, so drafts participate in the resume/staleness check."""
+    concepts_dir = tmp_path / "concepts"
+    concepts_dir.mkdir()
+    dep_graph = concepts_dir / "dependency-graph.json"
+    definition = concepts_dir / "reservation.json"
+    _write_json(dep_graph, {"concepts": [], "specs": [], "dependencies": []})
+    _write_json(
+        definition,
+        {
+            "$schema": "concept-definition.partial.schema.json",
+            "draft": True,
+            "seed": _DRAFT_SEED,
+        },
+    )
+
+    # Dependency-graph older than the draft definition -> stale.
+    os.utime(dep_graph, (1_000, 1_000))
+    os.utime(definition, (2_000, 2_000))
+    assert concept_validator.level_3_staleness(concepts_dir, SCHEMAS_PATH) == 1
+
+    # Dependency-graph newer than the draft definition -> fresh.
+    os.utime(definition, (1_000, 1_000))
+    os.utime(dep_graph, (2_000, 2_000))
+    assert concept_validator.level_3_staleness(concepts_dir, SCHEMAS_PATH) == 0
