@@ -9,6 +9,7 @@
     "purpose": { "$ref": "purpose.schema.json" },
     "operational_principle": { "$ref": "operational-principle.schema.json" },
     "actions": { "$ref": "actions.schema.json" },
+    "emissions": { "$ref": "emissions.schema.json" },
     "state": { "$ref": "state.schema.json" }
   },
   "required": ["seed", "purpose", "operational_principle", "actions", "state"],

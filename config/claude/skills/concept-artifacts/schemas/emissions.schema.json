@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Emissions",
+  "description": "Outbound system->caller capabilities a concept can emit, publish, notify, or deliver.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Emission name, usually event-like (e.g. job.completed, quota.warning)."
+      },
+      "trigger": {
+        "type": "string",
+        "description": "Condition that causes the system to emit this."
+      },
+      "payload": {
+        "type": "string",
+        "description": "Canonical payload schema or prose shape."
+      },
+      "recipient": {
+        "type": "string",
+        "description": "Who can receive or subscribe to this emission."
+      },
+      "delivery": {
+        "type": "string",
+        "description": "Delivery expectation (e.g. best-effort, at-least-once, feed availability, notification)."
+      },
+      "retry": {
+        "type": ["string", "null"],
+        "description": "Retry behavior, or null when not applicable."
+      },
+      "ordering": {
+        "type": ["string", "null"],
+        "description": "Ordering guarantee, or null when not applicable."
+      },
+      "deduplication": {
+        "type": ["string", "null"],
+        "description": "Deduplication key or strategy, or null when not applicable."
+      },
+      "requires_capability": {
+        "type": ["string", "null"],
+        "description": "Capability a receiver/subscriber must hold. Null or absent when no special capability is required."
+      },
+      "description": {
+        "type": "string",
+        "description": "Optional prose description when the contract fields are insufficient."
+      }
+    },
+    "required": ["name", "trigger", "payload", "delivery"],
+    "additionalProperties": false
+  },
+  "minItems": 1
+}

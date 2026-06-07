@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ConceptManifest",
-  "description": "Output of surface-planning. Maps how a concept's actions and state surface to users per channel.",
+  "description": "Output of surface-planning. Maps how a concept's actions, emissions, and state surface to users per channel.",
   "type": "object",
   "properties": {
     "$schema": {
@@ -11,6 +11,31 @@
     "concept": {
       "type": "string",
       "description": "Concept name."
+    },
+    "target_channels": {
+      "type": "array",
+      "description": "Registered channel keys this concept is expected to cover. When present, validation requires a surface for each target channel unless the channel appears in channel_exclusions.",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "channel_exclusions": {
+      "type": "array",
+      "description": "Channels intentionally not targeted by this concept, each with a reason. Use for concept-level channel exclusions, distinct from per-surface action exclusions.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "description": "Channel key intentionally excluded for this concept."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why this concept does not target the channel."
+          }
+        },
+        "required": ["channel", "reason"],
+        "additionalProperties": false
+      }
     },
     "surfaces": {
       "type": "array",
@@ -23,7 +48,7 @@
           },
           "actions": {
             "type": "array",
-            "description": "Affordances: how each canonical concept action is invoked on this channel. Each entry references one action and describes its channel-specific projection.",
+            "description": "Affordance projections: how each canonical concept action is invoked on this channel. Key name kept for compatibility; each entry references one action and describes its channel-specific projection.",
             "items": {
               "type": "object",
               "properties": {
@@ -44,6 +69,29 @@
               "additionalProperties": false
             }
           },
+          "emissions": {
+            "type": "array",
+            "description": "Emission projections: how each canonical concept emission is delivered, published, subscribed to, or received on this channel.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "emission": {
+                  "type": "string",
+                  "description": "Emission name (must match an emission in the concept definition)."
+                },
+                "element": {
+                  "type": "string",
+                  "description": "The delivery or receipt affordance (webhook callback, event stream item, feed item, notification, toast, event-bus topic)."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "The event name, topic, feed label, notification label, or delivery syntax."
+                }
+              },
+              "required": ["emission", "element", "label"],
+              "additionalProperties": false
+            }
+          },
           "exclusions": {
             "type": "array",
             "description": "Actions intentionally not surfaced on this channel, each with a reason. Satisfies the coverage rule for an action that has no sensible affordance here.",
@@ -60,6 +108,25 @@
                 }
               },
               "required": ["action", "reason"],
+              "additionalProperties": false
+            }
+          },
+          "emission_exclusions": {
+            "type": "array",
+            "description": "Emissions intentionally not projected on this channel, each with a reason. Satisfies the coverage rule for an emission that has no sensible delivery or receipt affordance here.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "emission": {
+                  "type": "string",
+                  "description": "Emission name (must match an emission in the concept definition)."
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why this emission is not projected on this channel."
+                }
+              },
+              "required": ["emission", "reason"],
               "additionalProperties": false
             }
           },

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Actions",
-  "description": "Output of concept-actions. Operations a user or system can perform on the concept.",
+  "description": "Output of concept-actions. Inbound caller->system operations a user or system can perform on the concept.",
   "type": "array",
   "items": {
     "type": "object",

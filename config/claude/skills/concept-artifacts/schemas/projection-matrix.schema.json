@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProjectionMatrix",
+  "description": "Derived dashboard artifact showing action and emission projection coverage across a concept's target channels.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "concept": {
+      "type": "string",
+      "description": "Concept name this derived matrix describes."
+    },
+    "generated_from": {
+      "type": "object",
+      "properties": {
+        "definition": {
+          "type": "string",
+          "description": "ConceptDefinition source path."
+        },
+        "manifest": {
+          "type": "string",
+          "description": "ConceptManifest source path."
+        },
+        "channels": {
+          "type": "string",
+          "description": "ChannelRegistry source path, when present."
+        }
+      },
+      "required": ["definition", "manifest"],
+      "additionalProperties": false
+    },
+    "channels": {
+      "type": "array",
+      "description": "Channel columns used by the matrix, copied from channels.json when registered and reduced to dashboard-relevant metadata.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": { "type": "string" },
+          "direction": {
+            "enum": ["caller->system", "system->caller", "bi", "unknown"]
+          },
+          "sync": { "enum": ["sync", "async", "streaming"] },
+          "transport": { "type": "string" },
+          "encoding": { "type": "string" },
+          "surface": { "type": "string" },
+          "auth_model": { "type": "string" }
+        },
+        "required": ["key", "direction"],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    },
+    "actions": {
+      "type": "array",
+      "description": "One row per canonical concept action.",
+      "items": { "$ref": "#/$defs/projection_row" }
+    },
+    "emissions": {
+      "type": "array",
+      "description": "One row per canonical concept emission.",
+      "items": { "$ref": "#/$defs/projection_row" }
+    }
+  },
+  "required": ["concept", "generated_from", "channels", "actions", "emissions"],
+  "additionalProperties": false,
+  "$defs": {
+    "projection_row": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "cells": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/projection_cell" }
+        }
+      },
+      "required": ["name", "cells"],
+      "additionalProperties": false
+    },
+    "projection_cell": {
+      "type": "object",
+      "properties": {
+        "channel": { "type": "string" },
+        "status": {
+          "enum": ["projected", "excluded", "missing", "not-applicable"]
+        },
+        "element": { "type": "string" },
+        "label": { "type": "string" },
+        "source": { "type": "string" },
+        "reason": { "type": "string" },
+        "expected_from": { "type": "string" }
+      },
+      "required": ["channel", "status"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "projected" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["element", "label", "source"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "excluded" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["reason", "source"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "missing" } },
+            "required": ["status"]
+          },
+          "then": {
+            "anyOf": [
+              { "required": ["source"] },
+              { "required": ["expected_from"] }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "not-applicable" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["reason"] }
+        }
+      ]
+    }
+  }
+}
