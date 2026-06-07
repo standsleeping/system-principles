@@ -85,14 +85,7 @@ LearningPath {
 
 ## Persistence
 
-The `LearningPath` is a first-class concept artifact. Export it to
-`concepts/learning-path.json` (Stage 13, `/concept-artifacts`); it validates
-against `learning-path.schema.json` (Level 1) and against four cross-artifact
-rules at Level 2 (covers all concepts, assumes resolve, no forward references,
-primitives are roots), run by `/concept-validation` (Stage 14). Include the
-`$schema` field so the validator auto-discovers it. It is optional: a project
-that skips ordering simply has no `learning-path.json`, and the validator reports
-the check as skipped.
+The `LearningPath` is a first-class concept artifact. On approval, persist it to `concepts/learning-path.json` (this stage is the writer; Stage 13 only organizes and checks it). It validates against `learning-path.schema.json` (Level 1) and against four cross-artifact rules at Level 2 (covers all concepts, assumes resolve, no forward references, primitives are roots), run by `/concept-validation` (Stage 14). Include the `$schema` field so the validator auto-discovers it. It is optional: a project that skips ordering simply has no `learning-path.json`, and the validator reports the check as skipped. See the `concept-design` skill's **Persistence protocol** for the chain-wide lifecycle.
 
 ## Validation
 

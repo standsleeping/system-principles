@@ -56,7 +56,9 @@ against `integrated-data-model.schema.json` (Level 1) and against two
 cross-artifact rules at Level 2 (covers all concepts, sources are known
 concepts), run by `/concept-validation`. It is optional: a project that stops
 before implementation prep simply has no `integrated-data-model.json`, and the
-validator reports the check as skipped.
+validator reports the check as skipped. Persist it on approval when this stage
+runs (Stage 13 only organizes); see the `concept-design` skill's **Persistence
+protocol** for the chain-wide lifecycle.
 
 ## Validation
 
