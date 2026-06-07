@@ -32,6 +32,7 @@ Validate each file in `concepts/` against its corresponding JSON Schema from the
 | `integrated-data-model.json` (optional) | `integrated-data-model.schema.json` |
 | `channels.json` (optional) | `channel-registry.schema.json` |
 | Surface manifests at `surfaces/<name>.json` | `concept-manifest.schema.json` |
+| Derived projection matrices at `projection-matrices/<name>.json` | `projection-matrix.schema.json` |
 
 Use the `jsonschema` library (Python) or `ajv` (Node) with a registry that can resolve `$ref` across schema files.
 
@@ -63,9 +64,14 @@ Load all concept artifact files and verify cross-references.
 | Integrated model covers all | Every `dependency-graph.concepts` entry appears as a `source_concept` in the integrated model | integrated-data-model + dependency-graph |
 | Integrated model sources valid | Every `source_concept` is a concept in the dependency graph | integrated-data-model + dependency-graph |
 | Surface affordances reference real actions | Every affordance/exclusion `action` exists in the concept's actions | manifests + definitions |
+| Surface emission projections reference real emissions | Every emission projection/exclusion `emission` exists in the concept's emissions | manifests + definitions |
+| Emission projections use outbound-capable channels | Every projected emission uses a `system->caller` or `bi` channel when `channels.json` exists | manifests + channels |
 | Surface state references real components | Every surface `state[].component` exists in the concept's state | manifests + definitions |
-| Surface channels registered | If `channels.json` exists, every surface `channel` is a registered key | manifests + channels |
+| Surface/target channels registered | If `channels.json` exists, every surface `channel`, target channel, and channel exclusion references a registered key | manifests + channels |
+| Target channels covered | If a manifest declares `target_channels`, every target channel has a surface or appears in `channel_exclusions` with a reason | manifests + channels |
 | Surface coverage | For each surfaced channel, every concept action is afforded or excluded | manifests + definitions |
+| Emission coverage | For each outbound-capable surfaced channel, every concept emission is projected or excluded | manifests + definitions + channels |
+| Projection matrix coverage | If projection matrices exist, no action/emission cell has `status: "missing"` | projection-matrices |
 
 ### Level 3: Staleness (upstream timestamps)
 
@@ -77,6 +83,7 @@ A derived artifact must be at least as new as every artifact it derives from (fi
 | assessments fresh | `coherence.json` / `challenges.json` / `learning-path.json` not older than `dependency-graph.json` |
 | integrated model fresh | `integrated-data-model.json` not older than any definition or the dependency graph |
 | per-concept views fresh | each `surfaces/<name>.json` and `genericity/<name>.json` not older than its concept definition |
+| projection matrices fresh | each `projection-matrices/<name>.json` not older than its definition, surface manifest, or `channels.json` |
 
 When incremental persistence is in use (see the `concept-design` Persistence protocol), Level 3 is the primary signal that a resumed run needs a stage re-run rather than a fresh start.
 

@@ -1,6 +1,6 @@
 ---
 name: concept-assembly
-description: Assemble a complete concept definition by composing seed, purpose, operational principle, actions, and state into a single ConceptDefinition.
+description: Assemble a complete concept definition by composing seed, purpose, operational principle, actions, optional emissions, and state into a single ConceptDefinition.
 ---
 
 # Concept Assembly
@@ -9,7 +9,7 @@ Compose the outputs of Stages 1–5 into a complete concept definition.
 
 ## When to use
 
-- After completing identification, purpose, operational principle, actions, and state for a concept
+- After completing identification, purpose, operational principle, actions, optional emissions, and state for a concept
 - As a checkpoint to verify internal consistency before moving to composition
 
 ## Process
@@ -30,6 +30,7 @@ ConceptDefinition {
   purpose:               Purpose
   operational_principle: OperationalPrinciple
   actions:               Action[]
+  emissions?:            Emission[]
   state:                 StateComponent[]
 }
 ```

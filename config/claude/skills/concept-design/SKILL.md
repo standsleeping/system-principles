@@ -17,7 +17,7 @@ A guided workflow for designing software concepts, organized around a "design as
 
 The framework distinguishes two kinds of design objects:
 
-- **Concept** — a user-facing element with its own purpose, actions, and stateful behavior. The unit of the per-concept stages (1–6).
+- **Concept** — a user-facing element with its own purpose, actions, optional emissions, and stateful behavior. The unit of the per-concept stages (1–6).
 - **Spec** — a named, documented contract or shared data shape that multiple concepts reference but which has no actions, no dynamic state, and no user-facing surface of its own. Load-bearing infrastructure that fulfills no concept-shaped purpose.
 
 A candidate is a Spec if all five tests pass:
@@ -34,7 +34,7 @@ If a candidate fails any of tests 3, 4, or 5, it has the responsibility of a con
 
 Within this chain, a Spec arises only via *demotion* at Stage 9 — when Coherence analysis surfaces consistent evidence (no actions, no dynamic state, unsurfaceable, in a state-reference cycle) that a candidate concept should be reclassified. Demoted concepts produce SpecDefinitions through the `/spec-definition` stage. Composition stages (dependencies, coherence, artifacts, validation) cover concepts and any demoted specs together.
 
-Bottom-up spec design — identifying load-bearing infrastructure (shared data shapes, named contracts, cross-cutting envelopes) that was never a concept candidate — is **out of scope** for this chain. A standalone `spec-design` skill chain is planned; the work item lives on the prinzfiles roadmap.
+Bottom-up spec design — identifying load-bearing infrastructure (shared data shapes, named contracts, cross-cutting envelopes) that was never a concept candidate — is **out of scope** for this chain. A standalone `spec-design` skill chain is planned but is not part of this chain.
 
 ## Pacing: one stage at a time
 
@@ -60,13 +60,13 @@ Run stages 1–6 for each concept:
 | 1 | `/concept-identification` | `ConceptSeed` — name, description, source |
 | 2 | `/concept-purpose` | `Purpose` — statement rated on 4 criteria (1–5) |
 | 3 | `/operational-principle` | `OperationalPrinciple` — the motivating scenario |
-| 4 | `/concept-actions` | `Action[]` — operations the user can perform |
+| 4 | `/concept-actions` | `Action[]` and optional `Emission[]` — inbound operations and outbound system emissions |
 | 5 | `/concept-state` | `State` — the local micromodel of data |
 | 6 | `/concept-assembly` | `ConceptDefinition` — all parts composed |
 
 **Artifact visibility.** Stages 1–5 do not persist as standalone files. Stage 6
 (`/concept-assembly`) composes the seed, purpose, operational principle, actions,
-and state into the single `ConceptDefinition` at `concepts/<name>.json`, and
+optional emissions, and state into the single `ConceptDefinition` at `concepts/<name>.json`, and
 `concept-definition.schema.json` embeds all five sub-artifacts via `$ref`. So the
 presence of a concept's file attests stages 1–6 *as a bundle*; an individual
 Part-1 stage leaving no separate artifact is by design, not an omission. (Stage
@@ -88,7 +88,7 @@ Run stage 7 for each concept, once you know the target channels:
 
 | Stage | Skill | Produces |
 |-------|-------|----------|
-| 7 | `/surface-planning` | `ConceptManifest` — how actions/state surface per channel, gaps |
+| 7 | `/surface-planning` | `ConceptManifest` — how actions, emissions, and state surface per channel, gaps |
 
 ### Part 3: Concept Composition
 

@@ -43,11 +43,29 @@ Optional subdirectories for larger systems:
 concepts/
   surfaces/
     <concept-name>.json       # ConceptManifest (one per concept)
+  projection-matrices/
+    <concept-name>.json       # ProjectionMatrix (derived from definition + manifest + channels)
   genericity/
     <concept-name>.json       # GenericityAssessment (one per concept)
     specs/
       <spec-name>.json        # GenericityAssessment for specs
 ```
+
+## Interaction Model
+
+The durable conceptual model is:
+
+```
+Action is semantic.
+Affordance is interface-specific.
+Transport is mechanical.
+Encoding is representational.
+Surface is interactional.
+Channel is operational packaging.
+Projection is the relationship that binds them for one capability.
+```
+
+`channel` is therefore a named composite, not an atomic primitive: it bundles a transport, encoding, surface, and operational policy such as direction, sync shape, and auth model. Surface manifests should treat each per-channel action entry as an **affordance projection**: the canonical action stays on the concept definition, while the manifest records how that action is invoked on a particular channel.
 
 ## Schemas
 
@@ -60,6 +78,7 @@ JSON Schema files for every artifact type live in the `schemas/` subdirectory of
 | `purpose.schema.json` | Purpose | concept-purpose |
 | `operational-principle.schema.json` | OperationalPrinciple | operational-principle |
 | `actions.schema.json` | Action[] | concept-actions |
+| `emissions.schema.json` | Emission[] | concept-actions / surface-planning |
 | `state.schema.json` | State | concept-state |
 | `concept-definition.schema.json` | ConceptDefinition | concept-assembly |
 | `concept-definition.partial.schema.json` | ConceptDefinition (draft, accreting) | stages 1–5 (incremental) |
@@ -68,6 +87,7 @@ JSON Schema files for every artifact type live in the `schemas/` subdirectory of
 | `coherence-assessment.schema.json` | CoherenceAssessment (with optional Demotion[]) | coherence-analysis |
 | `concept-manifest.schema.json` | ConceptManifest | surface-planning |
 | `channel-registry.schema.json` | ChannelRegistry | surface-planning |
+| `projection-matrix.schema.json` | ProjectionMatrix | generated from definitions, manifests, and channels |
 | `genericity-assessment.schema.json` | GenericityAssessment | genericity-review |
 | `challenge-assessment.schema.json` | ChallengeAssessment | challenge-testing |
 | `learning-path.schema.json` | LearningPath | concept-ordering |
@@ -105,9 +125,14 @@ These rules verify that artifacts reference each other correctly. They require l
 | **Challenge concepts exist** | Every concepts_involved entry in challenges.scenarios is in dependency-graph.concepts | challenges + dependency-graph |
 | **Challenge IDs unique** | No duplicate scenario.id within challenges.scenarios | challenges |
 | **Surface actions valid** | Every affordance (and exclusion) in surface manifests references an action that exists in the concept's actions | manifests + definitions |
+| **Surface emissions valid** | Every emission projection (and emission exclusion) in surface manifests references an emission that exists in the concept's emissions | manifests + definitions |
+| **Emission direction valid** | Every projected emission uses a `system->caller` or `bi` channel when `channels.json` is present | manifests + channels |
 | **Surface state valid** | Every state component in surface manifests exists in the concept's state | manifests + definitions |
-| **Surface channels registered** | If `channels.json` exists, every surface's `channel` is a registered key | manifests + channels |
+| **Surface/target channels registered** | If `channels.json` exists, every surface, target channel, and channel exclusion references a registered key | manifests + channels |
 | **Surface coverage** | For each surfaced channel, every concept action has an affordance or a documented exclusion | manifests + definitions |
+| **Emission coverage** | For each outbound-capable surfaced channel, every concept emission has a projection or a documented exclusion | manifests + definitions + channels |
+| **Target channels covered** | If a manifest declares `target_channels`, every target channel has a surface unless the channel is excluded with a reason | manifests + channels |
+| **Projection matrix coverage** | If generated projection matrices exist, no action/emission cell has `status: "missing"` | projection-matrices |
 | **Learning path covers all** | Every concept in dependency-graph.concepts appears in the learning path (specs optional); no phantom nodes | learning-path + dependency-graph |
 | **Learning path assumes valid** | Every `assumes` target is a concept or spec in the dependency graph | learning-path + dependency-graph |
 | **Learning path no forward refs** | For every dependency edge, the dependent sits in a strictly later tier than what it depends on | learning-path + dependency-graph |
@@ -125,6 +150,7 @@ A derived artifact must be at least as new as every artifact it derives from. Ca
 | **assessments fresh** | `coherence.json`, `challenges.json`, `learning-path.json` are not older than `dependency-graph.json` |
 | **integrated model fresh** | `integrated-data-model.json` is not older than any definition or the dependency graph |
 | **per-concept views fresh** | each `surfaces/<name>.json` and `genericity/<name>.json` is not older than its concept definition |
+| **projection matrices fresh** | each `projection-matrices/<name>.json` is not older than its definition, surface manifest, or `channels.json` |
 
 ### Draft (accreting) definitions
 
@@ -143,6 +169,21 @@ python scripts/validate_concepts.py <concepts_dir> <schemas_dir> [--level N ...]
 ```
 
 Run specific levels with `--level` (repeatable), or omit for both. The script auto-discovers which schema validates each file by reading the `$schema` field in each JSON artifact.
+
+Projection matrices are derived, not hand-authored. Generate them with:
+
+```
+python scripts/generate_projection_matrices.py <concepts_dir> [output_dir]
+```
+
+Optionally render the generated matrices as a static preview page with:
+
+```
+python scripts/render_projection_preview.py <concepts_dir_or_projection-matrices_dir> [output_html]
+```
+
+The preview renderer is a lightweight reference aid for inspecting the artifact
+shape. The long-term dashboard UI belongs outside this skill.
 
 Dependencies: `jsonschema`, `referencing` (must be in the project's dev dependencies).
 
