@@ -35,6 +35,10 @@ ConceptSeed {
 }
 ```
 
+## Persistence
+
+This stage is the first writer: on approval, create `concepts/<name>.json` carrying just `seed`, with `draft: true` and `$schema` pointing at `concept-definition.partial.schema.json`. Stages 2–6 accrete the remaining fields into this same file. See the `concept-design` skill's **Persistence protocol** for the full accreting-file lifecycle.
+
 ## Validation
 
 - Every concept should be user-facing, not an internal mechanism (p. 65).

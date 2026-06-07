@@ -59,6 +59,10 @@ OperationalPrinciple {
 
 Writing the OP names the actions and touches the state informally. Once Stage 4 has pinned down the actions and Stage 5 the state, return and run the coverage check: does every action appear in some scenario? does the OP exercise the state components that matter? If not, extend the OP — or question the stray part. The OP is provisional until assembly (Stage 6).
 
+## Persistence
+
+Persist on approval: add `operational_principle` to the accreting draft `concepts/<name>.json`. The OP stays provisional until Stage 6, so expect to overwrite this field after the Stages 4–5 coverage check. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - Does the chain of actions visibly produce the purpose — is the need met *because of* the steps?

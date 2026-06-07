@@ -39,6 +39,10 @@ Purpose {
 }
 ```
 
+## Persistence
+
+Persist on approval: add `purpose` to the accreting draft `concepts/<name>.json` (created at Stage 1). See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - A concept without a compelling purpose may not be a concept at all (p. 57).

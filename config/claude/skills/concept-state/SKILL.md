@@ -44,6 +44,10 @@ Decomposition rules:
 - A "set of records, each holding fields F1, F2, …" decomposes into one `set` declaring the records exist, plus one `X -> Y` per field.
 - Cross-concept references ("defined by User") become a relation whose codomain is the other concept's primary entity. Note in `description` that the type is owned elsewhere.
 
+## Persistence
+
+Persist on approval: add `state` to the accreting draft `concepts/<name>.json`. This is the last of the five fields; Stage 6 finalizes the file. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - Does every action have the state it needs?

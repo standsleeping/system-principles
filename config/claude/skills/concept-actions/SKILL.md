@@ -90,6 +90,10 @@ Concept definitions may now include optional `emissions` alongside `actions`. Us
 - Preconditions express when the action is callable — existence of a referent, an authority check, a state predicate. Use `null` when the action is always valid.
 - Keep `description` for nuance that doesn't fit cleanly into signature/requires/effects.
 
+## Persistence
+
+Persist on approval: add `actions` (and `emissions`, when outbound behavior is part of the concept) to the accreting draft `concepts/<name>.json`. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - Do the actions cover everything needed to enact the operational principle?

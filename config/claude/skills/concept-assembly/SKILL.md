@@ -37,6 +37,10 @@ ConceptDefinition {
 
 Top-level keys are snake_case (`operational_principle`, not `operationalPrinciple`). The seed wraps identification metadata (`kind`, `name`, `description`, `source`); top-level identification fields are not allowed.
 
+## Persistence
+
+This stage finalizes the accreting file: confirm all five fields are present in `concepts/<name>.json`, switch `$schema` from `concept-definition.partial.schema.json` to `concept-definition.schema.json`, and drop `draft`. A non-draft file is done through Stage 6. See the `concept-design` skill's **Persistence protocol**.
+
 ## Validation
 
 - The definition should be self-contained: someone reading it should understand the concept without external context.
